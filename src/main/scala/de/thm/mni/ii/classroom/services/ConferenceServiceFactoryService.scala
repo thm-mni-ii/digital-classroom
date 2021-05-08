@@ -28,9 +28,8 @@ class ConferenceServiceFactoryService() {
     */
   def apply(service: String): ConferenceService = {
     service match {
-      // case "jitsi" => new JitsiService(templateBuilder)
       case "bigbluebutton" => new BBBService(templateBuilder, apiUrl, secret, originName, originVersion)
-      case name: String => throw new IllegalArgumentException(s"unknown conference service: ${name}")
+      case name: String => throw new IllegalArgumentException(s"unknown conference service: $name")
     }
   }
 }

@@ -5,7 +5,7 @@ import de.thm.mni.ii.classroom.model.User
 import java.net.URI
 
 /**
-  * A de.thm.mni.ii.classroom.services.conferences.conference.Conference created by a de.thm.mni.ii.classroom.services.conferences.ConferenceService
+  * A de.thm.mni.ii.classroom.services.conference.Conference created by a de.thm.mni.ii.classroom.services.conferences.ConferenceService
   */
 abstract class Conference {
   /**
@@ -42,7 +42,7 @@ abstract class Conference {
   def end(): Unit
 
   /**
-    * Creates a map containing information about the de.thm.mni.ii.classroom.services.conferences.conference.Conference
+    * Creates a map containing information about the de.thm.mni.ii.classroom.services.conference.Conference
     * @return the map
     */
   def toMap: Map[String, String]
