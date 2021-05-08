@@ -50,11 +50,5 @@ class User(val prename: String, val surname: String, val email: String,
     val state = Seq(username)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
-  /**
-    * @return JSON representation of a user object
-    */
-  def toJson(): JSONObject = new JSONObject().put("prename", prename)
-    .put("username", username)
-    .put("surname", surname)
-    .put("id", id)
+
 }

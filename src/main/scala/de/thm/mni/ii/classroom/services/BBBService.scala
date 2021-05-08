@@ -33,17 +33,17 @@ class BBBService(templateBuilder: RestTemplateBuilder,
   extends ConferenceService {
   /**
     * Creates a new de.thm.mni.ii.classroom.services.conferences.conference.Conference using BBB
-    * @param courseid the id for the new conference
+    * @param courseId the id for the new conference
     * @return the newly created conference
     */
-  override def createConference(courseid: Int): Conference = {
-    val cid = UUID.randomUUID().toString
+  override def createConference(courseId: Int): Conference = {
+    val confId = UUID.randomUUID().toString
     val participantPassword = UUID.randomUUID().toString
     val modPassword = UUID.randomUUID().toString
 
     // actual registering of conference against BBB api
-    this.registerBBBConference(cid, cid, participantPassword, modPassword)
-    new BBBConference(cid, courseid, participantPassword, modPassword, this)
+    this.registerBBBConference(confId, confId, participantPassword, modPassword)
+    new BBBConference(confId, courseId, participantPassword, modPassword, this)
   }
 
   private val restTemplate = templateBuilder.build()

@@ -1,5 +1,7 @@
 package de.thm.mni.ii.classroom.model
 
+import de.thm.mni.ii.classroom.model.storage.BidirectionalStorage
+
 /**
   * Handles attendances in classes.
   *

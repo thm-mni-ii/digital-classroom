@@ -9,8 +9,8 @@ trait ConferenceService {
   /**
    * Creates a new Conference for the Conference Service
    *
-   * @param id the id for the new conference
+   * @param courseId the courseId
    * @return the newly created conference
    */
-  def createConference(id: Int): Conference
+  def createConference(courseId: Int): Conference
 }

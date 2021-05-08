@@ -1,5 +1,6 @@
 package de.thm.mni.ii.classroom.services.conference
 
+import de.thm.mni.ii.classroom.model.User
 import de.thm.mni.ii.classroom.services.BBBService
 
 import java.net.URI
@@ -49,15 +50,4 @@ class BBBConference(override val id: String, override val courseId: Int,
     "moderatorPassword" -> moderatorPassword,
     "service" -> serviceName
   )
-
-  /**
-    * Creates a JSONObject containing information about the de.thm.mni.ii.classroom.services.conferences.conference.Conference
-    * @return the JSONObject
-    */
-  override def toJson: JSONObject = new JSONObject().put("meetingId", id)
-    .put("courseId", courseId)
-    .put("service", serviceName)
-    .put("meetingPassword", meetingPassword)
-    .put("moderatorPassword", moderatorPassword)
-    .put("visibility", isVisible)
 }

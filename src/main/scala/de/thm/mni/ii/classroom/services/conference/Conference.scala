@@ -1,5 +1,7 @@
 package de.thm.mni.ii.classroom.services.conference
 
+import de.thm.mni.ii.classroom.model.User
+
 import java.net.URI
 
 /**
@@ -45,9 +47,4 @@ abstract class Conference {
     */
   def toMap: Map[String, String]
 
-  /**
-    * Creates a JSONObject containing information about the de.thm.mni.ii.classroom.services.conferences.conference.Conference
-    * @return the JSONObject
-    */
-  def toJson: JSONObject
 }
