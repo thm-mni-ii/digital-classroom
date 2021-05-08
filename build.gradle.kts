@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.cli.jvm.compiler.setupIdeaStandaloneExecution
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
