@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     scala
     java
+    idea
     kotlin("jvm") version "1.4.32"
     kotlin("plugin.spring") version "1.4.32"
     kotlin("kapt") version "1.4.32"
@@ -32,6 +33,7 @@ dependencies {
     implementation("org.scala-lang:scala-library:2.13.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
+    implementation("org.hibernate:hibernate-validator:6.0.16.Final")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
@@ -46,4 +48,16 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+idea {
+    module {
+        val kaptMain = file("${project.buildDir}/generated/source/kapt/main")
+        sourceDirs.add(kaptMain)
+        generatedSourceDirs.add(kaptMain)
+
+        outputDir = file("${project.buildDir}/classes/main")
+        testOutputDir = file("${project.buildDir}/classes/test")
+
+    }
 }
