@@ -1,0 +1,10 @@
+openapi: 3.0.3
+info:
+  title: Digital Classroom Gateway API
+  description: API to control the digital classroom application from the gateway service. This APi is based on the Big Blue Button API.
+  version: 1.0.0
+servers:
+  - url: 'https://localhost:8080'
+paths:
+
+
