@@ -14,19 +14,58 @@ paths:
     get:
       tags:
         - Create Room
+      parameters:
+        - in: query
+          name: meetingID
+        - in: query
+          name: name
+        - in: query
+          name: welcome
+        - in: query
+          name: attendeePW
+        - in: query
+          name: moderatorPW
+        - in: query
+          name: checksum
+
       responses:
         "200":
           description: OK
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/response'
+                $ref: '#/components/schemas/create'
+        "401":
+          description: Unauthorized
+  /join:
+    get:
+      tags:
+        - Join a user to an existing classroom instance
+      parameters:
+        - in: query
+          name: meetingID
+        - in: query
+          name: fullName
+        - in: query
+          name: password
+        - in: query
+          name: userID
+        - in: query
+          name: checksum
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/join'
         "401":
           description: Unauthorized
 
 components:
   schemas:
-    response:
+    create:
       type: object
       description: Response structure for conference creation call
       properties:
@@ -59,6 +98,27 @@ components:
         messageKey:
           type: string
         message:
+          type: string
+
+    join:
+      type: object
+      description: Response structure for conference user join
+      properties:
+        returncode:
+          type: string
+        messageKey:
+          type: string
+        message:
+          type: string
+        meeting_id:
+          type: string
+        user_id:
+          type: string
+        auth_token:
+          type: string
+        session_token:
+          type: string
+        url:
           type: string
 
 
