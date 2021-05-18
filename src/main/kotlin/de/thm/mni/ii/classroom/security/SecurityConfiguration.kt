@@ -34,10 +34,7 @@ class SecurityConfiguration(private val downstreamGateway: DownstreamGateway) {
             .authorizeExchange().anyExchange().access(this::authorizationManagerBBBToken).and().build()
     }
 
-    fun authorizationManagerBBBToken(
-        authentication: Mono<Authentication>,
-        context: AuthorizationContext
-    ): Mono<AuthorizationDecision> {
+    fun authorizationManagerBBBToken(authentication: Mono<Authentication>, context: AuthorizationContext): Mono<AuthorizationDecision> {
         val exchange = context.exchange
         val query = exchange.request.uri.query?.replace(Regex("&checksum=\\w+"), "") ?: ""
         val apiCall = exchange.request.uri.toString().substringAfterLast("/").substringBefore("?")
