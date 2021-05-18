@@ -1,10 +1,64 @@
-openapi: 3.0.3
+openapi: 3.0.0
 info:
   title: Digital Classroom Gateway API
   description: API to control the digital classroom application from the gateway service. This APi is based on the Big Blue Button API.
-  version: 1.0.0
+  version: 0.0.1
+
+tags:
+  - name: Create Room
+    description: Creating a new digital classroom
 servers:
-  - url: 'https://localhost:8080'
+  - url: 'https://localhost:8080/api/v1'
 paths:
+  /create:
+    get:
+      tags:
+        - Create Room
+      responses:
+        "200":
+          description: OK
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/response'
+        "401":
+          description: Unauthorized
+
+components:
+  schemas:
+    response:
+      type: object
+      description: Response structure for conference creation call
+      properties:
+        returncode:
+          type: string
+        meetingID:
+          type: string
+        internalMeetingID:
+          type: string
+        parentMeetingID:
+          type: string
+        attendeePW:
+          type: string
+        moderatorPW:
+          type: string
+        createTime:
+          type: number
+        voiceBridge:
+          type: string
+        dialNumber:
+          type: string
+        createDate:
+          type: string
+        hasUserJoined:
+          type: boolean
+        duration:
+          type: number
+        hasBeenForciblyEnded:
+          type: boolean
+        messageKey:
+          type: string
+        message:
+          type: string
 
 

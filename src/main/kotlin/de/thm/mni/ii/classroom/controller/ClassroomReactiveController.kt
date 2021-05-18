@@ -1,6 +1,5 @@
-package de.thm.mni.ii.classroom.controller
+﻿package de.thm.mni.ii.classroom.controller
 
-import org.springframework.stereotype.Controller
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
