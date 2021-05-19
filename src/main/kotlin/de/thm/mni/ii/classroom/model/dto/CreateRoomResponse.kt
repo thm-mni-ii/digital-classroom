@@ -7,9 +7,9 @@ import de.thm.mni.ii.classroom.mapper.BBBReturnCodeSerializer
 
 
 data class CreateRoomResponse(
+
     @JsonSerialize(using = BBBReturnCodeSerializer::class)
     @JsonDeserialize(using = BBBReturnCodeDeserializer::class)
-    private val returncode: Boolean) {
+    private val returncode: Boolean
 
-
-}
+)
