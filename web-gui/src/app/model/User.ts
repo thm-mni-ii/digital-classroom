@@ -1,0 +1,11 @@
+// export?
+export interface User {
+  id?: number;
+  prename: string;
+  surname: string;
+  email: string;
+  password?: string;
+  username: string;
+  alias?: string;
+  role: string; // ADMIN, MODERATOR, or USER
+}

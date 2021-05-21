@@ -61,6 +61,10 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+task("dist") {
+    dependsOn("web-gui:installDist")
+}
+
 tasks.compileScala {
     classpath = sourceSets.main.get().compileClasspath
 }
