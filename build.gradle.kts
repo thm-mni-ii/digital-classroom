@@ -51,6 +51,10 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+task("dist") {
+    dependsOn("web-gui:installDist")
+}
+
 idea {
     module {
         val kaptMain = file("${project.buildDir}/generated/source/kapt/main")
