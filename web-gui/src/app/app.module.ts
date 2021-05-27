@@ -22,12 +22,18 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatSliderModule} from "@angular/material/slider";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {UserTeacherFilter} from "./pipes/user-teacher-filter";
+import {NotFoundComponent} from "./page-components/not-found/not-found.component";
+import {SidebarComponent} from "./page-components/sidebar/sidebar.component";
+import {AppRoutingModule} from "./app-routing.module";
+import { DummyComponent } from './page-components/dummy/dummy.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     ConferenceComponent,
+    NotFoundComponent,
+    SidebarComponent,
     // Dialogs
     NewConferenceDialogComponent,
     NewTicketDialogComponent,
@@ -36,12 +42,14 @@ import {UserTeacherFilter} from "./pipes/user-teacher-filter";
     AssignTicketDialogComponent,
     MenuBarComponent,
     // Pipes
-    UserTeacherFilter
+    UserTeacherFilter,
+    DummyComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     RouterModule,
+    AppRoutingModule,
     // Material
     MaterialComponentsModule,
     MatDialogModule,
