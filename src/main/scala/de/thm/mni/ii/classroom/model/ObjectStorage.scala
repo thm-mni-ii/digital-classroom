@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.model.storage
+package de.thm.mni.ii.classroom.model
 
 import java.util.concurrent.locks.{ReadWriteLock, ReentrantReadWriteLock}
 import scala.collection.mutable

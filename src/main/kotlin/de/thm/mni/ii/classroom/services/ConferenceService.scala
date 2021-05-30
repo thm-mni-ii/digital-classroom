@@ -1,7 +1,5 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.services.conference.Conference
-
 /**
  * A Service offering Web Conferences for example BigBlueButton
  */

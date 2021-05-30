@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.model.storage
+package de.thm.mni.ii.classroom.model
 
 /**
   * A BidirectionalStorage where Multiple M elements can be mapped to a single one but one M element can only be mapped to a single Many

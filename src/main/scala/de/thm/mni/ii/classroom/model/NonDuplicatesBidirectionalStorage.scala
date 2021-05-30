@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.model.storage
+package de.thm.mni.ii.classroom.model
 
 /**
   * A Bidirectional Storage which does not allow duplicate a or bs
