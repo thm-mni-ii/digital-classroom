@@ -31,7 +31,8 @@ class SecurityConfiguration(private val downstreamGateway: DownstreamGateway) {
             .httpBasic().disable()
             .logout().disable()
             .formLogin().disable()
-            .authorizeExchange().anyExchange().access(this::authorizationManagerBBBToken).and().build()
+            .authorizeExchange().pathMatchers("/api/v1/*").access(this::authorizationManagerBBBToken)
+            .and().build()
     }
 
     fun authorizationManagerBBBToken(authentication: Mono<Authentication>, context: AuthorizationContext): Mono<AuthorizationDecision> {
