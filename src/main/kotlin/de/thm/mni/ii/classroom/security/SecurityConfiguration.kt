@@ -31,7 +31,7 @@ class SecurityConfiguration(private val downstreamGateway: DownstreamGateway) {
             .httpBasic().disable()
             .logout().disable()
             .formLogin().disable()
-            .authorizeExchange().pathMatchers("/api/v1/*").access(this::authorizationManagerBBBToken)
+            .authorizeExchange().pathMatchers("/api/*").access(this::authorizationManagerBBBToken)
             .and().build()
     }
 
