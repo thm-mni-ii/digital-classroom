@@ -3,6 +3,7 @@ package de.thm.mni.ii.classroom.services
 import de.thm.mni.ii.classroom.exception.MissingMeetingIDException
 import de.thm.mni.ii.classroom.model.DigitalClassroomInstance
 import de.thm.mni.ii.classroom.model.dto.*
+import de.thm.mni.ii.classroom.util.getMeetingID
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.util.MultiValueMap
@@ -33,13 +34,6 @@ class ClassroomService {
         }
     }
 
-    private fun getMeetingID(param: MultiValueMap<String, String>): String {
-        val meetingID = param.getFirst("meetingID")
-        if (meetingID.isNullOrEmpty()) {
-            throw MissingMeetingIDException()
-        }
-        logger.debug("meetingID: $meetingID")
-        return meetingID
-    }
+    fun getClassroomInstance(meetingID: String): DigitalClassroomInstance? = classrooms[meetingID]
 
 }

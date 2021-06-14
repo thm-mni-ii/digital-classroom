@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono
 import kotlin.Exception
 
 @RestController
-@RequestMapping("/api/v1", produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
+@RequestMapping("/api", produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
 class BBBApiController(private val classroomService: ClassroomService) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)

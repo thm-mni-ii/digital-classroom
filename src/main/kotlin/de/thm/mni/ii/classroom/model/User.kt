@@ -10,6 +10,8 @@ data class User(
 
     override fun getName(): String = userId
 
+    fun getRole() = userRole
+
     fun hasRole(role: UserRole, vararg roles: UserRole): Boolean {
         return userRole == role || roles.contains(userRole)
     }
