@@ -3,10 +3,11 @@ package de.thm.mni.ii.classroom.model
 import java.security.Principal
 
 data class User(
-    private val userId: String,
-    private val fullName: String,
-    private val userRole: UserRole,
+    val userId: String,
+    val fullName: String,
 ): Principal {
+
+    var userRole: UserRole = UserRole.Student
 
     override fun getName(): String = userId
 

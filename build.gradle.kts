@@ -24,7 +24,7 @@ dependencies {
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     //implementation("org.springframework.boot:spring-boot-starter-websocket")
-    implementation("org.springframework:spring-websocket")
+    //implementation("org.springframework:spring-websocket")
     implementation("org.springframework:spring-messaging")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

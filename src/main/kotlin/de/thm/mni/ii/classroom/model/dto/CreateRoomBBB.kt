@@ -1,7 +1,7 @@
 package de.thm.mni.ii.classroom.model.dto
 
 import de.thm.mni.ii.classroom.config.bbbFormatter
-import de.thm.mni.ii.classroom.model.DigitalClassroomInstance
+import de.thm.mni.ii.classroom.model.DigitalClassroom
 import java.time.ZonedDateTime
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
@@ -33,7 +33,7 @@ class CreateRoomBBB(@field:XmlElement private val meetingID: String,
      */
     constructor(): this("", "", "", "", ZonedDateTime.now(), false)
 
-    constructor(instance: DigitalClassroomInstance, messageKey: String = "", message: String = ""): this(
+    constructor(instance: DigitalClassroom, messageKey: String = "", message: String = ""): this(
         instance.meetingID,
         instance.internalMeetingID,
         instance.attendeePW,
