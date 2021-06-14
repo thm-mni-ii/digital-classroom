@@ -1,0 +1,5 @@
+= THM Digital Classroom
+
+Just some notes for now.
+
+Useful BBB API testing tool: https://mconf.github.io/api-mate/
