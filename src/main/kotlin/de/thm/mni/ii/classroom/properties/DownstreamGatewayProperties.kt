@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank
 
 @ConfigurationProperties(prefix = "downstream.gateway")
 @ConstructorBinding
-data class DownstreamGateway(
+data class DownstreamGatewayProperties(
 
     @NotBlank val sharedSecret: String,
 

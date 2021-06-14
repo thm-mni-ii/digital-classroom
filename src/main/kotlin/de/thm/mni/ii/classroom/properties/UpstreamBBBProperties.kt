@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank
 
 @ConfigurationProperties(prefix = "upstream.bbb")
 @ConstructorBinding
-data class UpstreamBBB(
+data class UpstreamBBBProperties(
 
     @NotBlank val serviceUrl: String,
     @NotBlank val sharedSecret: String,
