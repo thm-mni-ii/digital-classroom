@@ -1,5 +1,6 @@
 package de.thm.mni.ii.classroom.properties
 
+import org.hibernate.validator.constraints.Range
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 import javax.validation.constraints.NotBlank
@@ -12,5 +13,9 @@ data class ClassroomProperties(
      * Service url with protocol, hostname and optional prefix path.
      */
     @NotBlank val serviceUrl: String,
+    /**
+     * Service TCP port.
+     */
+    @NotBlank @Range(min = 1, max = 65535) val servicePort: Int
 
 )

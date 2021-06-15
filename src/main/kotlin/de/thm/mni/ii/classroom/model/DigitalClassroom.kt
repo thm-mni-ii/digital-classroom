@@ -26,10 +26,6 @@ data class DigitalClassroom(
     fun hasBeenForciblyEnded() = false
     fun getDuration() = ChronoUnit.MINUTES.between(creationTimestamp, ZonedDateTime.now())
 
-    fun buildJoinUrl(user: User, classroomProperties: ClassroomProperties, serverProperties: ServerProperties) {
-
-    }
-
     fun doesUserExist(user: User): Boolean = users.contains(user)
 
     fun joinUser(password: String, user: User): User {
