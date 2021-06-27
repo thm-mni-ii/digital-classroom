@@ -1,20 +1,28 @@
 package de.thm.mni.ii.classroom.model
 
+import org.springframework.security.core.userdetails.UserDetails
 import java.security.Principal
 
 data class User(
     val userId: String,
     val fullName: String,
-): Principal {
+    val classroomId: String
+): Principal, UserDetails {
 
-    var userRole: UserRole = UserRole.Student
-
-    override fun getName(): String = userId
+    private val userRole: UserRole = UserRole.STUDENT
 
     fun getRole() = userRole
 
-    fun hasRole(role: UserRole, vararg roles: UserRole): Boolean {
-        return userRole == role || roles.contains(userRole)
-    }
+    fun hasRole(role: UserRole, vararg roles: UserRole) =
+        userRole == role || roles.contains(userRole)
+
+    override fun getName(): String = userId
+    override fun getAuthorities() = mutableSetOf(this.userRole)
+    override fun getPassword() = ""
+    override fun getUsername() = userId
+    override fun isAccountNonExpired() = true
+    override fun isAccountNonLocked() = true
+    override fun isCredentialsNonExpired() = true
+    override fun isEnabled() = true
 
 }
