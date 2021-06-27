@@ -3,14 +3,14 @@ package de.thm.mni.ii.classroom.model
 import org.springframework.security.core.GrantedAuthority
 
 enum class UserRole(val value: Int, val bbbRole: BBBRole) : GrantedAuthority {
-    Teacher(0, BBBRole.Moderator) {
-            override fun getAuthority() = "TEACHER"
+    TEACHER(0, BBBRole.Moderator) {
+            override fun getAuthority() = this.name
+                                  },
+    TUTOR(1, BBBRole.Moderator) {
+        override fun getAuthority() = this.name
     },
-    Tutor(1, BBBRole.Moderator) {
-        override fun getAuthority() = "TUTOR"
-    },
-    Student(2, BBBRole.Participant) {
-        override fun getAuthority() = "STUDENT"
+    STUDENT(2, BBBRole.Participant) {
+        override fun getAuthority() = this.name
     }
 }
 
