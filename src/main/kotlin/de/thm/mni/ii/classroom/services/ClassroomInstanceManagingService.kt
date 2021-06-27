@@ -62,7 +62,7 @@ class ClassroomInstanceManagingService(private val classroomProperties: Classroo
         val joinedUser = classroom.joinUser(password, user)
         val sessionToken = RandomStringUtils.randomAlphanumeric(16)
         validTokens[sessionToken] = Pair(classroom, joinedUser)
-        val url = "${classroomProperties.serviceUrl}:${serverProperties.port}/classroom?sessionToken=$sessionToken"
+        val url = URL("${classroomProperties.serviceUrl}:${serverProperties.port}/classroom?sessionToken=$sessionToken").toString()
         return JoinRoomBBBResponse(
             success = true,
             meetingID = classroom.internalMeetingID,
