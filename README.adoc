@@ -13,10 +13,14 @@ When creating a conference from inside the "old digital classroom" in the feedba
 
 == Open Questions
 - Use BBB or classroom vocabular?
+- Why is the JWT not sent back by the browser?
+
+== Answered Questions
 - How to configure Spring Security WebFilter for specific path?
-- A user is bound to a classroom instance. Should a central user service exist, or should users always be taken from within a data structure in a classroom instance.
-
-
+    -> matcher within the filter
+- A user is bound to a classroom instance. Should a central user service exist, or should users always be taken from within a data structure in a classroom instance. -> No. Users will be bound hardly to a classroom instance.
 == Notes
 
 Useful BBB API testing tool: https://mconf.github.io/api-mate/
+
+JWT: https://github.com/raphaelDL/spring-webflux-security-jwt
