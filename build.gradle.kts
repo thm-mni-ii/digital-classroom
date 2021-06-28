@@ -23,6 +23,8 @@ dependencies {
     // implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("io.jsonwebtoken:jjwt-impl:0.11.2")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.11.2")
     //implementation("org.springframework.boot:spring-boot-starter-websocket")
     //implementation("org.springframework:spring-websocket")
     implementation("org.springframework:spring-messaging")

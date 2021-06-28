@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.exception
+package de.thm.mni.ii.classroom.security.exception
 
 class NoPasswordSpecifiedException(
     private val bbbMessageKey: String = "noPasswordSpecified",

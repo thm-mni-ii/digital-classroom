@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.exception
+package de.thm.mni.ii.classroom.security.exception
 
 class NoUsernameSpecifiedException (
     private val bbbMessageKey: String = "noUsernameSpecified",

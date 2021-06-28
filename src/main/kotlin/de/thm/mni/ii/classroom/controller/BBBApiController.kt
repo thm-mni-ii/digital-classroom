@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("/api", produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
+@CrossOrigin
 class BBBApiController(private val classroomApiService: ClassroomApiService) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)

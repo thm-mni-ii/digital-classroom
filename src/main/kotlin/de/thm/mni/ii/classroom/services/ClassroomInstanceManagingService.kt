@@ -1,17 +1,14 @@
 package de.thm.mni.ii.classroom.services
 
 import de.thm.mni.ii.classroom.exception.ClassroomNotFoundException
-import de.thm.mni.ii.classroom.exception.InvalidMeetingPasswordException
-import de.thm.mni.ii.classroom.exception.UnknownUserException
 import de.thm.mni.ii.classroom.model.DigitalClassroom
 import de.thm.mni.ii.classroom.model.User
-import de.thm.mni.ii.classroom.model.UserRole
 import de.thm.mni.ii.classroom.model.dto.JoinRoomBBBResponse
 import de.thm.mni.ii.classroom.properties.ClassroomProperties
+import de.thm.mni.ii.classroom.security.classroom.ClassroomUserDetailsRepository
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
@@ -20,11 +17,12 @@ import kotlin.collections.HashMap
  * Central service for managing and creating all DigitalClassroomInstances.
  */
 @Service
-class ClassroomInstanceManagingService(private val classroomProperties: ClassroomProperties, private val serverProperties: ServerProperties) {
+class ClassroomInstanceManagingService(private val classroomProperties: ClassroomProperties,
+                                       private val serverProperties: ServerProperties,
+                                       private val classroomUserDetailsRepository: ClassroomUserDetailsRepository
+) {
 
     private val classrooms = HashMap<String, DigitalClassroom>()
-
-    private val validTokens = HashMap<String, Pair<DigitalClassroom, User>>()
 
     /**
      * Creates a new classroom instance and stores it inside the classroom map.
@@ -45,7 +43,7 @@ class ClassroomInstanceManagingService(private val classroomProperties: Classroo
             DigitalClassroom(
                 id,
                 attendeePW = attendeePW ?: RandomStringUtils.randomAlphanumeric(30),
-                assistantPW = assistantPW ?: RandomStringUtils.randomAlphanumeric(30),
+                tutorPW = assistantPW ?: RandomStringUtils.randomAlphanumeric(30),
                 moderatorPW = moderatorPW ?: RandomStringUtils.randomAlphanumeric(30),
                 meetingName = meetingName ?: "Digital Classroom - ${UUID.randomUUID()}",
                 internalMeetingID = "${RandomStringUtils.randomAlphanumeric(40)}-${RandomStringUtils.randomAlphanumeric(13)}"
@@ -61,7 +59,7 @@ class ClassroomInstanceManagingService(private val classroomProperties: Classroo
         val classroom = classrooms[meetingID] ?: throw ClassroomNotFoundException(meetingID)
         val joinedUser = classroom.joinUser(password, user)
         val sessionToken = RandomStringUtils.randomAlphanumeric(16)
-        validTokens[sessionToken] = Pair(classroom, joinedUser)
+        classroomUserDetailsRepository.insertValidToken(sessionToken, joinedUser)
         val url = URL("${classroomProperties.serviceUrl}:${serverProperties.port}/classroom?sessionToken=$sessionToken").toString()
         return JoinRoomBBBResponse(
             success = true,
@@ -70,10 +68,6 @@ class ClassroomInstanceManagingService(private val classroomProperties: Classroo
             url = url,
             userID = user.userId
         )
-    }
-
-    fun getUserBySessionToken(sessionToken: String): Pair<DigitalClassroom, User>? {
-        return validTokens[sessionToken]
     }
 
     fun isRunning(meetingID: String) = classrooms.containsKey(meetingID)

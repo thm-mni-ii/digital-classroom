@@ -8,13 +8,8 @@ import reactor.core.publisher.Mono
 @Service
 class ClassroomInternalService(private val classroomInstanceManagingService: ClassroomInstanceManagingService) {
 
-    fun openClassroom(sessionToken: String): Mono<String> = Mono.create {
-        val user = getUserBySessionToken(sessionToken)
+    fun openClassroom(user: User): Mono<String> = Mono.create {
         it.success("Hallo ${user.fullName}")
-    }
-
-    fun getUserBySessionToken(sessionToken: String): User {
-        return classroomInstanceManagingService.getUserBySessionToken(sessionToken)!!.second
     }
 
 }

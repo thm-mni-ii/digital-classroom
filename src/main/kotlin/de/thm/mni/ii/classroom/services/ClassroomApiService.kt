@@ -1,9 +1,10 @@
 package de.thm.mni.ii.classroom.services
 
 import de.thm.mni.ii.classroom.exception.MissingMeetingIDException
-import de.thm.mni.ii.classroom.exception.NoPasswordSpecifiedException
-import de.thm.mni.ii.classroom.exception.NoUsernameSpecifiedException
+import de.thm.mni.ii.classroom.security.exception.NoPasswordSpecifiedException
+import de.thm.mni.ii.classroom.security.exception.NoUsernameSpecifiedException
 import de.thm.mni.ii.classroom.model.User
+import de.thm.mni.ii.classroom.model.UserRole
 import de.thm.mni.ii.classroom.model.dto.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -40,12 +41,10 @@ class ClassroomApiService(private val classroomInstanceManagingService: Classroo
                 classroomInstanceManagingService.joinUser(
                     meetingID,
                     password,
-                    User(userId, userName)
+                    User(userId, userName, meetingID, UserRole.STUDENT)
                 )
             )
         }
-
-
     }
 
     fun isMeetingRunning(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {

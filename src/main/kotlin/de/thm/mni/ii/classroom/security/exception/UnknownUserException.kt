@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.exception
+package de.thm.mni.ii.classroom.security.exception
 
 class UnknownUserException(userId: String,
                            meetingId: String,
