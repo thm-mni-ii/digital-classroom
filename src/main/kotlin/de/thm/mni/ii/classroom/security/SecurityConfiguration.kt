@@ -14,18 +14,30 @@ class SecurityConfiguration(private val sessionTokenSecurity: SessionTokenSecuri
                             private val downstreamAPISecurity: DownstreamAPISecurity,
                             private val jwtSecurity: JWTSecurity) {
 
+    /**
+     * Security filter chain for digital classroom.
+     * Checks if a request is authenticated by sessionToken, or JWT and authorization via the resolved user role
+     * or the valid checksum in downstream api.
+     * @see DownstreamAPISecurity
+     * @see SessionTokenSecurity
+     * @see JWTSecurity
+     */
     @Bean
     fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http.httpBasic().disable()
             .csrf().disable()
+            // Filter for Downstream API. This is active at the routes /api/* and resolves authorized requests to the role GATEWAY
             .addFilterAt(downstreamAPISecurity.downstreamAPIFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+            // Filters for classroom access. Active at /classroom and /classroom/**.
+            // Resolves authenticated requests to a User with a role STUDENT, TUTOR or TEACHER.
             .addFilterAt(sessionTokenSecurity.sessionTokenFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+            // As above, but with JWT
             .addFilterAt(jwtSecurity.jwtFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
-            .authorizeExchange()
+            .authorizeExchange() // Exchanges at the path below with Role GATEWAY is authorized.
             .pathMatchers("/api/*")
             .hasAuthority("GATEWAY")
             .and()
-            .authorizeExchange()
+            .authorizeExchange() // Exchanges at the paths below with UserRoles STUDENT, TUTOR or TEACHER are authorized.
             .pathMatchers("/classroom", "/classroom/**")
             .hasAnyAuthority("STUDENT", "TUTOR", "TEACHER")
             .and()
