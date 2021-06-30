@@ -9,7 +9,10 @@ import reactor.core.publisher.Mono
 class ClassroomInternalService(private val classroomInstanceManagingService: ClassroomInstanceManagingService) {
 
     fun openClassroom(user: User): Mono<String> = Mono.create {
-        it.success("Hallo ${user.fullName}")
+        val classroom = classroomInstanceManagingService.getClassroomInstance(user.classroomId)
+        it.success("Hallo ${user.fullName}. Deine Rolle: ${user.userRole.name}\n" +
+                " Meeting: ${classroom.meetingName}\n" +
+                " ${classroom.meetingID}")
     }
 
 }

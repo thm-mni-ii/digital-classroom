@@ -23,9 +23,9 @@ class ClassroomApiService(private val classroomInstanceManagingService: Classroo
             val classroomInstance = classroomInstanceManagingService.createNewClassroomInstance(
                 meetingID,
                 param.getFirst("attendeePW"),
-                param.getFirst("assistantPW"),
+                param.getFirst("tutorPW"),
                 param.getFirst("moderatorPW"),
-                param.getFirst("meetingName")
+                param.getFirst("name")
             )
             it.success(CreateRoomBBB(classroomInstance))
         }
