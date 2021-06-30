@@ -9,6 +9,9 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
 
+/**
+ * Main security configuration of the digital classroom.
+ */
 @EnableWebFluxSecurity
 class SecurityConfiguration(private val sessionTokenSecurity: SessionTokenSecurity,
                             private val downstreamAPISecurity: DownstreamAPISecurity,
@@ -24,9 +27,10 @@ class SecurityConfiguration(private val sessionTokenSecurity: SessionTokenSecuri
      */
     @Bean
     fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http.httpBasic().disable()
+        return http
+            .httpBasic().disable()
             .csrf().disable()
-            // Filter for Downstream API. This is active at the routes /api/* and resolves authorized requests to the role GATEWAY
+            // Filter for Downstream API. This is active at the routes /api/* and resolves authorized requests to the role GATEWAY.
             .addFilterAt(downstreamAPISecurity.downstreamAPIFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
             // Filters for classroom access. Active at /classroom and /classroom/**.
             // Resolves authenticated requests to a User with a role STUDENT, TUTOR or TEACHER.
