@@ -5,6 +5,9 @@ import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.collections.HashSet
 
+/**
+ * Class representing a digital classroom instance.
+ */
 data class DigitalClassroom(
     val meetingID: String,
     val studentPassword: String,
@@ -12,7 +15,7 @@ data class DigitalClassroom(
     val teacherPassword: String,
     val classroomName: String,
     val internalClassroomId: String
-    ) {
+) {
 
     private val users = HashSet<User>()
     private val tickets = HashSet<Ticket>()
