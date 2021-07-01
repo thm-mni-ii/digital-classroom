@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.model.dto
+package de.thm.mni.ii.classroom.downstream.model
 
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement

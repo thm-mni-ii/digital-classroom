@@ -1,7 +1,8 @@
 package de.thm.mni.ii.classroom.controller
 
+import de.thm.mni.ii.classroom.downstream.model.MessageBBB
+import de.thm.mni.ii.classroom.downstream.model.ReturnCodeBBB
 import de.thm.mni.ii.classroom.exception.MissingMeetingIDException
-import de.thm.mni.ii.classroom.model.dto.*
 import de.thm.mni.ii.classroom.services.ClassroomApiService
 import org.slf4j.LoggerFactory
 import org.springframework.util.MimeTypeUtils

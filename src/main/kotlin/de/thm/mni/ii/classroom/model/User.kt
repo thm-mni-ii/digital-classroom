@@ -11,7 +11,7 @@ data class User(
     var userRole: UserRole
 ): Principal, UserDetails {
     @JsonIgnore
-    override fun getName(): String = userId
+    override fun getName(): String = fullName
     @JsonIgnore
     override fun getAuthorities() = mutableSetOf(this.userRole)
     @JsonIgnore

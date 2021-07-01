@@ -1,16 +1,19 @@
 package de.thm.mni.ii.classroom.services
 
+import de.thm.mni.ii.classroom.downstream.model.CreateRoomBBB
+import de.thm.mni.ii.classroom.downstream.model.IsMeetingRunningBBB
+import de.thm.mni.ii.classroom.downstream.model.ReturnCodeBBB
 import de.thm.mni.ii.classroom.exception.MissingMeetingIDException
 import de.thm.mni.ii.classroom.security.exception.NoPasswordSpecifiedException
 import de.thm.mni.ii.classroom.security.exception.NoUsernameSpecifiedException
 import de.thm.mni.ii.classroom.model.User
 import de.thm.mni.ii.classroom.model.UserRole
-import de.thm.mni.ii.classroom.model.dto.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.util.MultiValueMap
 import reactor.core.publisher.Mono
 import java.util.*
+import de.thm.mni.ii.classroom.downstream.APIQueryParamTranslation.*
 
 @Component
 class ClassroomApiService(private val classroomInstanceManagingService: ClassroomInstanceManagingService) {
@@ -19,29 +22,29 @@ class ClassroomApiService(private val classroomInstanceManagingService: Classroo
 
     fun createClassroom(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {
         return Mono.create {
-            val meetingID = getMeetingID(param)
+            val classroomId = getClassroomId(param)
             val classroomInstance = classroomInstanceManagingService.createNewClassroomInstance(
-                meetingID,
-                param.getFirst("attendeePW"),
-                param.getFirst("tutorPW"),
-                param.getFirst("moderatorPW"),
-                param.getFirst("name")
+                classroomId,
+                param.getFirst(StudentPassword.api),
+                param.getFirst(TutorPassword.api),
+                param.getFirst(TeacherPassword.api),
+                param.getFirst(ClassroomName.api)
             )
             it.success(CreateRoomBBB(classroomInstance))
         }
     }
 
     fun joinClassroom(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {
-        val meetingID = getMeetingID(param)
-        val password: String = param.getFirst("password") ?: throw NoPasswordSpecifiedException()
-        val userId = param.getFirst("userID") ?: UUID.randomUUID().toString()
-        val userName = param.getFirst("fullName") ?: throw NoUsernameSpecifiedException()
+        val classroomId = getClassroomId(param)
+        val password: String = param.getFirst(Password.api) ?: throw NoPasswordSpecifiedException()
+        val userId = param.getFirst(UserId.api) ?: UUID.randomUUID().toString()
+        val userName = param.getFirst(userName.api) ?: throw NoUsernameSpecifiedException()
         return Mono.create {
             it.success(
                 classroomInstanceManagingService.joinUser(
-                    meetingID,
+                    classroomId,
                     password,
-                    User(userId, userName, meetingID, UserRole.STUDENT)
+                    User(userId, userName, classroomId, UserRole.STUDENT)
                 )
             )
         }
@@ -49,16 +52,16 @@ class ClassroomApiService(private val classroomInstanceManagingService: Classroo
 
     fun isMeetingRunning(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {
         return Mono.create {
-            val meetingID = getMeetingID(param)
-            it.success(IsMeetingRunningBBB(classroomInstanceManagingService.isRunning(meetingID)))
+            val classroomId = getClassroomId(param)
+            it.success(IsMeetingRunningBBB(classroomInstanceManagingService.isRunning(classroomId)))
         }
     }
 
-    private fun getMeetingID(param: MultiValueMap<String, String>): String {
-        val meetingID = param.getFirst("meetingID")
-        if (meetingID.isNullOrEmpty()) {
+    private fun getClassroomId(param: MultiValueMap<String, String>): String {
+        val classroomId = param.getFirst(ClassroomId.api)
+        if (classroomId.isNullOrEmpty()) {
             throw MissingMeetingIDException()
         }
-        return meetingID
+        return classroomId
     }
 }

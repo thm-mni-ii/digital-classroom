@@ -3,7 +3,7 @@ package de.thm.mni.ii.classroom.services
 import de.thm.mni.ii.classroom.exception.ClassroomNotFoundException
 import de.thm.mni.ii.classroom.model.DigitalClassroom
 import de.thm.mni.ii.classroom.model.User
-import de.thm.mni.ii.classroom.model.dto.JoinRoomBBBResponse
+import de.thm.mni.ii.classroom.downstream.model.JoinRoomBBBResponse
 import de.thm.mni.ii.classroom.properties.ClassroomProperties
 import de.thm.mni.ii.classroom.security.classroom.ClassroomUserDetailsRepository
 import org.apache.commons.lang3.RandomStringUtils
@@ -28,48 +28,49 @@ class ClassroomInstanceManagingService(private val classroomProperties: Classroo
      * Creates a new classroom instance and stores it inside the classroom map.
      * If a classroom with the given id already exists,
      * the existing DigitalClassroomInstance is returned.
-     * @param meetingID the meetingID of the classroom
-     * @param attendeePW password for attendees given by the downstream service
-     * @param moderatorPW password for moderators given by the downstream service
-     * @param meetingName informal name given to the meeting
+     * @param classroomId the Id of the classroom
+     * @param studentPassword password for students given by the downstream service
+     * @param tutorPassword password for tutors given by the downstream service
+     * @param teacherPassword password for teachers given by the downstream service
+     * @param classroomName informal name given to the classroom.
      */
-    fun createNewClassroomInstance(meetingID: String,
-                                   attendeePW: String?,
-                                   assistantPW: String?,
-                                   moderatorPW: String?,
-                                   meetingName: String?
+    fun createNewClassroomInstance(classroomId: String,
+                                   studentPassword: String?,
+                                   tutorPassword: String?,
+                                   teacherPassword: String?,
+                                   classroomName: String?
     ): DigitalClassroom {
-        return classrooms.computeIfAbsent(meetingID) { id ->
+        return classrooms.computeIfAbsent(classroomId) { id ->
             DigitalClassroom(
                 id,
-                attendeePW = attendeePW ?: RandomStringUtils.randomAlphanumeric(30),
-                tutorPW = assistantPW ?: RandomStringUtils.randomAlphanumeric(30),
-                moderatorPW = moderatorPW ?: RandomStringUtils.randomAlphanumeric(30),
-                meetingName = meetingName ?: "Digital Classroom - ${UUID.randomUUID()}",
-                internalMeetingID = "${RandomStringUtils.randomAlphanumeric(40)}-${RandomStringUtils.randomAlphanumeric(13)}"
+                studentPassword = studentPassword ?: RandomStringUtils.randomAlphanumeric(30),
+                tutorPassword = tutorPassword ?: RandomStringUtils.randomAlphanumeric(30),
+                teacherPassword = teacherPassword ?: RandomStringUtils.randomAlphanumeric(30),
+                classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}",
+                internalClassroomId = "${RandomStringUtils.randomAlphanumeric(40)}-${RandomStringUtils.randomAlphanumeric(13)}"
             )
         }
     }
 
-    fun getClassroomInstance(meetingID: String): DigitalClassroom {
-        return classrooms[meetingID] ?: throw ClassroomNotFoundException(meetingID)
+    fun getClassroomInstance(classroomId: String): DigitalClassroom {
+        return classrooms[classroomId] ?: throw ClassroomNotFoundException(classroomId)
     }
 
-    fun joinUser(meetingID: String, password: String, user: User): JoinRoomBBBResponse {
-        val classroom = classrooms[meetingID] ?: throw ClassroomNotFoundException(meetingID)
+    fun joinUser(classroomId: String, password: String, user: User): JoinRoomBBBResponse {
+        val classroom = classrooms[classroomId] ?: throw ClassroomNotFoundException(classroomId)
         val joinedUser = classroom.joinUser(password, user)
         val sessionToken = RandomStringUtils.randomAlphanumeric(16)
         classroomUserDetailsRepository.insertValidToken(sessionToken, joinedUser)
         val url = URL("${classroomProperties.serviceUrl}:${serverProperties.port}/classroom?sessionToken=$sessionToken").toString()
         return JoinRoomBBBResponse(
             success = true,
-            meetingID = classroom.internalMeetingID,
+            meetingID = classroom.internalClassroomId,
             sessionToken = sessionToken,
             url = url,
             userID = user.userId
         )
     }
 
-    fun isRunning(meetingID: String) = classrooms.containsKey(meetingID)
+    fun isRunning(classroomId: String) = classrooms.containsKey(classroomId)
 
 }

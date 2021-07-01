@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.model.dto
+package de.thm.mni.ii.classroom.downstream.model
 
 import de.thm.mni.ii.classroom.config.bbbFormatter
 import de.thm.mni.ii.classroom.model.DigitalClassroom
@@ -35,9 +35,9 @@ class CreateRoomBBB(@field:XmlElement private val meetingID: String,
 
     constructor(instance: DigitalClassroom, messageKey: String = "", message: String = ""): this(
         instance.meetingID,
-        instance.internalMeetingID,
-        instance.attendeePW,
-        instance.moderatorPW,
+        instance.internalClassroomId,
+        instance.studentPassword,
+        instance.teacherPassword,
         instance.creationTimestamp,
         hasUserJoined = instance.hasUserJoined(),
         duration = instance.getDuration(),
