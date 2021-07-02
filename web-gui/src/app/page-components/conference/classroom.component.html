@@ -1,7 +1,5 @@
 <div class="container">
   <app-menu-bar>
-    <button mat-icon-button [routerLink]="['/', 'courses', courseId]" matTooltip="Zurück zum Kurs"><mat-icon >arrow_back</mat-icon></button>
-
     <span class="spacer"></span>
 
     <button mat-icon-button color="primary" *ngIf="classroomService.isJoined() " (click)="createTicket()" matTooltip="Ticket erstellen"><mat-icon >live_help</mat-icon></button>
