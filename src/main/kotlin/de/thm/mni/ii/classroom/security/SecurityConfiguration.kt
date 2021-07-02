@@ -30,6 +30,8 @@ class SecurityConfiguration(private val sessionTokenSecurity: SessionTokenSecuri
         return http
             .httpBasic().disable()
             .csrf().disable()
+            .cors().disable()
+            .logout().disable()
             // Filter for Downstream API. This is active at the routes /api/* and resolves authorized requests to the role GATEWAY.
             .addFilterAt(downstreamAPISecurity.downstreamAPIFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
             // Filters for classroom access. Active at /classroom and /classroom/**.
@@ -42,8 +44,12 @@ class SecurityConfiguration(private val sessionTokenSecurity: SessionTokenSecuri
             .hasAuthority("GATEWAY")
             .and()
             .authorizeExchange() // Exchanges at the paths below with UserRoles STUDENT, TUTOR or TEACHER are authorized.
-            .pathMatchers("/classroom", "/classroom/**")
+            .pathMatchers("/classroom-api/**", "/join")
             .hasAnyAuthority("STUDENT", "TUTOR", "TEACHER")
+            .and()
+            .authorizeExchange()
+            .pathMatchers("/", "/static/**")
+            .permitAll()
             .and()
             .build()
     }

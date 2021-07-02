@@ -47,7 +47,7 @@ class SessionTokenSecurity(private val userDetailsRepository: ClassroomUserDetai
         sessionTokenFilter = AuthenticationWebFilter(authManager)
         sessionTokenFilter.setRequiresAuthenticationMatcher(
             AndServerWebExchangeMatcher(
-                ServerWebExchangeMatchers.pathMatchers("/classroom", "/classroom/**"),
+                ServerWebExchangeMatchers.pathMatchers("/join"),
                 ServerWebExchangeMatcher {
                     if (it.request.queryParams.containsKey("sessionToken")) {
                         ServerWebExchangeMatcher.MatchResult.match()

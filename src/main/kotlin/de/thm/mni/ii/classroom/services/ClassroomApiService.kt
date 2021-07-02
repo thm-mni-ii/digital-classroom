@@ -14,6 +14,7 @@ import org.springframework.util.MultiValueMap
 import reactor.core.publisher.Mono
 import java.util.*
 import de.thm.mni.ii.classroom.downstream.APIQueryParamTranslation.*
+import de.thm.mni.ii.classroom.downstream.model.JoinRoomBBBResponse
 
 @Component
 class ClassroomApiService(private val classroomInstanceManagingService: ClassroomInstanceManagingService) {
@@ -34,20 +35,15 @@ class ClassroomApiService(private val classroomInstanceManagingService: Classroo
         }
     }
 
-    fun joinClassroom(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {
+    fun joinClassroom(param: MultiValueMap<String, String>): Mono<JoinRoomBBBResponse> {
         val classroomId = getClassroomId(param)
         val password: String = param.getFirst(Password.api) ?: throw NoPasswordSpecifiedException()
         val userId = param.getFirst(UserId.api) ?: UUID.randomUUID().toString()
         val userName = param.getFirst(userName.api) ?: throw NoUsernameSpecifiedException()
-        return Mono.create {
-            it.success(
-                classroomInstanceManagingService.joinUser(
+        return classroomInstanceManagingService.joinUser(
                     classroomId,
                     password,
-                    User(userId, userName, classroomId, UserRole.STUDENT)
-                )
-            )
-        }
+                    User(userId, userName, classroomId, UserRole.STUDENT))
     }
 
     fun isMeetingRunning(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {

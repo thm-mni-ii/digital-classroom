@@ -9,6 +9,7 @@ import de.thm.mni.ii.classroom.security.classroom.ClassroomUserDetailsRepository
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
@@ -56,19 +57,28 @@ class ClassroomInstanceManagingService(private val classroomProperties: Classroo
         return classrooms[classroomId] ?: throw ClassroomNotFoundException(classroomId)
     }
 
-    fun joinUser(classroomId: String, password: String, user: User): JoinRoomBBBResponse {
-        val classroom = classrooms[classroomId] ?: throw ClassroomNotFoundException(classroomId)
-        val joinedUser = classroom.joinUser(password, user)
-        val sessionToken = RandomStringUtils.randomAlphanumeric(16)
-        classroomUserDetailsRepository.insertValidToken(sessionToken, joinedUser)
-        val url = URL("${classroomProperties.serviceUrl}:${serverProperties.port}/classroom?sessionToken=$sessionToken").toString()
-        return JoinRoomBBBResponse(
-            success = true,
-            meetingID = classroom.internalClassroomId,
-            sessionToken = sessionToken,
-            url = url,
-            userID = user.userId
-        )
+    fun joinUser(classroomId: String, password: String, user: User): Mono<JoinRoomBBBResponse> {
+        val classroom = classrooms[classroomId]
+        if (classroom == null) {
+            throw ClassroomNotFoundException(classroomId)
+        } else {
+            return Mono.defer {
+                val joinedUser = classroom.joinUser(password, user)
+                val sessionToken = RandomStringUtils.randomAlphanumeric(16)
+                classroomUserDetailsRepository.insertValidToken(sessionToken, joinedUser)
+                val url = URL("${classroomProperties.serviceUrl}:${serverProperties.port}/join?sessionToken=$sessionToken").toString()
+                Mono.just(
+                    JoinRoomBBBResponse(
+                        success = true,
+                        meetingID = classroom.internalClassroomId,
+                        sessionToken = sessionToken,
+                        url = url,
+                        userID = user.userId
+                    )
+                )
+            }
+
+        }
     }
 
     fun isRunning(classroomId: String) = classrooms.containsKey(classroomId)
