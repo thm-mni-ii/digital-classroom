@@ -15,6 +15,11 @@ import {MaterialComponentsModule} from "./modules/material-components/material-c
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatSliderModule} from "@angular/material/slider";
 import {IncomingCallDialogComponent} from "./dialogs/incoming-call-dialog/incoming-call-dialog.component";
+import {HttpClientModule} from "@angular/common/http";
+import {JwtHelperService, JwtModule} from "@auth0/angular-jwt";
+import {RouterModule} from "@angular/router";
+import {JoinComponent} from "./page-components/join-component/join.component";
+import { UnauthorizedComponent } from './page-components/unauthorized/unauthorized.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +31,9 @@ import {IncomingCallDialogComponent} from "./dialogs/incoming-call-dialog/incomi
     InviteToConferenceDialogComponent,
     AssignTicketDialogComponent,
     UserTeacherFilter,
-    IncomingCallDialogComponent
+    IncomingCallDialogComponent,
+    JoinComponent,
+    UnauthorizedComponent
   ],
   imports: [
     BrowserModule,
@@ -35,9 +42,20 @@ import {IncomingCallDialogComponent} from "./dialogs/incoming-call-dialog/incomi
     MaterialComponentsModule,
     FormsModule,
     ReactiveFormsModule,
-    MatSliderModule
+    MatSliderModule,
+    HttpClientModule,
+    RouterModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: tokenGetter,
+      }
+    }),
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+export function tokenGetter() {
+  return localStorage.getItem('token');
+}

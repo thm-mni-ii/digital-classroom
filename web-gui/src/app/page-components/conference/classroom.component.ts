@@ -22,10 +22,16 @@ import {Ticket} from '../../model/Ticket';
   styleUrls: ['./classroom.component.scss']
 })
 export class ClassroomComponent implements OnInit {
-  constructor(private route: ActivatedRoute, private titlebarService: TitlebarService,
-              private conferenceService: BbbConferenceHandlingService, public classroomService: ClassroomService,
-              private dialog: MatDialog, public auth: AuthService, private snackbar: MatSnackBar, private sanitizer: DomSanitizer,
-              private router: Router, @Inject(DOCUMENT) document) {
+  constructor(private route: ActivatedRoute,
+              private titlebarService: TitlebarService,
+              private conferenceService: BbbConferenceHandlingService,
+              public classroomService: ClassroomService,
+              private dialog: MatDialog,
+              public auth: AuthService,
+              private snackbar: MatSnackBar,
+              private sanitizer: DomSanitizer,
+              private router: Router,
+              @Inject(DOCUMENT) document) {
   }
   courseId: number;
   users: User[] = [];

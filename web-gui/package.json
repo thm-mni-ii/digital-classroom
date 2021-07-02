@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "dist": "ng build --prod",
+    "dist": "ng build --prod --deploy-url /static/",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

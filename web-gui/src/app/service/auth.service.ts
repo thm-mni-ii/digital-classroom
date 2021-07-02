@@ -5,6 +5,7 @@ import {Observable} from 'rxjs';
 import {of, throwError} from 'rxjs';
 import {mergeMap, map} from 'rxjs/operators';
 import {JWTToken} from '../model/JWTToken';
+import {Params} from "@angular/router";
 
 const TOKEN_ID = 'token';
 
@@ -59,25 +60,6 @@ export class AuthService {
     }
   }
 
-  private login(username: string, password: string, uri: string): Observable<JWTToken> {
-    return this.http.post<any>(uri,
-      {username: username, password: password},
-      {observe: 'response'})
-      .pipe(map(res => {
-        const token = this.extractTokenFromHeader(res);
-        this.storeToken(token);
-        return token;
-      }), mergeMap(token => {
-        const decodedToken = this.decodeToken(token);
-        if (!decodedToken) {
-          return throwError('Decoding the token failed');
-        } else if (this.jwtHelper.isTokenExpired(token)) {
-          return throwError('Token expired');
-        }
-        return of(decodedToken);
-      }));
-  }
-
   private decodeToken(token: string): JWTToken | null {
     return this.jwtHelper.decodeToken(localStorage.getItem('token'));
   }
@@ -111,5 +93,23 @@ export class AuthService {
         }
       }
     }, 60000);
+  }
+
+  useSessionToken(params: Params) {
+    return this.http.get<any>('/classroom-api/join',
+      {params: params, observe: 'response'})
+      .pipe(map(res => {
+        const token = this.extractTokenFromHeader(res);
+        this.storeToken(token);
+        return token;
+      }), mergeMap(token => {
+        const decodedToken = this.decodeToken(token);
+        if (!decodedToken) {
+          return throwError('Decoding the token failed');
+        } else if (this.jwtHelper.isTokenExpired(token)) {
+          return throwError('Token expired');
+        }
+        return of(decodedToken);
+      }));
   }
 }
