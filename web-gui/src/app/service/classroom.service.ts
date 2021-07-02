@@ -3,11 +3,10 @@ import {Observable, Subject, BehaviorSubject, Subscription} from 'rxjs';
 import {RxStompClient} from '../util/rx-stomp';
 import {distinctUntilChanged} from 'rxjs/operators';
 import {Message} from 'stompjs';
-import {ConferenceService} from './conference.service';
+import {BbbConferenceHandlingService} from './bbb-conference-handling.service';
 import {AuthService} from './auth.service';
 import {MatDialog} from '@angular/material/dialog';
 import {IncomingCallDialogComponent} from '../dialogs/incoming-call-dialog/incoming-call-dialog.component';
-import {User} from '../model/User';
 import {Ticket} from '../model/Ticket';
 
 /**
@@ -23,16 +22,16 @@ export class ClassroomService {
   private tickets: Subject<Ticket[]>;
   private usersInConference: Subject<User[]>;
   private inviteUsers: Subject<boolean>;
-  private conferenceWindowHandle: Window | null | undefined;
+  private conferenceWindowHandle: Window;
   private isWindowhandleOpen: Subject<Boolean>;
   private courseId = 0;
   private service = 'bigbluebutton';
   incomingCallSubscriptions: Subscription[] = [];
-  private heartbeatInterval: number | undefined;
+  private heartbeatInterval: number;
   private heartbeatTime = 5000;
-  private stompRx: RxStompClient | undefined;
+  private stompRx: RxStompClient = null;
 
-  public constructor(private authService: AuthService, private conferenceService: ConferenceService, private mDialog: MatDialog) {
+  public constructor(private authService: AuthService, private conferenceService: BbbConferenceHandlingService, private mDialog: MatDialog) {
     this.users = new BehaviorSubject<User[]>([]);
     this.isWindowhandleOpen = new Subject<Boolean>();
     this.isWindowhandleOpen.asObservable().pipe(distinctUntilChanged()).subscribe((isOpen) => {
@@ -103,7 +102,7 @@ export class ClassroomService {
   public join(courseId: number) {
     this.courseId = courseId;
     this.stompRx = new RxStompClient(window.origin.replace(/^http(s)?/, 'ws$1') + '/websocket', this.constructHeaders());
-    this.stompRx.onConnect((_: any) => {
+    this.stompRx.onConnect(_ => {
       // Handles Conference from tutors / docents to take part in a webconference
       this.listen('/user/' + this.authService.getToken().username + '/classroom/invite').subscribe(m => this.handleInviteMsg(m));
       this.listen('/user/' + this.authService.getToken().username + '/classroom/users').subscribe(m => this.handleUsersMsg(m));
@@ -142,7 +141,7 @@ export class ClassroomService {
   public leave() {
     this.send('/websocket/classroom/leave', {courseId: this.courseId});
     clearInterval(this.heartbeatInterval);
-    return this.stompRx!!.disconnect();
+    return this.stompRx.disconnect();
   }
 
   /**
@@ -175,7 +174,7 @@ export class ClassroomService {
    * @param ticket The ticket to remove.
    */
   public removeTicket(ticket: Ticket) {
-    ticket.queuePosition = undefined;
+    ticket.queuePosition = null;
     this.send('/websocket/classroom/ticket/remove', ticket);
   }
 
@@ -214,11 +213,11 @@ export class ClassroomService {
   }
 
   private send(topic: string, body: {}): void {
-    this.stompRx!!.send(topic, body, this.constructHeaders());
+    this.stompRx.send(topic, body, this.constructHeaders());
   }
 
   private listen(topic: string): Observable<Message> {
-    return this.stompRx!.subscribeToTopic(topic, this.constructHeaders());
+    return this.stompRx.subscribeToTopic(topic, this.constructHeaders());
   }
 
   public openConference() {

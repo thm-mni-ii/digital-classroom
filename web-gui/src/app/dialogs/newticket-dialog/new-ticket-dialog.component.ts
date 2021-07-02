@@ -6,7 +6,6 @@ import {UserService} from '../../service/user.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatSliderModule} from '@angular/material/slider';
 import {Ticket} from '../../model/Ticket';
-import {User} from "../../model/User";
 
 @Component({
   selector: 'app-newticket-dialog',
@@ -14,8 +13,8 @@ import {User} from "../../model/User";
   styleUrls: ['./new-ticket-dialog.component.scss']
 })
 export class NewTicketDialogComponent implements OnInit {
-  form: FormGroup | undefined;
-  priority: number | undefined;
+  form: FormGroup;
+  priority: number;
 
   constructor(private _formBuilder: FormBuilder, @Inject(MAT_DIALOG_DATA) public data: any,
               private snackBar: MatSnackBar, public dialogRef: MatDialogRef<NewTicketDialogComponent>,
@@ -31,16 +30,15 @@ export class NewTicketDialogComponent implements OnInit {
 
   createTicket() {
      const ticket: Ticket = {
-       id: undefined,
-       desc: this.form!.get('desc')!.value.trim(),
-       priority: this.form!.get('priority')!.value,
-       courseId: undefined,
+       id: null,
+       desc: this.form.get('desc').value.trim(),
+       courseId: null,
        timestamp: Date.now(),
        status: 'open',
-       creator: undefined,
-       assignee: undefined,
+       creator: null,
+       assignee: null,
      };
-     if (ticket.desc !== '' && ticket!.priority! > 0 && ticket!.priority! <= 10) {
+     if (ticket.desc !== '' && ticket.timestamp > 0 && ticket.timestamp <= 10) {
        this.classroomService.createTicket(ticket);
        this.snackBar.open(`Das Ticket wurde erfolgreich erstellt.`, 'OK', {duration: 3000});
        this.dialogRef.close();

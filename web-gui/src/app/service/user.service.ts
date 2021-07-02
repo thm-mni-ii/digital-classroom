@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import {User} from '../model/User';
 import {Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 
@@ -15,15 +14,6 @@ export class UserService {
    */
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>('/api/v1/users');
-  }
-
-  /**
-   * Requests the creation of a new user
-   * @param user The user
-   * @return Observable that succeeds if the user is created
-   */
-  createUser(user: User): Observable<void> {
-    return this.http.post<void>('/api/v1/users', user);
   }
 
   /**

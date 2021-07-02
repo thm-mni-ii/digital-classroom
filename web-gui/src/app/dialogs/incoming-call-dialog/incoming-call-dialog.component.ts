@@ -1,7 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {ClassroomService} from '../../service/classroom.service';
-import {User} from '../../model/User';
 
 @Component({
   selector: 'app-incoming-call-dialog',
@@ -9,9 +8,10 @@ import {User} from '../../model/User';
   styleUrls: ['./incoming-call-dialog.component.scss']
 })
 export class IncomingCallDialogComponent implements OnInit {
-  inviter: User | undefined;
-  cid: number | undefined;
-  audio: HTMLAudioElement | undefined;
+  inviter: User;
+  cid: number;
+  audio: HTMLAudioElement;
+  conferenceURL: string;
   constructor(public dialogRef: MatDialogRef<IncomingCallDialogComponent>, public classroomService: ClassroomService,
               @Inject(MAT_DIALOG_DATA) public data: any) { }
 
@@ -27,8 +27,8 @@ export class IncomingCallDialogComponent implements OnInit {
     this.audio.load();
     this.audio.play();
     this.dialogRef.afterClosed().subscribe(next => {
-      this.audio!.pause();
-      this.audio!.currentTime = 0;
+      this.audio.pause();
+      this.audio.currentTime = 0;
     });
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible') {
@@ -41,7 +41,7 @@ export class IncomingCallDialogComponent implements OnInit {
   }
   // todo: fix string constants ( enum didnt work)
   public acceptCall() {
-    this.classroomService.joinConference(this.inviter!, this.cid);
+    this.classroomService.joinConference(this.inviter, this.cid);
     this.dialogRef.close();
   }
 

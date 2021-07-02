@@ -1,7 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {ConferenceService} from '../../service/conference.service';
+import {ExternalClassroomHandlingService} from '../../service/external-classroom-handling-service';
 import {ClassroomService} from '../../service/classroom.service';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import { first } from 'rxjs/operators';
@@ -13,12 +13,13 @@ import {User} from '../../model/User';
   styleUrls: ['./invite-to-conference-dialog.component.scss']
 })
 export class InviteToConferenceDialogComponent implements OnInit {
-  invitees: User[] | undefined;
+  invitees: User[];
+  form: FormGroup;
   disabled: Boolean = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: any,
               public dialogRef: MatDialogRef<InviteToConferenceDialogComponent>,
-              private snackBar: MatSnackBar, private conferenceService: ConferenceService,
+              private snackBar: MatSnackBar, private conferenceService: ExternalClassroomHandlingService,
               private classroomService: ClassroomService, private _formBuilder: FormBuilder) {
   }
 
@@ -27,7 +28,7 @@ export class InviteToConferenceDialogComponent implements OnInit {
     this.dialogRef.afterOpened().subscribe(() => this.disabled = false);
   }
 
-  public startCall(invitee: User[]) {
+  public startCall(invitee) {
       if (this.disabled) {
         return;
       }
@@ -36,7 +37,7 @@ export class InviteToConferenceDialogComponent implements OnInit {
         this.classroomService.inviteToConference(invitee);
       });
       this.classroomService.openConference();
-      this.snackBar.open(`${invitee[0].prename} ${invitee[0].surname} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
+      this.snackBar.open(`${invitee.prename} ${invitee.surname} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
       this.dialogRef.close();
   }
 

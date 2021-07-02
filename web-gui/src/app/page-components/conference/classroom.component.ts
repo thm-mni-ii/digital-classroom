@@ -1,7 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TitlebarService} from '../../service/titlebar.service';
-import {ConferenceService} from '../../service/conference.service';
+import {BbbConferenceHandlingService} from '../../service/bbb-conference-handling.service';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DomSanitizer} from '@angular/platform-browser';
@@ -14,34 +14,34 @@ import {AuthService} from '../../service/auth.service';
 import {Roles} from '../../model/Roles';
 import {InviteToConferenceDialogComponent} from '../../dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component';
 import {AssignTicketDialogComponent} from '../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component';
-import {User} from '../../model/User';
 import {Ticket} from '../../model/Ticket';
 
 @Component({
   selector: 'app-conference',
-  templateUrl: './conference.component.html',
-  styleUrls: ['./conference.component.scss']
+  templateUrl: './classroom.component.html',
+  styleUrls: ['./classroom.component.scss']
 })
-export class ConferenceComponent implements OnInit {
-  constructor(private route: ActivatedRoute, private titlebar: TitlebarService,
-              private conferenceService: ConferenceService, public classroomService: ClassroomService,
+export class ClassroomComponent implements OnInit {
+  constructor(private route: ActivatedRoute, private titlebarService: TitlebarService,
+              private conferenceService: BbbConferenceHandlingService, public classroomService: ClassroomService,
               private dialog: MatDialog, public auth: AuthService, private snackbar: MatSnackBar, private sanitizer: DomSanitizer,
-              private router: Router, @Inject(DOCUMENT) document: Document) {
+              private router: Router, @Inject(DOCUMENT) document) {
   }
-  courseId: number | undefined;
+  courseId: number;
   users: User[] = [];
   tmpUsers: User[] = [];
   usersInConference: User[] = [];
   tmpUsersInConference: User[] = [];
-  tickets: Observable<Ticket[]> | undefined;
+  tickets: Observable<Ticket[]>;
+  self: User;
   isCourseSubscriber: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   subscriptions: Subscription[] = [];
-  username: string | undefined;
+  username: string;
   conferenceWindowOpen: Boolean = false;
-  intervalID: NodeJS.Timeout | undefined;
+  intervalID;
 
   ngOnInit(): void {
-    this.username = this.auth.getToken().username;
+    this.username = this.auth.getToken().id;
     this.tickets = this.classroomService.getTickets();
     this.route.params.subscribe(param => {
         this.courseId = param.id;
@@ -63,15 +63,15 @@ export class ConferenceComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    clearInterval(this.intervalID!);
+    clearInterval(this.intervalID);
   }
 
   public isAuthorized() {
-    const courseRole = this.auth.getToken().courseRoles[this.courseId!];
-    return Roles.CourseRole.isDocent(courseRole) || Roles.CourseRole.isTutor(courseRole);
+    const courseRole = this.auth.getToken().role
+    return Roles.isDocent(courseRole) || Roles.isTutor(courseRole);
   }
 
-  public inviteToConference(users: User[]) {
+  public inviteToConference(users) {
     this.dialog.open(InviteToConferenceDialogComponent, {
       height: 'auto',
       width: 'auto',
@@ -87,7 +87,7 @@ export class ConferenceComponent implements OnInit {
     });
   }
 
-  public assignTeacher(ticket: Ticket) {
+  public assignTeacher(ticket) {
     this.dialog.open(AssignTicketDialogComponent, {
       height: 'auto',
       width: 'auto',
@@ -95,27 +95,27 @@ export class ConferenceComponent implements OnInit {
     });
   }
 
-  public sortTickets(tickets: Ticket[]) {
+  public sortTickets(tickets) {
     return tickets.sort( (a, b) => {
-      const username: String = this.auth.getToken().username;
-      if (a.assignee!.username === username && b.assignee!.username === username) {
-        return a.timestamp! > b.timestamp! ? 1 : -1;
-      } else if (a.assignee!.username === username) {
+      const userId: String = this.auth.getToken().id;
+      if (a.assignee.id === userId && b.assignee.id === userId) {
+        return a.timestamp > b.timestamp ? 1 : -1;
+      } else if (a.assignee.id === userId) {
         return -1;
-      } else if (b.assignee!.username === username) {
+      } else if (b.assignee.id === userId) {
         return 1;
       }
-      return a.timestamp! > b.timestamp! ? 1 : -1;
+      return a.timestamp > b.timestamp ? 1 : -1;
     });
   }
-  public sortUsers(users: User[]) {
+  public sortUsers(users) {
     return users.sort((a, b) => {
-      if (a.role > b.role) {
+      if (a.courseRole > b.courseRole) {
         return 1;
-      } else if ( a.role < b.role) {
+      } else if ( a.courseRole < b.courseRole) {
         return -1;
       } else {
-        if (a.role > b.role) {
+        if (a.courseRole > b.courseRole) {
           return 1;
         } else {
           return -1;
@@ -126,7 +126,7 @@ export class ConferenceComponent implements OnInit {
 
   joinClassroom() {
     Notification.requestPermission();
-    this.classroomService.join(this.courseId!);
+    this.classroomService.join(this.courseId);
   }
   leaveClassroom() {
     this.classroomService.leave();
@@ -137,7 +137,7 @@ export class ConferenceComponent implements OnInit {
       case 'DOCENT': return 'Dozent';
       case 'TUTOR': return 'Tutor';
       case 'STUDENT': return 'Student';
-      default: return 'Student';
+      default: return "Student";
     }
   }
   public createTicket() {
@@ -152,13 +152,13 @@ export class ConferenceComponent implements OnInit {
     });
   }
   public isInConference(user: User) {
-    return this.usersInConference.filter(u => u.username === user.username).length !== 0;
+    return this.usersInConference.filter(u => u.id === user.id).length !== 0;
   }
-  public isInConferenceName(username: string) {
-    return this.usersInConference.filter(u => u.username === username).length !== 0;
+  public isInConferenceId(id: string) {
+    return this.usersInConference.filter(u => u.id === id).length !== 0;
   }
-  public isInClassroom(username: string) {
-    return this.users.filter(u => u.username === username).length !== 0;
+  public isInClassroom(id: string) {
+    return this.users.filter(u => u.id === id).length !== 0;
   }
 
   private refresh() {

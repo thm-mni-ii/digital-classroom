@@ -1,26 +1,26 @@
 import {Injectable} from '@angular/core';
-import {Observable, BehaviorSubject} from 'rxjs';
-import {ConferenceSystems} from '../util/ConferenceSystems';
+import {Observable, BehaviorSubject, Subscription} from 'rxjs';
 import {Conference} from '../model/Conference';
 
 /**
- * Handles the creation and retrivement of conference links.
- * @author Andrej Sajenko
+ * Handles the creation and retrievement of conference links.
+ * @author Andrej Sajenko & Dominik Kröll
  */
 @Injectable({
   providedIn: 'root'
 })
-export class ConferenceService {
+export class BbbConferenceHandlingService {
   private personalConferenceLink: BehaviorSubject<string>;
   private bbbConferenceLink: BehaviorSubject<object>;
-  private conference: BehaviorSubject<Conference> | undefined;
+  private conference: BehaviorSubject<Conference>;
   public selectedConferenceSystem: BehaviorSubject<string>;
+  public conferenceTimeoutTimer: Subscription;
 
   public constructor() {
-     this.personalConferenceLink = new BehaviorSubject<string>("");
-     this.bbbConferenceLink = new  BehaviorSubject<object>({});
-     this.selectedConferenceSystem = new BehaviorSubject<string>(ConferenceSystems.BigBlueButton);
-     //this.conference = new BehaviorSubject<Conference>();
+     this.personalConferenceLink = new BehaviorSubject<string>(null);
+     this.bbbConferenceLink = new  BehaviorSubject<object>(null);
+     this.selectedConferenceSystem = new BehaviorSubject<string>('bigbluebutton');
+     this.conference = new BehaviorSubject<Conference>(null);
   }
 
   public getSelectedConferenceSystem(): Observable<string> {
@@ -32,6 +32,6 @@ export class ConferenceService {
   }
 
   public getConferenceConference(): Observable<Conference> {
-    return this.conference!.asObservable();
+    return this.conference.asObservable();
   }
 }

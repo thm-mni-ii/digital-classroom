@@ -2,7 +2,7 @@ import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {FormBuilder} from '@angular/forms';
-import {ConferenceService} from '../../service/conference.service';
+import {BbbConferenceHandlingService} from '../../service/bbb-conference-handling.service';
 import {ClassroomService} from '../../service/classroom.service';
 
 /**
@@ -20,7 +20,7 @@ export class NewConferenceDialogComponent {
 
   constructor(public dialogRef: MatDialogRef<NewConferenceDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any, private snackBar: MatSnackBar,
-              private _formBuilder: FormBuilder, public conferenceService: ConferenceService, public classroomService: ClassroomService) {
+              private _formBuilder: FormBuilder, public conferenceService: BbbConferenceHandlingService, public classroomService: ClassroomService) {
   }
 
   cancelBtn() {
@@ -28,7 +28,7 @@ export class NewConferenceDialogComponent {
   }
 
   okBtn() {
-    this.conferenceService.setSelectedConferenceSystem(this.services.find(service => service.id === this.serviceid)!.name);
+    this.conferenceService.setSelectedConferenceSystem(this.services.find(service => service.id === this.serviceid).name);
     this.dialogRef.close(this.conferenceURL);
   }
 }

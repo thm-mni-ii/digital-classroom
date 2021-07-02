@@ -42,11 +42,13 @@ import {MatMenuModule} from '@angular/material/menu';
     MatButtonToggleModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSnackBarModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
     MatCardModule,
     MatRadioModule,
+    MatDialogModule,
     MatExpansionModule,
     MatRippleModule,
     MatGridListModule,
@@ -68,12 +70,14 @@ import {MatMenuModule} from '@angular/material/menu';
     MatButtonToggleModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSnackBarModule,
     MatTableModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
     MatCardModule,
     MatRadioModule,
+    MatDialogModule,
     MatExpansionModule,
     MatRippleModule,
     MatGridListModule,
@@ -86,8 +90,8 @@ import {MatMenuModule} from '@angular/material/menu';
     MatStepperModule,
     MatProgressSpinnerModule,
     MatCheckboxModule
-  ]
+  ],
+  declarations: []
 })
 export class MaterialComponentsModule {
-
 }

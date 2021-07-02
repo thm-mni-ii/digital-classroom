@@ -1,5 +1,7 @@
-import {Client, IFrame, IMessage} from '@stomp/stompjs';
+import {Client, CompatClient, Frame, IMessage, Stomp, StompSubscription} from '@stomp/stompjs';
 import {Observable, Subscriber} from 'rxjs';
+import * as SockJS from 'sockjs-client';
+import {Subscription} from 'stompjs';
 
 
 /**
@@ -14,16 +16,10 @@ export class RxStompClient {
   /**
    * Create a stomp client over a sockjs websocket.
    * @param uri The Endpoint of the websocket server.
-   * @param connectHeaders
    */
-  public constructor(uri: string, connectHeaders: { 'Auth-Token': string; }) {
-    this.client = new Client({
-      webSocketFactory: () => new WebSocket(uri),
-      connectHeaders: connectHeaders,
-      reconnectDelay: 10000
-    });
+  public constructor(uri: string, connectHeaders) {
+    this.client = new Client({webSocketFactory: () => new WebSocket(uri), connectHeaders: connectHeaders, reconnectDelay: 10000});
   }
-
   /**
    * @return True if client is connected.
    */
@@ -43,7 +39,7 @@ export class RxStompClient {
    * On Connect Callabck
    * @param cb Callback to be called when the client is connected
    */
-  public onConnect(cb: { (_: any): void; (receipt: IFrame): void; }) {
+  public onConnect(cb) {
     this.client.onDisconnect = () => {
       this.subscriber.forEach((subscriber) => subscriber.complete());
       this.subscriber = [];
@@ -79,6 +75,6 @@ export class RxStompClient {
    * @param headers Optional headers
    */
   public disconnect() {
-    this.client.deactivate().then(r => console.log(r));
+    this.client.deactivate();
   }
 }

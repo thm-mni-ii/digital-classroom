@@ -1,11 +1,6 @@
-// export?
-export interface User {
-  id?: number;
-  prename: string;
-  surname: string;
-  email: string;
-  password?: string;
-  username: string;
-  alias?: string;
-  role: string; // ADMIN, MODERATOR, or USER
+interface User {
+  id?: string;
+  fullName: string;
+  classroomId: string;
+  userRole?: string; // STUDENT, TUTOR or TEACHER
 }

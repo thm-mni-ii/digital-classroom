@@ -4,10 +4,9 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import { first } from 'rxjs/operators';
 import {UserService} from '../../service/user.service';
 import {ClassroomService} from '../../service/classroom.service';
-import {ConferenceService} from '../../service/conference.service';
+import {BbbConferenceHandlingService} from '../../service/bbb-conference-handling.service';
 import {AuthService} from '../../service/auth.service';
 import {Roles} from '../../model/Roles';
-import {User} from '../../model/User';
 import {Ticket} from '../../model/Ticket';
 
 @Component({
@@ -24,8 +23,8 @@ export class AssignTicketDialogComponent implements OnInit {
   disabled = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: any, public dialogRef: MatDialogRef<AssignTicketDialogComponent>,
-              private snackBar: MatSnackBar, public classroomService: ClassroomService,
-              private conferenceService: ConferenceService, public auth: AuthService, private dialog: MatDialog) {
+              private snackBar: MatSnackBar, private classroomService: ClassroomService,
+              private conferenceService: BbbConferenceHandlingService, public auth: AuthService, private dialog: MatDialog) {
     this.ticket = this.data.ticket;
     this.courseID = this.data.courseID;
   }
@@ -39,14 +38,14 @@ export class AssignTicketDialogComponent implements OnInit {
     });
     this.dialogRef.afterOpened().subscribe(() => this.disabled = false);
   }
-  public assignTicket(assignee: User, ticket: Ticket) {
+  public assignTicket(assignee, ticket) {
       this.ticket.assignee = assignee;
       this.classroomService.updateTicket(ticket);
       this.snackBar.open(`${assignee.prename} ${assignee.surname} wurde dem Ticket als Bearbeiter zugewiesen`, 'OK', {duration: 3000});
       this.dialogRef.close();
     }
 
-  public closeTicket(ticket: Ticket) {
+  public closeTicket(ticket) {
     this.classroomService.removeTicket(ticket);
     this.snackBar.open(`Das Ticket wurde geschlossen`, 'OK', {duration: 3000});
     this.dialogRef.close();
@@ -54,10 +53,10 @@ export class AssignTicketDialogComponent implements OnInit {
 
   public isAuthorized() {
     const courseRole = this.auth.getToken().courseRoles[this.courseID];
-    return Roles.CourseRole.isDocent(courseRole) || Roles.CourseRole.isTutor(courseRole);
+    return Roles.isDocent(courseRole) || Roles.isTutor(courseRole);
   }
 
-  public startCall(invitee: User[]) {
+  public startCall(invitee) {
     if (this.disabled) {
       return;
     }
@@ -66,11 +65,11 @@ export class AssignTicketDialogComponent implements OnInit {
       this.classroomService.inviteToConference(invitee);
     });
     this.classroomService.openConference();
-    this.snackBar.open(`${invitee[0].prename} ${invitee[0].surname} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
+    this.snackBar.open(`${invitee.prename} ${invitee.surname} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
     this.dialogRef.close();
   }
   public isInConference(user: User) {
-    return this.usersInConference.filter(u => u.username === user.username).length !== 0;
+    return this.usersInConference.filter(u => u.id === user.id).length !== 0;
   }
   public joinConference(user: User) {
     this.classroomService.joinConference(user);
