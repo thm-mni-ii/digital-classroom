@@ -1,11 +1,10 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {ExternalClassroomHandlingService} from '../../service/external-classroom-handling-service';
+import {BbbConferenceHandlingService} from '../../service/bbb-conference-handling.service';
 import {ClassroomService} from '../../service/classroom.service';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import { first } from 'rxjs/operators';
-import {User} from '../../model/User';
 
 @Component({
   selector: 'app-inviteto-conference-dialog',
@@ -19,7 +18,7 @@ export class InviteToConferenceDialogComponent implements OnInit {
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: any,
               public dialogRef: MatDialogRef<InviteToConferenceDialogComponent>,
-              private snackBar: MatSnackBar, private conferenceService: ExternalClassroomHandlingService,
+              private snackBar: MatSnackBar, private conferenceService: BbbConferenceHandlingService,
               private classroomService: ClassroomService, private _formBuilder: FormBuilder) {
   }
 

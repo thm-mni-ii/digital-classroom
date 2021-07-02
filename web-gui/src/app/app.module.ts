@@ -14,6 +14,7 @@ import {UserTeacherFilter} from "./dialogs/pipes/user-teacher-filter";
 import {MaterialComponentsModule} from "./modules/material-components/material-components.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatSliderModule} from "@angular/material/slider";
+import {IncomingCallDialogComponent} from "./dialogs/incoming-call-dialog/incoming-call-dialog.component";
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import {MatSliderModule} from "@angular/material/slider";
     NewConferenceDialogComponent,
     InviteToConferenceDialogComponent,
     AssignTicketDialogComponent,
-    UserTeacherFilter
+    UserTeacherFilter,
+    IncomingCallDialogComponent
   ],
   imports: [
     BrowserModule,

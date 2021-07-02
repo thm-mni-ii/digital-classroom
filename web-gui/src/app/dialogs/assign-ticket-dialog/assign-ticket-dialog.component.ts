@@ -23,7 +23,7 @@ export class AssignTicketDialogComponent implements OnInit {
   disabled = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: any, public dialogRef: MatDialogRef<AssignTicketDialogComponent>,
-              private snackBar: MatSnackBar, private classroomService: ClassroomService,
+              private snackBar: MatSnackBar, public classroomService: ClassroomService,
               private conferenceService: BbbConferenceHandlingService, public auth: AuthService, private dialog: MatDialog) {
     this.ticket = this.data.ticket;
     this.courseID = this.data.courseID;
@@ -52,8 +52,8 @@ export class AssignTicketDialogComponent implements OnInit {
   }
 
   public isAuthorized() {
-    const courseRole = this.auth.getToken().courseRoles[this.courseID];
-    return Roles.isDocent(courseRole) || Roles.isTutor(courseRole);
+    const userRole = this.auth.getToken().role
+    return Roles.isDocent(userRole) || Roles.isTutor(userRole);
   }
 
   public startCall(invitee) {
