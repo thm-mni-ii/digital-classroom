@@ -5,6 +5,7 @@ import {BbbConferenceHandlingService} from '../../service/bbb-conference-handlin
 import {ClassroomService} from '../../service/classroom.service';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import { first } from 'rxjs/operators';
+import {User} from "../../model/User";
 
 @Component({
   selector: 'app-inviteto-conference-dialog',

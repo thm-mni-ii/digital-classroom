@@ -8,6 +8,7 @@ import {BbbConferenceHandlingService} from '../../service/bbb-conference-handlin
 import {AuthService} from '../../service/auth.service';
 import {Roles} from '../../model/Roles';
 import {Ticket} from '../../model/Ticket';
+import {User} from "../../model/User";
 
 @Component({
   selector: 'app-assign-ticket-dialog',

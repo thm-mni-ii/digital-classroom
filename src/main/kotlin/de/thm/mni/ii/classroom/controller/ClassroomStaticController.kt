@@ -25,7 +25,7 @@ class ClassroomStaticController {
         @Value("classpath:static/index.html") html: Resource
     ): RouterFunction<ServerResponse?> {
         return RouterFunctions.route(
-            RequestPredicates.GET("/")
+            RequestPredicates.GET("/classroom/")
         ) { ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(html) }
     }
 
@@ -34,7 +34,7 @@ class ClassroomStaticController {
         @Value("classpath:static/index.html") html: Resource
     ): RouterFunction<ServerResponse?> {
         return RouterFunctions.route(
-            RequestPredicates.GET("/join")
+            RequestPredicates.GET("/classroom/join")
         ) { ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(html) }
     }
 }

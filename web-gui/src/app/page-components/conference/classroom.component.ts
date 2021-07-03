@@ -15,6 +15,7 @@ import {Roles} from '../../model/Roles';
 import {InviteToConferenceDialogComponent} from '../../dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component';
 import {AssignTicketDialogComponent} from '../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component';
 import {Ticket} from '../../model/Ticket';
+import {User} from "../../model/User";
 
 @Component({
   selector: 'app-conference',

@@ -62,12 +62,12 @@ class ClassroomInstanceManagingService(private val classroomProperties: Classroo
         if (classroom == null) {
             throw ClassroomNotFoundException(classroomId)
         } else {
-            return Mono.defer {
+            return Mono.create {
                 val joinedUser = classroom.joinUser(password, user)
                 val sessionToken = RandomStringUtils.randomAlphanumeric(16)
                 classroomUserDetailsRepository.insertValidToken(sessionToken, joinedUser)
-                val url = URL("${classroomProperties.serviceUrl}:${serverProperties.port}/join?sessionToken=$sessionToken").toString()
-                Mono.just(
+                val url = URL("${classroomProperties.serviceUrl}:${serverProperties.port}/classroom/join?sessionToken=$sessionToken").toString()
+                it.success(
                     JoinRoomBBBResponse(
                         success = true,
                         meetingID = classroom.internalClassroomId,

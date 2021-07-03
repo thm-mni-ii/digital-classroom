@@ -15,21 +15,16 @@ import {JWTToken} from "../../model/JWTToken";
   styleUrls: ['./join.component.scss']
 })
 export class JoinComponent implements OnInit {
-  username: string;
-  password: string;
-
   constructor(private router: Router,
               private route: ActivatedRoute,
               private auth: AuthService,
               private dialog: MatDialog,
-              @Inject(DOCUMENT) private document: Document,
-              private snackbar: MatSnackBar) {
+              @Inject(DOCUMENT) private document: Document) {
   }
 
   ngOnInit() {
     if (this.auth.isAuthenticated()) {
       console.log("Valid JWT found!")
-      this.router.navigate(['/classroom'])
     } else {
       this.route.queryParams.subscribe(
         async params => {
@@ -40,10 +35,12 @@ export class JoinComponent implements OnInit {
             reason => {
               console.log(reason)
               this.router.navigate(['/unauthorized'])
+              return;
             }
           )
         }
       )
     }
+    this.router.navigate(['/classroom']).then()
   }
 }

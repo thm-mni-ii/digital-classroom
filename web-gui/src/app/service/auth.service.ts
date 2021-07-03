@@ -54,9 +54,9 @@ export class AuthService {
    * @param response The http response.
    */
   public renewToken(response: HttpResponse<any>) {
-    const token = this.extractTokenFromHeader(response);
+    const token = AuthService.extractTokenFromHeader(response);
     if (token && !this.jwtHelper.isTokenExpired(token)) {
-      this.storeToken(token);
+      AuthService.storeToken(token);
     }
   }
 
@@ -64,7 +64,7 @@ export class AuthService {
     return this.jwtHelper.decodeToken(localStorage.getItem('token'));
   }
 
-  private extractTokenFromHeader(response: HttpResponse<any>): string {
+  private static extractTokenFromHeader(response: HttpResponse<any>): string {
     const authHeader: string = response.headers.get('Authorization');
     return authHeader ? authHeader.replace('Bearer ', '') : null;
   }
@@ -76,7 +76,7 @@ export class AuthService {
     return localStorage.getItem(TOKEN_ID);
   }
 
-  private storeToken(token: string): void {
+  private static storeToken(token: string): void {
     localStorage.setItem(TOKEN_ID, token);
   }
 
@@ -95,12 +95,13 @@ export class AuthService {
     }, 60000);
   }
 
-  useSessionToken(params: Params) {
-    return this.http.get<any>('/classroom-api/join',
+  useSessionToken(params: Params): Observable<JWTToken> {
+    return this.http.get<string>('/classroom-api/join',
       {params: params, observe: 'response'})
       .pipe(map(res => {
-        const token = this.extractTokenFromHeader(res);
-        this.storeToken(token);
+        const token = AuthService.extractTokenFromHeader(res);
+        AuthService.storeToken(token);
+        console.log(token)
         return token;
       }), mergeMap(token => {
         const decodedToken = this.decodeToken(token);
@@ -109,6 +110,7 @@ export class AuthService {
         } else if (this.jwtHelper.isTokenExpired(token)) {
           return throwError('Token expired');
         }
+        console.log(decodedToken)
         return of(decodedToken);
       }));
   }

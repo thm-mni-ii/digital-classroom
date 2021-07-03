@@ -6,7 +6,7 @@ import {JoinComponent} from "./page-components/join-component/join.component";
 import {UnauthorizedComponent} from "./page-components/unauthorized/unauthorized.component";
 
 const routes: Routes = [
-  {path: 'join', component: JoinComponent},
+  {path: 'classroom/join', component: JoinComponent},
   {path: 'classroom', component: ClassroomComponent, canActivate: [AuthGuard]},
   {path: '**', component: UnauthorizedComponent}
 ];

@@ -13,7 +13,7 @@ class ClassroomUserDetailsRepository: ReactiveUserDetailsService {
     private val validTokens = HashMap<String, User>()
 
     fun findBySessionToken(sessionToken: String): User? =
-        validTokens.remove(sessionToken)
+        validTokens.get(sessionToken)
 
     fun insertValidToken(sessionToken: String, user: User) {
         validTokens[sessionToken] = user

@@ -8,6 +8,7 @@ import {AuthService} from './auth.service';
 import {MatDialog} from '@angular/material/dialog';
 import {IncomingCallDialogComponent} from '../dialogs/incoming-call-dialog/incoming-call-dialog.component';
 import {Ticket} from '../model/Ticket';
+import {User} from "../model/User";
 
 /**
  * Service that provides observables that asynchronacally updates tickets, users and privide Conferences to take

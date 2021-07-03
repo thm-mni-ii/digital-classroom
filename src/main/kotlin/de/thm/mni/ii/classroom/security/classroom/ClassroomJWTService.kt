@@ -22,18 +22,17 @@ class ClassroomJWTService(private val jwtProperties: JWTProperties) {
         val claims: Claims =
             Jwts.parserBuilder()
                 .setSigningKey(key)
-                .deserializeJsonWith(JacksonDeserializer(mapOf(Pair("user", User::class.java))))
                 .requireSubject(jwtProperties.jwtSubject)
                 .build()
                 .parseClaimsJws(jwt)
                 .body
-        return claims.get("user", User::class.java)
+        return User(claims)
     }
 
     fun createToken(user: User): String {
         return Jwts.builder()
             .setSubject(jwtProperties.jwtSubject)
-            .claim("user", user)
+            .addClaims(user.getJwtClaims())
             .setIssuedAt(Date())
             .setExpiration(Date(Date().time + (1000 * jwtProperties.expiration)))
             .signWith(key)
