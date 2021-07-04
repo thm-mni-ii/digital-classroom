@@ -53,7 +53,7 @@ export class AssignTicketDialogComponent implements OnInit {
   }
 
   public isAuthorized() {
-    const userRole = this.auth.getToken().role
+    const userRole = this.auth.getToken().userRole
     return Roles.isDocent(userRole) || Roles.isTutor(userRole);
   }
 

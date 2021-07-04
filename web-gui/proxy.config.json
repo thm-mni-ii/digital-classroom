@@ -10,5 +10,11 @@
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
+  },
+  "/websocket/**": {
+    "target": "http://localhost:8085",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true
   }
 }

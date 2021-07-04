@@ -45,7 +45,6 @@ export class AuthService {
     } else if (this.jwtHelper.isTokenExpired(token)) {
       throw new Error('Token expired');
     }
-    decodedToken.role = JSON.parse(<any>decodedToken.role);
     return decodedToken;
   }
 
@@ -56,12 +55,12 @@ export class AuthService {
   public renewToken(response: HttpResponse<any>) {
     const token = AuthService.extractTokenFromHeader(response);
     if (token && !this.jwtHelper.isTokenExpired(token)) {
-      AuthService.storeToken(token);
+      this.storeToken(token);
     }
   }
 
-  private decodeToken(token: string): JWTToken | null {
-    return this.jwtHelper.decodeToken(localStorage.getItem('token'));
+  private decodeToken(token: string): JWTToken {
+    return this.jwtHelper.decodeToken(token);
   }
 
   private static extractTokenFromHeader(response: HttpResponse<any>): string {
@@ -76,7 +75,7 @@ export class AuthService {
     return localStorage.getItem(TOKEN_ID);
   }
 
-  private static storeToken(token: string): void {
+  private storeToken(token: string): void {
     localStorage.setItem(TOKEN_ID, token);
   }
 
@@ -100,7 +99,7 @@ export class AuthService {
       {params: params, observe: 'response'})
       .pipe(map(res => {
         const token = AuthService.extractTokenFromHeader(res);
-        AuthService.storeToken(token);
+        this.storeToken(token);
         console.log(token)
         return token;
       }), mergeMap(token => {

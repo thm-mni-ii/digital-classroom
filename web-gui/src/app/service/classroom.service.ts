@@ -102,8 +102,10 @@ export class ClassroomService {
    */
   public join(courseId: number) {
     this.courseId = courseId;
-    //this.stompRx = new RxStompClient(window.origin.replace(/^http(s)?/, 'ws$1') + '/websocket', this.constructHeaders());
-    // this.stompRx.onConnect(_ => {
+    this.stompRx = new RxStompClient(
+      window.origin.replace(/^http(s)?/, 'ws$1') + '/websocket', this.constructHeaders()
+    );
+     this.stompRx.onConnect(_ => {
     //   // Handles Conference from tutors / docents to take part in a webconference
     //   this.listen('/user/' + this.authService.getToken().id + '/classroom/invite').subscribe(m => this.handleInviteMsg(m));
     //   this.listen('/user/' + this.authService.getToken().id + '/classroom/users').subscribe(m => this.handleUsersMsg(m));
@@ -131,8 +133,8 @@ export class ClassroomService {
     //   //  this.send('/websocket/classroom/heartbeat', {});
     //   //}, this.heartbeatTime)
     //
-    // });
-    // this.stompRx.connect();
+    });
+    this.stompRx.connect();
 
   }
 

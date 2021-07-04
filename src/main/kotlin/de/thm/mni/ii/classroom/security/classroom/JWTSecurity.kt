@@ -33,7 +33,7 @@ class JWTSecurity(private val userDetailsRepository: ClassroomUserDetailsReposit
             }
         }
         val jwtFilter = AuthenticationWebFilter(authManager)
-        jwtFilter.setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers("/classroom-api", "/classroom-api/**"))
+        jwtFilter.setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers("/classroom-api", "/classroom-api/**", "/websocket/**", "/websocket"))
         jwtFilter.setServerAuthenticationConverter(JWTAuthenticationConverter())
         return jwtFilter
     }

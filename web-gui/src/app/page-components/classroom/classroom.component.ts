@@ -48,7 +48,7 @@ export class ClassroomComponent implements OnInit {
   intervalID;
 
   ngOnInit(): void {
-    this.username = this.auth.getToken().id;
+    this.username = this.auth.getToken().userId;
     this.tickets = this.classroomService.getTickets();
     this.route.params.subscribe(param => {
         this.courseId = param.id;
@@ -74,7 +74,7 @@ export class ClassroomComponent implements OnInit {
   }
 
   public isAuthorized() {
-    const courseRole = this.auth.getToken().role
+    const courseRole = this.auth.getToken().userRole
     return Roles.isDocent(courseRole) || Roles.isTutor(courseRole);
   }
 
@@ -104,7 +104,7 @@ export class ClassroomComponent implements OnInit {
 
   public sortTickets(tickets) {
     return tickets.sort( (a, b) => {
-      const userId: String = this.auth.getToken().id;
+      const userId: String = this.auth.getToken().userId;
       if (a.assignee.id === userId && b.assignee.id === userId) {
         return a.timestamp > b.timestamp ? 1 : -1;
       } else if (a.assignee.id === userId) {
@@ -135,9 +135,9 @@ export class ClassroomComponent implements OnInit {
     Notification.requestPermission();
     this.classroomService.join(this.courseId);
   }
+
   leaveClassroom() {
     this.classroomService.leave();
-    this.router.navigate(['courses', this.courseId]);
   }
   public parseCourseRole(role: String): String {
     switch (role) {

@@ -44,7 +44,7 @@ class SecurityConfiguration(private val sessionTokenSecurity: SessionTokenSecuri
             .hasAuthority("GATEWAY")
             .and()
             .authorizeExchange() // Exchanges at the paths below with UserRoles STUDENT, TUTOR or TEACHER are authorized.
-            .pathMatchers("/classroom-api/**")
+            .pathMatchers("/classroom-api/*", "/websocket/**")
             .hasAnyAuthority("STUDENT", "TUTOR", "TEACHER")
             .and()
             .authorizeExchange()

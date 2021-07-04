@@ -2,9 +2,9 @@
  * The decoded jwt token of a successfully authenticated user.
  */
 export interface JWTToken {
-  id: string;
+  userId: string;
   fullName: string;
-  role: string; // STUDENT, TUTOR, TEACHER
+  userRole: string; // STUDENT, TUTOR, TEACHER
   classroomId: string;
   exp: number;
 }

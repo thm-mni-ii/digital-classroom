@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import {ClassroomComponent} from "./page-components/conference/classroom.component";
+import {ClassroomComponent} from "./page-components/classroom/classroom.component";
 import {MenuBarComponent} from "./page-components/menu-bar/menu-bar.component";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {NewTicketDialogComponent} from "./dialogs/newticket-dialog/new-ticket-dialog.component";

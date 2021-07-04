@@ -9,7 +9,7 @@
    </mat-dialog-content>
   <mat-dialog-actions>
     <button mat-flat-button *ngIf="isAuthorized()
-    && this.auth.getToken().id != ticket.creator.id"
+    && this.auth.getToken().userId != ticket.creator.id"
             color="accent" (click)="startCall([ticket.creator])">Zu Konferenz einladen</button>
     <button mat-flat-button *ngIf="isInConference(ticket.creator)"
             color="accent" (click)="this.classroomService.joinConference(ticket.creator)">

@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono
 class ClassroomApiController {
 
     @GetMapping("/join")
-    fun joinClassroom(auth: ClassroomAuthentication) =
-        Mono.empty<String>()
+    fun joinClassroom(auth: ClassroomAuthentication) = Mono.empty<String>()
 
 }
