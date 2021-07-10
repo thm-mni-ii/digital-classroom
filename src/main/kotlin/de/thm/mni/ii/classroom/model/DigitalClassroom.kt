@@ -1,8 +1,11 @@
 package de.thm.mni.ii.classroom.model
 
 import de.thm.mni.ii.classroom.security.exception.InvalidMeetingPasswordException
+import reactor.core.publisher.Flux
+import reactor.kotlin.core.publisher.toFlux
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
+import java.util.*
 import kotlin.collections.HashSet
 
 /**
@@ -18,7 +21,7 @@ data class DigitalClassroom(
 ) {
 
     private val users = HashSet<User>()
-    private val tickets = HashSet<Ticket>()
+    private val tickets = PriorityQueue<Ticket>()
 
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
 
@@ -37,6 +40,15 @@ data class DigitalClassroom(
         }
         users.add(user)
         return user
+    }
+
+    fun createTicket(ticket: Ticket): Flux<Ticket> {
+        tickets.add(ticket)
+        return tickets.toFlux()
+    }
+
+    fun getTickets(): Flux<Ticket> {
+        return tickets.toFlux()
     }
 
 

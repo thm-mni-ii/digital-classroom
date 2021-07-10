@@ -17,14 +17,14 @@ import de.thm.mni.ii.classroom.downstream.APIQueryParamTranslation.*
 import de.thm.mni.ii.classroom.downstream.model.JoinRoomBBBResponse
 
 @Component
-class ClassroomApiService(private val classroomInstanceManagingService: ClassroomInstanceManagingService) {
+class DownstreamApiService(private val classroomInstanceService: ClassroomInstanceService) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     fun createClassroom(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {
         return Mono.create {
             val classroomId = getClassroomId(param)
-            val classroomInstance = classroomInstanceManagingService.createNewClassroomInstance(
+            val classroomInstance = classroomInstanceService.createNewClassroomInstance(
                 classroomId,
                 param.getFirst(StudentPassword.api),
                 param.getFirst(TutorPassword.api),
@@ -40,7 +40,7 @@ class ClassroomApiService(private val classroomInstanceManagingService: Classroo
         val password: String = param.getFirst(Password.api) ?: throw NoPasswordSpecifiedException()
         val userId = param.getFirst(UserId.api) ?: UUID.randomUUID().toString()
         val userName = param.getFirst(userName.api) ?: throw NoUsernameSpecifiedException()
-        return classroomInstanceManagingService.joinUser(
+        return classroomInstanceService.joinUser(
                     classroomId,
                     password,
                     User(userId, userName, classroomId, UserRole.STUDENT))
@@ -49,7 +49,7 @@ class ClassroomApiService(private val classroomInstanceManagingService: Classroo
     fun isMeetingRunning(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {
         return Mono.create {
             val classroomId = getClassroomId(param)
-            it.success(IsMeetingRunningBBB(classroomInstanceManagingService.isRunning(classroomId)))
+            it.success(IsMeetingRunningBBB(classroomInstanceService.isRunning(classroomId)))
         }
     }
 
