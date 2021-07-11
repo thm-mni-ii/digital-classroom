@@ -2,6 +2,7 @@ package de.thm.mni.ii.classroom.security.classroom
 
 import de.thm.mni.ii.classroom.model.User
 import de.thm.mni.ii.classroom.properties.JWTProperties
+import de.thm.mni.ii.classroom.util.repeatLength
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.jackson.io.JacksonDeserializer
@@ -16,7 +17,7 @@ import java.util.*
 @Component
 class ClassroomJWTService(private val jwtProperties: JWTProperties) {
 
-    private val key: Key = Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
+    private val key: Key = Keys.hmacShaKeyFor(jwtProperties.secret.repeatLength(32).toByteArray())
 
     fun authorize(jwt: String): User? {
         val claims: Claims =
