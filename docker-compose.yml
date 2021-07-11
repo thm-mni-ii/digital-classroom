@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  digital-classroom:
+    build: .
+    restart: always
+    ports:
+      - 8085:8085
+    environment:
+      - JWT_SECRET=8Dsupersecurekeydf0
+      - BBB_SECRET

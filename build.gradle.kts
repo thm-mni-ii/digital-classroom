@@ -21,6 +21,7 @@ dependencies {
     // implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.security:spring-security-rsocket")
     implementation("io.jsonwebtoken:jjwt-impl:0.11.2")
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.2")
     implementation("org.springframework.boot:spring-boot-starter-rsocket")
@@ -55,7 +56,7 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-task("dist") {
+tasks.withType<Jar> {
     dependsOn("web-gui:copyWebToBackend")
 }
 
