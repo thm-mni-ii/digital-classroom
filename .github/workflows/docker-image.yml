@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag thmmniii/digital-classroom:$(date +%s)
+      run: docker build . --file Dockerfile --tag thmmniii/digital-classroom:latest
     - name: Docker login
       run: echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
     - name: Push the Docker image
