@@ -2,19 +2,19 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import { first } from 'rxjs/operators';
-import {UserService} from '../../service/user.service';
 import {ClassroomService} from '../../service/classroom.service';
 import {BbbConferenceHandlingService} from '../../service/bbb-conference-handling.service';
 import {AuthService} from '../../service/auth.service';
 import {Roles} from '../../model/Roles';
 import {Ticket} from '../../model/Ticket';
 import {User} from "../../model/User";
+import {TicketService} from "../../service/ticket.service";
+import {UserService} from "../../service/user.service";
 
 @Component({
   selector: 'app-assign-ticket-dialog',
   templateUrl: './assign-ticket-dialog.component.html',
-  styleUrls: ['./assign-ticket-dialog.component.scss'],
-  providers: [UserService]
+  styleUrls: ['./assign-ticket-dialog.component.scss']
 })
 export class AssignTicketDialogComponent implements OnInit {
   ticket: Ticket;
@@ -23,9 +23,15 @@ export class AssignTicketDialogComponent implements OnInit {
   usersInConference: User[] = [];
   disabled = false;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any, public dialogRef: MatDialogRef<AssignTicketDialogComponent>,
-              private snackBar: MatSnackBar, public classroomService: ClassroomService,
-              private conferenceService: BbbConferenceHandlingService, public auth: AuthService, private dialog: MatDialog) {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any,
+              public dialogRef: MatDialogRef<AssignTicketDialogComponent>,
+              private snackBar: MatSnackBar,
+              public classroomService: ClassroomService,
+              private conferenceService: BbbConferenceHandlingService,
+              private ticketService: TicketService,
+              public auth: AuthService,
+              private dialog: MatDialog,
+              private userService: UserService) {
     this.ticket = this.data.ticket;
     this.courseID = this.data.courseID;
   }
@@ -34,27 +40,27 @@ export class AssignTicketDialogComponent implements OnInit {
     this.classroomService.getUsersInConference().subscribe((users) => {
       this.usersInConference = users;
     });
-    this.classroomService.getUsers().subscribe((user) => {
-      this.users.push(user);
+    this.userService.getUsersInClassroom().then((users) => {
+      this.users = users
     });
     this.dialogRef.afterOpened().subscribe(() => this.disabled = false);
   }
   public assignTicket(assignee, ticket) {
       this.ticket.assignee = assignee;
-      this.classroomService.updateTicket(ticket);
+      this.ticketService.updateTicket(ticket);
       this.snackBar.open(`${assignee.prename} ${assignee.surname} wurde dem Ticket als Bearbeiter zugewiesen`, 'OK', {duration: 3000});
       this.dialogRef.close();
     }
 
   public closeTicket(ticket) {
-    this.classroomService.removeTicket(ticket);
+    this.ticketService.removeTicket(ticket);
     this.snackBar.open(`Das Ticket wurde geschlossen`, 'OK', {duration: 3000});
     this.dialogRef.close();
   }
 
   public isAuthorized() {
     const userRole = this.auth.getToken().userRole
-    return Roles.isDocent(userRole) || Roles.isTutor(userRole);
+    return Roles.isTeacher(userRole) || Roles.isTutor(userRole);
   }
 
   public startCall(invitee) {

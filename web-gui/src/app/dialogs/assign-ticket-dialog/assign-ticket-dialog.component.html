@@ -1,7 +1,7 @@
 <div class="container">
   <div class="dialogTitle" matDialogTitle>Ticket Details</div>
    <mat-dialog-content *ngIf="isAuthorized()" style="max-height: 100%; overflow: hidden;">
-    <mat-action-list  *ngFor="let user of users | isTeacher">
+    <mat-action-list  *ngFor="let user of users | isPrivileged">
       <mat-list-item>
         <button mat-flat-button (click)="assignTicket(user, ticket)">{{user.fullName}}</button>
       </mat-list-item>

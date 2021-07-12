@@ -1,6 +1,7 @@
 package de.thm.mni.ii.classroom.model
 
 import de.thm.mni.ii.classroom.security.exception.InvalidMeetingPasswordException
+import de.thm.mni.ii.classroom.util.update
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
@@ -60,8 +61,7 @@ data class DigitalClassroom(
 
     fun assignTicket(ticket: Ticket): Flux<Ticket> {
         // This works, because tickets are equal when their creator, title and description are equal.
-        tickets.remove(ticket)
-        tickets.add(ticket)
+        tickets.update(ticket)
         return tickets.mapIndexed(this::applyIndex).toFlux()
     }
 

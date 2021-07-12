@@ -6,6 +6,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
+import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
@@ -32,7 +34,17 @@ class JWTSecurity(private val userDetailsRepository: ClassroomUserDetailsReposit
             }
         }
         val jwtFilter = AuthenticationWebFilter(authManager)
-        jwtFilter.setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers("/classroom-api", "/classroom-api/**", "/websocket/**", "/websocket"))
+        jwtFilter.setRequiresAuthenticationMatcher(AndServerWebExchangeMatcher(
+            ServerWebExchangeMatchers.pathMatchers(
+                "/classroom-api", "/classroom-api/**", "/websocket/**", "/websocket"
+            ),
+            ServerWebExchangeMatcher{
+                if (it.request.path.value().endsWith("/classroom-api/join"))
+                    ServerWebExchangeMatcher.MatchResult.notMatch()
+                else ServerWebExchangeMatcher.MatchResult.match()
+            }
+        ))
+
         jwtFilter.setServerAuthenticationConverter(JWTAuthenticationConverter())
         return jwtFilter
     }

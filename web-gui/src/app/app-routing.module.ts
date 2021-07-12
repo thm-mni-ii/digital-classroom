@@ -7,7 +7,7 @@ import {UnauthorizedComponent} from "./page-components/unauthorized/unauthorized
 
 const routes: Routes = [
   {path: 'classroom/join', component: JoinComponent},
-  {path: 'classroom', component: ClassroomComponent, canActivate: [AuthGuard]},
+  {path: 'classroom', component: ClassroomComponent},
   {path: '**', component: UnauthorizedComponent}
 ];
 

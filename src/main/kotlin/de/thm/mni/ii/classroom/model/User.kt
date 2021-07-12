@@ -1,10 +1,12 @@
 package de.thm.mni.ii.classroom.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.jsonwebtoken.Claims
 import org.springframework.security.core.userdetails.UserDetails
 import java.security.Principal
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class User(
     val userId: String,
     val fullName: String,

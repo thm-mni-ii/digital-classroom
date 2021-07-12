@@ -10,17 +10,19 @@ import {NewTicketDialogComponent} from "./dialogs/newticket-dialog/new-ticket-di
 import {NewConferenceDialogComponent} from "./dialogs/newconference-dialog/new-conference-dialog.component";
 import {InviteToConferenceDialogComponent} from "./dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component";
 import {AssignTicketDialogComponent} from "./dialogs/assign-ticket-dialog/assign-ticket-dialog.component";
-import {UserTeacherFilter} from "./dialogs/pipes/user-teacher-filter";
 import {MaterialComponentsModule} from "./modules/material-components/material-components.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatSliderModule} from "@angular/material/slider";
 import {IncomingCallDialogComponent} from "./dialogs/incoming-call-dialog/incoming-call-dialog.component";
 import {HttpClientModule} from "@angular/common/http";
-import {JwtHelperService, JwtModule} from "@auth0/angular-jwt";
+import {JwtModule} from "@auth0/angular-jwt";
 import {RouterModule} from "@angular/router";
 import {JoinComponent} from "./page-components/join-component/join.component";
 import { UnauthorizedComponent } from './page-components/unauthorized/unauthorized.component';
 import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
+import {IsPrivilegedPipe} from "./pipes/user-teacher-filter";
+import {TicketService} from "./service/ticket.service";
+import {UserService} from "./service/user.service";
 
 @NgModule({
   declarations: [
@@ -31,7 +33,7 @@ import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
     NewConferenceDialogComponent,
     InviteToConferenceDialogComponent,
     AssignTicketDialogComponent,
-    UserTeacherFilter,
+    IsPrivilegedPipe,
     IncomingCallDialogComponent,
     JoinComponent,
     UnauthorizedComponent

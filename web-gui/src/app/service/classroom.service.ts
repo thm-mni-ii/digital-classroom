@@ -9,6 +9,7 @@ import {IncomingCallDialogComponent} from '../dialogs/incoming-call-dialog/incom
 import {Ticket} from '../model/Ticket';
 import {User} from "../model/User";
 import {HttpClient} from "@angular/common/http";
+import {WebSocketService} from "./websocket.service";
 
 /**
  * Service that provides observables that asynchronacally updates tickets, users and privide Conferences to take
@@ -34,7 +35,9 @@ export class ClassroomService {
   public constructor(private authService: AuthService,
                      private conferenceService: BbbConferenceHandlingService,
                      private mDialog: MatDialog,
-                     private http: HttpClient) {
+                     private http: HttpClient,
+                     private webSocketService: WebSocketService) {
+    this.webSocketService.connect()
     this.users = http.get<User>("/classroom-api/users")
     this.tickets = http.get<Ticket[]>("/classroom-api/ticket")
     this.isWindowhandleOpen = new Subject<Boolean>();
@@ -60,13 +63,6 @@ export class ClassroomService {
         }
       }
     }, 1000);
-  }
-
-  /**
-   * @return Users of the connected course.
-   */
-  public getUsers(): Observable<User> {
-    return this.users;
   }
 
   public getConferenceWindowHandle() {
@@ -156,31 +152,6 @@ export class ClassroomService {
    */
   public inviteToConference(users: User[]) {
     this.send('/websocket/classroom/conference/invite', {users: users, 'courseid': this.self.classroomId});
-  }
-
-  /**
-   * Creates a new ticket.
-   * @param ticket The ticket to create.
-   */
-  public createTicket(ticket: Ticket) {
-    this.http.post<Ticket[]>("/classroom-api/ticket", ticket).subscribe()
-  }
-
-  /**
-   * Updates an existing ticket.
-   * @param ticket The ticket to update.
-   */
-  public updateTicket(ticket: Ticket) {
-    this.http.put<Ticket[]>("/classroom-api/ticket", ticket).subscribe()
-  }
-
-  /**
-   * Removes an existing ticket.
-   * @param ticket The ticket to remove.
-   */
-  public removeTicket(ticket: Ticket) {
-    ticket.queuePosition = null;
-    this.http.post<Ticket[]>("/classroom-api/ticket/delete", ticket).subscribe()
   }
 
   private handleInviteMsg(msg: Message) {

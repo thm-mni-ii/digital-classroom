@@ -53,7 +53,7 @@ class ClassroomUserService(private val classroomInstanceService: ClassroomInstan
     }
 
     fun deleteTicket(auth: ClassroomAuthentication, ticket: Ticket): Flux<Ticket> {
-        if (auth.user != ticket.creator || auth.user!!.isPrivileged()) {
+        if (auth.user != ticket.creator || !auth.user!!.isPrivileged()) {
             throw UnauthorizedException("User not authorized to delete ticket!")
         }
         return classroomInstanceService

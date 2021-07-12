@@ -11,3 +11,9 @@ fun CharSequence.repeatLength(n: Int): String {
         str.repeatLength(n)
     }
 }
+
+
+fun <T> MutableSet<T>.update(item: T): Boolean {
+    this.remove(item)
+    return this.add(item)
+}

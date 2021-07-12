@@ -31,14 +31,16 @@
     <h3>Offene Tickets</h3>
     <mat-list>
       <mat-card class="ticket-mat-card" mat-list-item (click)="assignTeacher(ticket)" *ngFor="let ticket of sortTickets(tickets); index as i"
-                [ngClass]="{'selfassigned': ticket.assignee.userId == self.userId,
-                'otherassigned': ticket.assignee.userId != ticket.creator.userId && ticket.assignee.userId != self.userId,
-                'unassigned': ticket.assignee.userId == ticket.creator.userId}">
+                [ngClass]="{
+                'unassigned': ticket.assignee == undefined,
+                'selfassigned': ticket.assignee != undefined && ticket.assignee?.userId == self.userId,
+                'otherassigned': ticket.assignee != undefined && ticket.assignee?.userId != ticket.creator.userId && ticket.assignee?.userId != self.userId
+                }">
         <mat-card-content>
           <div class="grid-container">
             <div class="grid-item ticket-desc"><p>{{ticket.description}}</p></div>
             <div class="grid-item ticket-prio"><p>Priorität: <b>{{1}}</b></p></div>
-            <div class="grid-item ticket-assignee"><p *ngIf="ticket.assignee.userId != ticket.creator.userId">Zugewiesen an: {{ticket.assignee.fullName}}</p>
+            <div class="grid-item ticket-assignee"><p *ngIf="ticket.assignee?.userId != ticket.creator.userId">Zugewiesen an: {{ticket.assignee?.fullName}}</p>
             </div>
             <div class="grid-item ticket-date"><p>Erstellt: {{ticket.createTime | date:"dd/MM/yyyy 'um' hh:mm"}}</p>
             </div>

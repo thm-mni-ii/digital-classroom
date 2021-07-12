@@ -42,14 +42,14 @@ class WebSocketConfiguration {
     }
 
     @Bean
-    fun userHandler(objectMapper: ObjectMapper, eventPublisher: UserEventPublisher)
-    : WebSocketHandler {
+    fun userHandler(objectMapper: ObjectMapper, eventPublisher: UserEventPublisher): WebSocketHandler {
         val publish: Flux<ClassroomEvent> = Flux
             .create(eventPublisher)
             .share()
         val logger = LoggerFactory.getLogger("UserWebsocketHandler")
 
         return WebSocketHandler { session: WebSocketSession ->
+            logger.info("Connected ${session.handshakeInfo.principal.block()?.name}")
             val messageFlux = publish
                 .map { evt: ClassroomEvent ->
                     try {

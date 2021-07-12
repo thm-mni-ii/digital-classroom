@@ -1,12 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {ClassroomService} from '../../service/classroom.service';
-import {UserService} from '../../service/user.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatSliderModule} from '@angular/material/slider';
 import {Ticket} from '../../model/Ticket';
-import {tick} from "@angular/core/testing";
 
 @Component({
   selector: 'app-newticket-dialog',

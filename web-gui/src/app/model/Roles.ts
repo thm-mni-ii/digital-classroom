@@ -2,10 +2,13 @@ export const Roles = {
   TEACHER: 'TEACHER',
   TUTOR: 'TUTOR',
   STUDENT: 'STUDENT',
-  isDocent: (courseRole: string): boolean => {
-    return courseRole === Roles.TEACHER;
+  isTeacher: (courseRole: string): boolean => {
+    return courseRole == Roles.TEACHER;
   },
   isTutor: (courseRole: string): boolean => {
-    return courseRole === Roles.TUTOR;
+    return courseRole == Roles.TUTOR;
+  },
+  isPrivileged: (courseRole: string): boolean => {
+    return Roles.isTeacher(courseRole) || Roles.isTutor(courseRole)
   }
 };
