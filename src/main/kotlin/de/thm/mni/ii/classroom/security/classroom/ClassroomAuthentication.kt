@@ -3,9 +3,11 @@ package de.thm.mni.ii.classroom.security.classroom
 import de.thm.mni.ii.classroom.model.User
 import org.springframework.security.core.Authentication
 
-class ClassroomAuthentication(val user: User?,
-                              private val jwt: String?,
-                              private val sessionToken: String?): Authentication {
+class ClassroomAuthentication(
+    val user: User?,
+    private val jwt: String?,
+    private val sessionToken: String?
+): Authentication {
 
     fun getClassroomId() = user!!.classroomId
 

@@ -6,7 +6,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
-import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
@@ -39,10 +38,10 @@ class JWTSecurity(private val userDetailsRepository: ClassroomUserDetailsReposit
     }
 
     class JWTAuthenticationConverter: ServerAuthenticationConverter {
-        private val BEARER = "Bearer "
-        private val matchBearerLength = Predicate { authValue: String -> authValue.length > BEARER.length }
+        private val bearer = "Bearer "
+        private val matchBearerLength = Predicate { authValue: String -> authValue.length > bearer.length }
         private fun isolateBearerValue(authValue: String) = Mono.just(
-            authValue.substring(BEARER.length)
+            authValue.substring(bearer.length)
         )
 
         private fun extract(serverWebExchange: ServerWebExchange): Mono<String> {

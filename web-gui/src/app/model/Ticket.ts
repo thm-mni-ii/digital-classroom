@@ -1,12 +1,10 @@
 import {User} from "./User";
 
 export interface Ticket {
-  id: number;
-  desc: string;
-  courseId: number;
+  description: string;
   status: string;
-  timestamp: number;
-  assignee: User;
-  creator: User;
+  createTime: number;
+  assignee?: User;
+  creator?: User;
   queuePosition?: number;
 }

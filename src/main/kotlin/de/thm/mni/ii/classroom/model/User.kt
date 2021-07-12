@@ -11,6 +11,9 @@ data class User(
     val classroomId: String,
     var userRole: UserRole
 ): Principal, UserDetails {
+
+    fun isPrivileged(): Boolean = userRole == UserRole.TEACHER || userRole == UserRole.TUTOR
+
     @JsonIgnore
     override fun getName(): String = fullName
 

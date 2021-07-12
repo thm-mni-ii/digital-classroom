@@ -4,7 +4,8 @@ import de.thm.mni.ii.classroom.model.Ticket
 import de.thm.mni.ii.classroom.security.classroom.ClassroomAuthentication
 import de.thm.mni.ii.classroom.services.ClassroomUserService
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Controller
+import org.springframework.http.MediaType.*
+import org.springframework.security.access.annotation.Secured
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 
@@ -31,5 +32,17 @@ class ClassroomApiController(private val classroomUserService: ClassroomUserServ
     @PostMapping("/ticket")
     fun createTicket(auth: ClassroomAuthentication, ticket: Ticket) =
         classroomUserService.createTicket(auth, ticket)
+
+    @PutMapping("/ticket")
+    @Secured("TUTOR", "DOCENT")
+    fun assignTicket(auth: ClassroomAuthentication, ticket: Ticket) =
+        classroomUserService.assignTicket(auth, ticket)
+
+    @PostMapping("/ticket/delete")
+    fun deleteTicket(auth: ClassroomAuthentication, ticket: Ticket) =
+        classroomUserService.deleteTicket(auth, ticket)
+
+    @GetMapping("/users")
+    fun getUsers(auth: ClassroomAuthentication) = classroomUserService.getUsers(auth)
 
 }

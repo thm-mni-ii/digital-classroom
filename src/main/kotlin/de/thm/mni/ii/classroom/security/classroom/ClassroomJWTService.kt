@@ -17,7 +17,7 @@ import java.util.*
 @Component
 class ClassroomJWTService(private val jwtProperties: JWTProperties) {
 
-    private val key: Key = Keys.hmacShaKeyFor(jwtProperties.secret.repeatLength(32).toByteArray())
+    private val key: Key = Keys.hmacShaKeyFor(jwtProperties.secret.repeatLength(60).toByteArray())
 
     fun authorize(jwt: String): User? {
         val claims: Claims =
@@ -35,7 +35,7 @@ class ClassroomJWTService(private val jwtProperties: JWTProperties) {
             .setSubject(jwtProperties.jwtSubject)
             .addClaims(user.getJwtClaims())
             .setIssuedAt(Date())
-            .setExpiration(Date(Date().time + (1000 * jwtProperties.expiration)))
+            .setExpiration(Date(System.currentTimeMillis() + (1000 * jwtProperties.expiration)))
             .signWith(key)
             .compact()
     }

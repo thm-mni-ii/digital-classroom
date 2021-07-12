@@ -1,10 +1,8 @@
 /**
  * The decoded jwt token of a successfully authenticated user.
  */
-export interface JWTToken {
-  userId: string;
-  fullName: string;
-  userRole: string; // STUDENT, TUTOR, TEACHER
-  classroomId: string;
+import {User} from "./User";
+
+export interface JWTToken extends User {
   exp: number;
 }

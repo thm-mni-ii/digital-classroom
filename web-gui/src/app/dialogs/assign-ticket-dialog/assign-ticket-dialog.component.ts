@@ -34,8 +34,8 @@ export class AssignTicketDialogComponent implements OnInit {
     this.classroomService.getUsersInConference().subscribe((users) => {
       this.usersInConference = users;
     });
-    this.classroomService.getUsers().subscribe((users) => {
-      this.users = users;
+    this.classroomService.getUsers().subscribe((user) => {
+      this.users.push(user);
     });
     this.dialogRef.afterOpened().subscribe(() => this.disabled = false);
   }
@@ -70,7 +70,7 @@ export class AssignTicketDialogComponent implements OnInit {
     this.dialogRef.close();
   }
   public isInConference(user: User) {
-    return this.usersInConference.filter(u => u.id === user.id).length !== 0;
+    return this.usersInConference.filter(u => u.userId === user.userId).length !== 0;
   }
   public joinConference(user: User) {
     this.classroomService.joinConference(user);

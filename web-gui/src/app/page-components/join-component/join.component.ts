@@ -23,24 +23,22 @@ export class JoinComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.auth.isAuthenticated()) {
-      console.log("Valid JWT found!")
-    } else {
-      this.route.queryParams.subscribe(
-        async params => {
-          console.log('sessionToken: ', params["sessionToken"])
-          await this.auth.useSessionToken(params).toPromise().then(
-            token => console.log('user ', token.fullName, 'authenticated via sessionToken!')
-          ).catch(
-            reason => {
-              console.log(reason)
+    this.route.queryParams.subscribe(
+      async params => {
+        console.log('sessionToken: ', params["sessionToken"])
+        await this.auth.useSessionToken(params).toPromise().then(
+          token => console.log('user ', token.fullName, 'authenticated via sessionToken!')
+        ).catch(
+          reason => {
+            console.log(reason)
+            if (!this.auth.isAuthenticated()) {
               this.router.navigate(['/unauthorized'])
               return;
             }
-          )
-        }
-      )
-    }
+          }
+        )
+      }
+    )
     this.router.navigate(['/classroom']).then()
   }
 }

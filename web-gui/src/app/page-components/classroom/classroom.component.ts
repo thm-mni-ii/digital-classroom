@@ -16,6 +16,7 @@ import {InviteToConferenceDialogComponent} from '../../dialogs/inviteto-conferen
 import {AssignTicketDialogComponent} from '../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component';
 import {Ticket} from '../../model/Ticket';
 import {User} from "../../model/User";
+import {tick} from "@angular/core/testing";
 
 @Component({
   selector: 'app-conference',
@@ -34,34 +35,39 @@ export class ClassroomComponent implements OnInit {
               private router: Router,
               @Inject(DOCUMENT) document) {
   }
-  courseId: number;
+  classroomId: string;
   users: User[] = [];
   tmpUsers: User[] = [];
   usersInConference: User[] = [];
   tmpUsersInConference: User[] = [];
-  tickets: Observable<Ticket[]>;
+  ticketObservable: Observable<Ticket[]>;
+  tickets: Ticket[] = []
   self: User;
   isCourseSubscriber: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   subscriptions: Subscription[] = [];
-  username: string;
   conferenceWindowOpen: Boolean = false;
   intervalID;
 
   ngOnInit(): void {
-    this.username = this.auth.getToken().userId;
-    this.tickets = this.classroomService.getTickets();
+    const token = this.auth.getToken()
+    this.self = token
+    this.classroomId = token.classroomId
+    this.joinClassroom(token);
+
+    this.ticketObservable = this.classroomService.getTickets();
+    this.ticketObservable.subscribe((ticket: Ticket[]) => {
+      this.tickets = ticket
+    })
+
     this.route.params.subscribe(param => {
-        this.courseId = param.id;
+        this.classroomId = param.id;
       });
     this.classroomService.getUsersInConference().subscribe((users) => {
       this.tmpUsersInConference = users;
     });
-    this.classroomService.getUsers().subscribe((users) => {
-      this.tmpUsers = users;
+    this.classroomService.getUsers().subscribe((user) => {
+      this.users.push(user[0]);
     });
-    if (!this.classroomService.isJoined()) {
-      this.joinClassroom();
-    }
     this.classroomService.getConferenceWindowHandle().subscribe(isOpen => {
       this.conferenceWindowOpen = isOpen;
     });
@@ -90,7 +96,7 @@ export class ClassroomComponent implements OnInit {
     this.dialog.open(NewConferenceDialogComponent, {
       height: 'auto',
       width: 'auto',
-      data: {courseID: this.courseId}
+      data: {courseID: this.classroomId}
     });
   }
 
@@ -98,21 +104,22 @@ export class ClassroomComponent implements OnInit {
     this.dialog.open(AssignTicketDialogComponent, {
       height: 'auto',
       width: 'auto',
-      data: {courseID: this.courseId, ticket: ticket}
+      data: {courseID: this.classroomId, ticket: ticket}
     });
   }
 
-  public sortTickets(tickets) {
+  public sortTickets(tickets: Ticket[]) {
+    if (tickets.length <= 0) return null
     return tickets.sort( (a, b) => {
       const userId: String = this.auth.getToken().userId;
-      if (a.assignee.id === userId && b.assignee.id === userId) {
-        return a.timestamp > b.timestamp ? 1 : -1;
-      } else if (a.assignee.id === userId) {
+      if (a.assignee.userId === userId && b.assignee.userId === userId) {
+        return a.createTime > b.createTime ? 1 : -1;
+      } else if (a.assignee.userId === userId) {
         return -1;
-      } else if (b.assignee.id === userId) {
+      } else if (b.assignee.userId === userId) {
         return 1;
       }
-      return a.timestamp > b.timestamp ? 1 : -1;
+      return a.createTime > b.createTime ? 1 : -1;
     });
   }
   public sortUsers(users) {
@@ -131,9 +138,9 @@ export class ClassroomComponent implements OnInit {
     });
   }
 
-  joinClassroom() {
+  joinClassroom(user: User) {
     Notification.requestPermission();
-    this.classroomService.join(this.courseId);
+    this.classroomService.join(user);
   }
 
   leaveClassroom() {
@@ -151,25 +158,29 @@ export class ClassroomComponent implements OnInit {
     this.dialog.open(NewTicketDialogComponent, {
       height: 'auto',
       width: 'auto',
-      data: {courseID: this.courseId}
-    }).afterClosed().subscribe(ticket => {
+    }).beforeClosed().subscribe((ticket: Ticket) => {
       if (ticket) {
+        ticket.creator = this.self
         this.classroomService.createTicket(ticket);
       }
     });
   }
   public isInConference(user: User) {
-    return this.usersInConference.filter(u => u.id === user.id).length !== 0;
+    return this.usersInConference.filter(u => u.userId === user.userId).length !== 0;
   }
-  public isInConferenceId(id: string) {
-    return this.usersInConference.filter(u => u.id === id).length !== 0;
+  public isInConferenceId(userId: string) {
+    return this.usersInConference.filter(u => u.userId === userId).length !== 0;
   }
-  public isInClassroom(id: string) {
-    return this.users.filter(u => u.id === id).length !== 0;
+  public isInClassroom(userId: string) {
+    return this.users.filter(u => u.userId === userId).length !== 0;
   }
 
   private refresh() {
-    this.users = this.sortUsers(JSON.parse(JSON.stringify(this.tmpUsers)));
-    this.usersInConference = this.sortUsers(JSON.parse(JSON.stringify(this.tmpUsersInConference)));
+    //this.users = this.sortUsers(JSON.parse(JSON.stringify(this.users)));
+    //this.usersInConference = this.sortUsers(JSON.parse(JSON.stringify(this.tmpUsersInConference)));
+  }
+
+  private getTicket(ticket: any): Ticket {
+    return <Ticket>ticket
   }
 }

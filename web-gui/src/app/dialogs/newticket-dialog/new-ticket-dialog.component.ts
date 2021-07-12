@@ -6,6 +6,7 @@ import {UserService} from '../../service/user.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatSliderModule} from '@angular/material/slider';
 import {Ticket} from '../../model/Ticket';
+import {tick} from "@angular/core/testing";
 
 @Component({
   selector: 'app-newticket-dialog',
@@ -14,12 +15,18 @@ import {Ticket} from '../../model/Ticket';
 })
 export class NewTicketDialogComponent implements OnInit {
   form: FormGroup;
-  priority: number;
+  ticket: Ticket = {
+    description: "",
+    createTime: Date.now(),
+    status: 'open',
+    creator: null,
+    assignee: null,
+  };
+
+
 
   constructor(private _formBuilder: FormBuilder, @Inject(MAT_DIALOG_DATA) public data: any,
-              private snackBar: MatSnackBar, public dialogRef: MatDialogRef<NewTicketDialogComponent>,
-              private classroomService: ClassroomService, private userService: UserService,
-              private matSliderModule: MatSliderModule) { }
+              private snackBar: MatSnackBar, public dialogRef: MatDialogRef<NewTicketDialogComponent>) { }
 
   ngOnInit(): void {
     this.form = this._formBuilder.group({
@@ -29,19 +36,10 @@ export class NewTicketDialogComponent implements OnInit {
   }
 
   createTicket() {
-     const ticket: Ticket = {
-       id: null,
-       desc: this.form.get('desc').value.trim(),
-       courseId: null,
-       timestamp: Date.now(),
-       status: 'open',
-       creator: null,
-       assignee: null,
-     };
-     if (ticket.desc !== '' && ticket.timestamp > 0 && ticket.timestamp <= 10) {
-       this.classroomService.createTicket(ticket);
+    this.ticket.description = this.form.get('desc').value.trim()
+     if (this.ticket.description !== '') {
        this.snackBar.open(`Das Ticket wurde erfolgreich erstellt.`, 'OK', {duration: 3000});
-       this.dialogRef.close();
+       this.dialogRef.close(this.ticket);
      } else {
        this.snackBar.open(`Das Ticket konnte nicht erstellt werden!`, 'OK', {duration: 3000});
      }

@@ -20,6 +20,7 @@ import {JwtHelperService, JwtModule} from "@auth0/angular-jwt";
 import {RouterModule} from "@angular/router";
 import {JoinComponent} from "./page-components/join-component/join.component";
 import { UnauthorizedComponent } from './page-components/unauthorized/unauthorized.component';
+import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
 
 @NgModule({
   declarations: [
@@ -51,7 +52,7 @@ import { UnauthorizedComponent } from './page-components/unauthorized/unauthoriz
       }
     }),
   ],
-  providers: [],
+  providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

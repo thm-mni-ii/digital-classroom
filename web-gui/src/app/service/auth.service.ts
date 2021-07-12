@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from '@angular/common/http';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {Observable} from 'rxjs';
 import {of, throwError} from 'rxjs';
@@ -7,7 +7,7 @@ import {mergeMap, map} from 'rxjs/operators';
 import {JWTToken} from '../model/JWTToken';
 import {Params} from "@angular/router";
 
-const TOKEN_ID = 'token';
+const TOKEN_ID = 'classroom-token';
 
 /**
  * Manages login and logout of the user of the page.
@@ -17,7 +17,8 @@ const TOKEN_ID = 'token';
 })
 export class AuthService {
 
-  constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {}
+  constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {
+  }
 
   /**
    * Logout user by removing its token.
