@@ -19,7 +19,7 @@ class ClassroomUserService(private val classroomInstanceService: ClassroomInstan
         val classroom = classroomInstanceService.getClassroomInstance(user.classroomId)
         it.success("Hallo ${user.fullName}. Deine Rolle: ${user.userRole.name}\n" +
                 " Meeting: ${classroom.classroomName}\n" +
-                " ${classroom.meetingID}")
+                " ${classroom.classroomId}")
     }
 
     fun createTicket(auth: ClassroomAuthentication, ticket: Ticket): Flux<Ticket> {
