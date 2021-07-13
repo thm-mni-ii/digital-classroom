@@ -3,13 +3,13 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog
 import {MatSnackBar} from '@angular/material/snack-bar';
 import { first } from 'rxjs/operators';
 import {ClassroomService} from '../../service/classroom.service';
-import {BbbConferenceHandlingService} from '../../service/bbb-conference-handling.service';
 import {AuthService} from '../../service/auth.service';
 import {Roles} from '../../model/Roles';
 import {Ticket} from '../../model/Ticket';
 import {User} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
+import {ConferenceService} from "../../service/conference.service";
 
 @Component({
   selector: 'app-assign-ticket-dialog',
@@ -27,7 +27,7 @@ export class AssignTicketDialogComponent implements OnInit {
               public dialogRef: MatDialogRef<AssignTicketDialogComponent>,
               private snackBar: MatSnackBar,
               public classroomService: ClassroomService,
-              private conferenceService: BbbConferenceHandlingService,
+              private conferenceService: ConferenceService,
               private ticketService: TicketService,
               public auth: AuthService,
               private dialog: MatDialog,

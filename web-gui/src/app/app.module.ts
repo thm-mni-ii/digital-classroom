@@ -7,7 +7,6 @@ import {ClassroomComponent} from "./page-components/classroom/classroom.componen
 import {MenuBarComponent} from "./page-components/menu-bar/menu-bar.component";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {NewTicketDialogComponent} from "./dialogs/newticket-dialog/new-ticket-dialog.component";
-import {NewConferenceDialogComponent} from "./dialogs/newconference-dialog/new-conference-dialog.component";
 import {InviteToConferenceDialogComponent} from "./dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component";
 import {AssignTicketDialogComponent} from "./dialogs/assign-ticket-dialog/assign-ticket-dialog.component";
 import {MaterialComponentsModule} from "./modules/material-components/material-components.module";
@@ -21,8 +20,6 @@ import {JoinComponent} from "./page-components/join-component/join.component";
 import { UnauthorizedComponent } from './page-components/unauthorized/unauthorized.component';
 import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
 import {IsPrivilegedPipe} from "./pipes/user-teacher-filter";
-import {TicketService} from "./service/ticket.service";
-import {UserService} from "./service/user.service";
 
 @NgModule({
   declarations: [
@@ -30,7 +27,6 @@ import {UserService} from "./service/user.service";
     ClassroomComponent,
     MenuBarComponent,
     NewTicketDialogComponent,
-    NewConferenceDialogComponent,
     InviteToConferenceDialogComponent,
     AssignTicketDialogComponent,
     IsPrivilegedPipe,

@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
-import {Observable, BehaviorSubject} from 'rxjs';
-import {ConferenceSystems} from '../util/ConferenceSystems';
-import {Conference} from '../model/Conference';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {Conference} from "../model/Conference";
+import {distinctUntilChanged} from "rxjs/operators";
 
 /**
  * Handles the creation and retrivement of conference links.
@@ -13,25 +14,58 @@ import {Conference} from '../model/Conference';
 export class ConferenceService {
   private personalConferenceLink: BehaviorSubject<string>;
   private bbbConferenceLink: BehaviorSubject<object>;
-  private conference: BehaviorSubject<Conference> | undefined;
-  public selectedConferenceSystem: BehaviorSubject<string>;
+  private conferenceWindowHandle: Window;
+  private isWindowhandleOpen: Subject<Boolean>;
+  conferenceWindowOpen: Boolean = false;
 
-  public constructor() {
-     this.personalConferenceLink = new BehaviorSubject<string>("");
-     this.bbbConferenceLink = new  BehaviorSubject<object>({});
-     this.selectedConferenceSystem = new BehaviorSubject<string>(ConferenceSystems.BigBlueButton);
-     //this.conference = new BehaviorSubject<Conference>();
+  public constructor(private http: HttpClient) {
+    this.isWindowhandleOpen = new Subject<Boolean>();
+    this.isWindowhandleOpen.asObservable().pipe(distinctUntilChanged()).subscribe((isOpen) => {
+      if (!isOpen) {
+        this.closeConference();
+      }
+    });
+    this.personalConferenceLink = new BehaviorSubject<string>("");
+    this.bbbConferenceLink = new  BehaviorSubject<object>({});
+    setInterval(() => {
+      if (this.conferenceWindowHandle) {
+        if (this.conferenceWindowHandle.closed) {
+          this.isWindowhandleOpen.next(false);
+        } else {
+          this.isWindowhandleOpen.next(true);
+        }
+      }
+    }, 1000);
   }
 
-  public getSelectedConferenceSystem(): Observable<string> {
-    return this.selectedConferenceSystem.asObservable();
+  public createConference() {
+    if (this.conferenceWindowHandle == undefined || this.conferenceWindowHandle.closed) {
+      this.http.get<Conference>("/classroom-api/conference/create").subscribe(conference => {
+        this.joinConference(conference)
+      })
+    }
   }
 
-  public setSelectedConferenceSystem(service: string) {
-    return this.selectedConferenceSystem.next(service);
+  public joinConference(conference: Conference) {
+    const options = { responseType: "text" as "json"};
+    if (this.conferenceWindowHandle == undefined || this.conferenceWindowHandle.closed) {
+      this.http.post<string>("/classroom-api/conference/join", conference, options).subscribe(url => {
+        this.conferenceWindowHandle = open(url.toString())
+        this.conferenceWindowOpen = true
+      })
+    } else {
+      this.conferenceWindowHandle.focus()
+    }
   }
 
-  public getConferenceConference(): Observable<Conference> {
-    return this.conference!.asObservable();
+  public closeConference() {
+    if (this.conferenceWindowHandle && !this.conferenceWindowHandle.closed) {
+      this.conferenceWindowHandle.close();
+    }
+    this.conferenceWindowOpen = false
+  }
+
+  public getConferenceWindowHandle(): Observable<Boolean> {
+    return this.isWindowhandleOpen.asObservable()
   }
 }

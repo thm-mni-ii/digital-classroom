@@ -11,6 +11,10 @@ export class TicketService {
 
   }
 
+  public getTickets(): Promise<Ticket[]> {
+    return this.http.get<Ticket[]>("/classroom-api/ticket").toPromise()
+  }
+
   /**
    * Creates a new ticket.
    * @param ticket The ticket to create.

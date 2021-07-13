@@ -1,15 +1,13 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TitlebarService} from '../../service/titlebar.service';
-import {BbbConferenceHandlingService} from '../../service/bbb-conference-handling.service';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DomSanitizer} from '@angular/platform-browser';
 import {DOCUMENT} from '@angular/common';
-import {Observable, Subscription, BehaviorSubject} from 'rxjs';
+import {Subscription, BehaviorSubject} from 'rxjs';
 import {ClassroomService} from '../../service/classroom.service';
 import {NewTicketDialogComponent} from '../../dialogs/newticket-dialog/new-ticket-dialog.component';
-import {NewConferenceDialogComponent} from '../../dialogs/newconference-dialog/new-conference-dialog.component';
 import {AuthService} from '../../service/auth.service';
 import {Roles} from '../../model/Roles';
 import {InviteToConferenceDialogComponent} from '../../dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component';
@@ -18,6 +16,7 @@ import {Ticket} from '../../model/Ticket';
 import {User} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
+import {ConferenceService} from "../../service/conference.service";
 
 @Component({
   selector: 'app-conference',
@@ -27,7 +26,7 @@ import {UserService} from "../../service/user.service";
 export class ClassroomComponent implements OnInit {
   constructor(private route: ActivatedRoute,
               private titlebarService: TitlebarService,
-              private conferenceService: BbbConferenceHandlingService,
+              public conferenceService: ConferenceService,
               public classroomService: ClassroomService,
               private dialog: MatDialog,
               public auth: AuthService,
@@ -40,15 +39,12 @@ export class ClassroomComponent implements OnInit {
   }
   classroomId: string;
   users: User[] = [];
-  tmpUsers: User[] = [];
   usersInConference: User[] = [];
   tmpUsersInConference: User[] = [];
-  ticketObservable: Observable<Ticket[]>;
   tickets: Ticket[] = []
   self: User;
   isCourseSubscriber: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   subscriptions: Subscription[] = [];
-  conferenceWindowOpen: Boolean = false;
   intervalID;
 
   ngOnInit(): void {
@@ -56,11 +52,6 @@ export class ClassroomComponent implements OnInit {
     this.self = token
     this.classroomId = token.classroomId
     this.joinClassroom(token);
-
-    this.ticketObservable = this.classroomService.getTickets();
-    this.ticketObservable.subscribe((ticket: Ticket[]) => {
-      this.tickets = ticket
-    })
 
     this.route.params.subscribe(param => {
         this.classroomId = param.id;
@@ -71,9 +62,6 @@ export class ClassroomComponent implements OnInit {
     this.userService.getUsersInClassroom().then(users =>
       this.users = users
     )
-    this.classroomService.getConferenceWindowHandle().subscribe(isOpen => {
-      this.conferenceWindowOpen = isOpen;
-    });
     setTimeout(() => this.refresh(), 1000);
     this.intervalID = setInterval(() => this.refresh(), 10000);
   }
@@ -84,7 +72,7 @@ export class ClassroomComponent implements OnInit {
 
   public isAuthorized() {
     const courseRole = this.auth.getToken().userRole
-    return Roles.isTeacher(courseRole) || Roles.isTutor(courseRole);
+    return Roles.isPrivileged(courseRole)
   }
 
   public inviteToConference(users) {
@@ -92,14 +80,6 @@ export class ClassroomComponent implements OnInit {
       height: 'auto',
       width: 'auto',
       data: {users: users}
-    });
-  }
-
-  public createConference() {
-    this.dialog.open(NewConferenceDialogComponent, {
-      height: 'auto',
-      width: 'auto',
-      data: {courseID: this.classroomId}
     });
   }
 
@@ -150,6 +130,7 @@ export class ClassroomComponent implements OnInit {
   leaveClassroom() {
     this.classroomService.leave();
   }
+
   public parseCourseRole(role: String): String {
     switch (role) {
       case 'TEACHER': return 'Dozent';
@@ -169,9 +150,11 @@ export class ClassroomComponent implements OnInit {
       }
     });
   }
+
   public isInConference(user: User) {
     return this.usersInConference.filter(u => u.userId === user.userId).length !== 0;
   }
+
   public isInConferenceId(userId: string) {
     return this.usersInConference.filter(u => u.userId === userId).length !== 0;
   }
@@ -180,6 +163,13 @@ export class ClassroomComponent implements OnInit {
   }
 
   private refresh() {
+    this.ticketService.getTickets().then(tickets => {
+      this.tickets = tickets
+    })
+
+    this.userService.getUsersInClassroom().then(users => {
+      this.users = users
+    })
     //this.users = this.sortUsers(JSON.parse(JSON.stringify(this.users)));
     //this.usersInConference = this.sortUsers(JSON.parse(JSON.stringify(this.tmpUsersInConference)));
   }

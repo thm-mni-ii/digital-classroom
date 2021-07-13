@@ -18,10 +18,8 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private val webClient = WebClient.create(upstreamBBBProperties.serviceUrl)
-
-    fun createConference(digitalClassroom: DigitalClassroom): Mono<Conference> {
-        val conference = Conference(digitalClassroom)
+    fun createConference(digitalClassroom: DigitalClassroom, user: User): Mono<Conference> {
+        val conference = Conference(digitalClassroom, user)
         val queryParams = mapOf(
             Pair("meetingID", conference.conferenceId),
             Pair("name", conference.conferenceName),

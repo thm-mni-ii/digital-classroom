@@ -23,7 +23,7 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
     fun createConference(auth: ClassroomAuthentication): Mono<Conference> {
         val classroom = classroomInstanceService.getClassroomInstance(auth.getClassroomId())
         return upstreamBBBService
-            .createConference(classroom)
+            .createConference(classroom, auth.user!!)
             .doOnNext { conference ->
                 logger.info("Created conference ${conference.conferenceId} in classroom ${classroom.classroomName}!")
                 classroom.saveConference(conference)
