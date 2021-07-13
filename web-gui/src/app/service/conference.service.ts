@@ -68,4 +68,8 @@ export class ConferenceService {
   public getConferenceWindowHandle(): Observable<Boolean> {
     return this.isWindowhandleOpen.asObservable()
   }
+
+  public getConferences(): Promise<Conference[]> {
+    return this.http.get<Conference[]>("/classroom-api/conference").toPromise()
+  }
 }

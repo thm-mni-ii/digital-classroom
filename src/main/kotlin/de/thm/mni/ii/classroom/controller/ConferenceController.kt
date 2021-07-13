@@ -5,6 +5,7 @@ import de.thm.mni.ii.classroom.model.User
 import de.thm.mni.ii.classroom.security.classroom.ClassroomAuthentication
 import de.thm.mni.ii.classroom.services.ConferenceService
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @RestController
@@ -12,8 +13,13 @@ import reactor.core.publisher.Mono
 class ConferenceController(private val conferenceService: ConferenceService) {
 
     @GetMapping("/conference")
-    fun getConferences(auth: ClassroomAuthentication) {
-        conferenceService.getConferencesOfClassroom(auth)
+    fun getConferences(auth: ClassroomAuthentication): Flux<Conference> {
+        return conferenceService.getConferencesOfClassroom(auth)
+    }
+
+    @GetMapping("/conference/user")
+    fun getUsersInConference(auth: ClassroomAuthentication): Flux<User> {
+        return conferenceService.getUsersInConferences(auth)
     }
 
     @GetMapping("/conference/create")

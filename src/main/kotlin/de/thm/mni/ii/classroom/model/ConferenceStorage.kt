@@ -2,6 +2,7 @@ package de.thm.mni.ii.classroom.model
 
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
@@ -28,7 +29,13 @@ class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
     }
 
     fun getConferences(): Flux<Conference> {
-        return Flux.fromIterable(conferenceUsers.keys)
+        return Flux.fromIterable(conferenceUsers.entries.map { entry ->
+            entry.key.also { it.fillAttendees(entry.value) }
+        })
+    }
+
+    fun getUsersInConferences(): Flux<User> {
+        return Flux.fromIterable(usersConference.keys)
     }
 
 }

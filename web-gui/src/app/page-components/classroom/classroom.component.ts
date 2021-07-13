@@ -17,6 +17,8 @@ import {User} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
+import {Conference} from "../../model/Conference";
+import {tick} from "@angular/core/testing";
 
 @Component({
   selector: 'app-conference',
@@ -39,9 +41,10 @@ export class ClassroomComponent implements OnInit {
   }
   classroomId: string;
   users: User[] = [];
+  conferences: Conference[] = [];
   usersInConference: User[] = [];
   tmpUsersInConference: User[] = [];
-  tickets: Ticket[] = []
+  tickets: Ticket[] = [];
   self: User;
   isCourseSubscriber: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   subscriptions: Subscription[] = [];
@@ -62,8 +65,14 @@ export class ClassroomComponent implements OnInit {
     this.userService.getUsersInClassroom().then(users =>
       this.users = users
     )
-    setTimeout(() => this.refresh(), 1000);
-    this.intervalID = setInterval(() => this.refresh(), 10000);
+    this.conferenceService.getConferences().then(conferences => {
+      this.conferences = conferences
+    })
+    this.ticketService.getTickets().then(tickets => {
+      this.tickets = tickets
+    })
+    //setTimeout(() => this.refresh(), 1000);
+    //this.intervalID = setInterval(() => this.refresh(), 10000);
   }
 
   ngOnDestroy(): void {
@@ -166,9 +175,11 @@ export class ClassroomComponent implements OnInit {
     this.ticketService.getTickets().then(tickets => {
       this.tickets = tickets
     })
-
     this.userService.getUsersInClassroom().then(users => {
       this.users = users
+    })
+    this.conferenceService.getConferences().then(conferences => {
+      this.conferences = conferences
     })
     //this.users = this.sortUsers(JSON.parse(JSON.stringify(this.users)));
     //this.usersInConference = this.sortUsers(JSON.parse(JSON.stringify(this.tmpUsersInConference)));

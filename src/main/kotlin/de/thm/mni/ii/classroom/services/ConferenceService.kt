@@ -48,4 +48,9 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
         }
     }
 
+    fun getUsersInConferences(auth: ClassroomAuthentication): Flux<User> {
+        val classroom = classroomInstanceService.getClassroomInstance(auth.getClassroomId())
+        return classroom.getUsersInConferences()
+    }
+
 }

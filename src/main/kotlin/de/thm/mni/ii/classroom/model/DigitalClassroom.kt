@@ -91,5 +91,9 @@ data class DigitalClassroom(
         return conferenceStorage.joinUser(conference, user)
     }
 
+    fun getUsersInConferences(): Flux<User> {
+        return conferenceStorage.getUsersInConferences()
+    }
+
 
 }
