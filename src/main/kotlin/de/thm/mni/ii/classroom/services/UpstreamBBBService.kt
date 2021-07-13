@@ -1,6 +1,7 @@
 package de.thm.mni.ii.classroom.services
 
 import de.thm.mni.ii.classroom.downstream.model.JoinRoomBBBResponse
+import de.thm.mni.ii.classroom.downstream.model.MessageBBB
 import de.thm.mni.ii.classroom.model.Conference
 import de.thm.mni.ii.classroom.model.DigitalClassroom
 import de.thm.mni.ii.classroom.model.User
@@ -22,49 +23,53 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
     fun createConference(digitalClassroom: DigitalClassroom): Mono<Conference> {
         val conference = Conference(digitalClassroom)
         val queryParams = mapOf(
-            Pair("meetingId", conference.conferenceId),
+            Pair("meetingID", conference.conferenceId),
             Pair("name", conference.conferenceName),
             Pair("attendeePW", conference.attendeePassword),
             Pair("moderatorPW", conference.moderatorPassword)
         )
         val request = buildApiRequest("create", queryParams)
         return Mono.create { sink ->
-            WebClient.create(request).get().exchangeToMono { exchange ->
-                if (exchange.statusCode().isError) exchange.createException().map(sink::error)
-                else sink.success(conference)
-                Mono.empty<Unit>()
+            WebClient.create(request).get().retrieve().toEntity(MessageBBB::class.java).subscribe {
+                if (it.body?.returncode == "SUCCESS") sink.success(conference)
+                else sink.error(Exception(it.body?.message))
             }
         }
     }
 
     fun joinConference(conference: Conference, user: User, asModerator: Boolean): Mono<String> {
         val queryParams = mapOf(
-            Pair("meetingId", conference.conferenceId),
+            Pair("meetingID", conference.conferenceId),
             Pair("fullName", user.fullName),
             Pair("userID", user.userId),
             Pair("password", if (asModerator) conference.moderatorPassword else conference.attendeePassword)
         )
-        val request = buildApiRequest("join", queryParams)
-        return WebClient.create(request).get().exchangeToMono { exchange ->
-            if (exchange.statusCode().isError) exchange.createException().flatMap {
-                Mono.error(it)
-            } else exchange.bodyToMono(JoinRoomBBBResponse::class.java).map { it.url }
-        }
+        return Mono.just(buildApiRequest("join", queryParams))
+        /*return Mono.create { sink ->
+            WebClient.create(request).get().retrieve().toEntity(JoinRoomBBBResponse::class.java)
+                .subscribe {
+                    if (it.body?.returncode == "SUCCESS") {
+                        sink.success(it.body!!.url)
+                    } else sink.error(Exception(it.body!!.message))
+                }
+        }*/
     }
 
     private fun buildApiRequest(method: String, queryParams: Map<String, String>): String {
         val uriBuilder = UriComponentsBuilder.newInstance()
         queryParams.forEach { (name, value) ->
-            uriBuilder.queryParam(name, value)
+            uriBuilder.queryParam(name, value.replace(" ", "+"))
         }
-        val query = uriBuilder.build().query!!.substring(1)
+        val query = uriBuilder.encode().build().query!!
         val checksum = calculateChecksum(method, query, upstreamBBBProperties.sharedSecret)
         uriBuilder.queryParam("checksum", checksum)
-        val queryWithChecksum = uriBuilder.build().query!!
-        return "${upstreamBBBProperties.serviceUrl}/api/$method$queryWithChecksum"
+        val queryWithChecksum = uriBuilder.encode().build().query!!
+        return "${upstreamBBBProperties.serviceUrl}/api/$method?$queryWithChecksum"
     }
 
     private fun calculateChecksum(method: String, query: String, secret: String): String {
+        logger.debug("String: $method$query$secret")
+        logger.debug("Checksum: ${DigestUtils.sha1Hex("$method$query$secret")}")
         return DigestUtils.sha1Hex("$method$query$secret")
     }
 

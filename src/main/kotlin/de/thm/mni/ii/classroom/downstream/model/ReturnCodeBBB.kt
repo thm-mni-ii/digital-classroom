@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlType
 abstract class ReturnCodeBBB(
     success: Boolean
 ) {
-    @XmlElement protected val returncode: String = if (success) "SUCCESS" else "FAILED"
+    @XmlElement val returncode: String = if (success) "SUCCESS" else "FAILED"
 
     /**
      * Dummy constructor for JAXB Serialization

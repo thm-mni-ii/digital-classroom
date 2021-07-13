@@ -4,12 +4,10 @@ import de.thm.mni.ii.classroom.model.Conference
 import de.thm.mni.ii.classroom.model.User
 import de.thm.mni.ii.classroom.security.classroom.ClassroomAuthentication
 import de.thm.mni.ii.classroom.services.ConferenceService
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 
+@RestController
 @RequestMapping("/classroom-api")
 class ConferenceController(private val conferenceService: ConferenceService) {
 

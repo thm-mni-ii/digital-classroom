@@ -8,8 +8,8 @@ import javax.xml.bind.annotation.XmlType
 @XmlTransient
 open class SuperMessageBBB(
     success: Boolean,
-    @field:XmlElement protected val messageKey: String,
-    @field:XmlElement protected val message: String
+    @field:XmlElement val messageKey: String,
+    @field:XmlElement val message: String
 ): ReturnCodeBBB(success)
 
 @XmlRootElement(name = "response")
