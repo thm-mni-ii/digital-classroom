@@ -12,10 +12,10 @@ data class ClassroomProperties(
     /**
      * Service url with protocol, hostname and optional prefix path.
      */
-    @NotBlank val serviceUrl: String,
+    @NotBlank val url: String,
     /**
      * Service TCP port.
      */
-    @NotBlank @Range(min = 1, max = 65535) val servicePort: Int
+    @NotBlank @Range(min = 1, max = 65535) val port: Int
 
 )

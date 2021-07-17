@@ -7,5 +7,11 @@ services:
     ports:
       - 8085:8085
     environment:
-      - JWT_SECRET=8Dsupersecurekeydf0
-      - BBB_SECRET
+      - BBB_UPSTREAM_SECRET
+      - BBB_UPSTREAM_URI
+      - BBB_ORIGIN_NAME
+      - BBB_ORIGIN_VERSION
+      - CLASSROOM_SECRET
+      - CLASSROOM_URL
+      - CLASSROOM_PORT
+      - JWT_SECRET
