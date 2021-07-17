@@ -13,11 +13,11 @@ import {AuthService} from './service/auth.service';
 export class AppComponent implements OnInit {
   constructor(
     //private dialog: MatDialog
-    //,private authService: AuthService
+    private authService: AuthService
   ) {
   }
 
   ngOnInit(): void {
-    //this.authService.startTokenAutoRefresh();
+    this.authService.startTokenAutoRefresh();
   }
 }

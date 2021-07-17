@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TitlebarService} from '../../service/titlebar.service';
 import {MatDialog} from '@angular/material/dialog';
@@ -18,14 +18,13 @@ import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
 import {Conference} from "../../model/Conference";
-import {tick} from "@angular/core/testing";
 
 @Component({
   selector: 'app-conference',
   templateUrl: './classroom.component.html',
   styleUrls: ['./classroom.component.scss']
 })
-export class ClassroomComponent implements OnInit {
+export class ClassroomComponent implements OnInit, OnDestroy {
   constructor(private route: ActivatedRoute,
               private titlebarService: TitlebarService,
               public conferenceService: ConferenceService,

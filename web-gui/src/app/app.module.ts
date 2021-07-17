@@ -32,7 +32,7 @@ import {IsPrivilegedPipe} from "./pipes/user-teacher-filter";
     IsPrivilegedPipe,
     IncomingCallDialogComponent,
     JoinComponent,
-    UnauthorizedComponent
+    UnauthorizedComponent,
   ],
   imports: [
     BrowserModule,

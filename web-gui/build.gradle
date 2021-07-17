@@ -43,5 +43,3 @@ task copyWebToBackend(type: Sync, dependsOn: [installDist]) {
     from "${projectDir}/dist/${project.name}" // path from distributed web-gui
     into "${projectDir}/../src/main/resources/static"
 }
-
-copyWebToBackend

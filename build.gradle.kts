@@ -11,7 +11,7 @@ plugins {
 
 group = "de.thm.mni.ii"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_14
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
     mavenCentral()
@@ -48,7 +48,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "14"
+        jvmTarget = "11"
     }
 }
 
@@ -56,8 +56,8 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.withType<Jar> {
-    dependsOn("web-gui:copyWebToBackend")
+tasks.register("dist") {
+    dependsOn("build", "web-gui:copyWebToBackend")
 }
 
 sourceSets {
@@ -84,9 +84,7 @@ idea {
         val kaptMain = file("${project.buildDir}/generated/source/kapt/main")
         sourceDirs.add(kaptMain)
         generatedSourceDirs.add(kaptMain)
-
         outputDir = file("${project.buildDir}/classes/main")
         testOutputDir = file("${project.buildDir}/classes/test")
-
     }
 }

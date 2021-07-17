@@ -1,14 +1,12 @@
 import {Injectable} from '@angular/core';
 import {Observable, Subject, BehaviorSubject, Subscription} from 'rxjs';
 import {distinctUntilChanged} from 'rxjs/operators';
-import {Message} from 'stompjs';
 import {AuthService} from './auth.service';
 import {MatDialog} from '@angular/material/dialog';
 import {IncomingCallDialogComponent} from '../dialogs/incoming-call-dialog/incoming-call-dialog.component';
 import {Ticket} from '../model/Ticket';
 import {User} from "../model/User";
 import {HttpClient} from "@angular/common/http";
-import {WebSocketService} from "./websocket.service";
 import {ConferenceService} from "./conference.service";
 
 /**
@@ -33,9 +31,7 @@ export class ClassroomService {
   public constructor(private authService: AuthService,
                      private conferenceService: ConferenceService,
                      private mDialog: MatDialog,
-                     private http: HttpClient,
-                     private webSocketService: WebSocketService) {
-    //this.webSocketService.connect()
+                     private http: HttpClient) {
     this.usersInConference = new BehaviorSubject<User[]>([]);
     this.inviteUsers = new Subject<boolean>();
     this.dialog = mDialog;
@@ -85,8 +81,8 @@ export class ClassroomService {
     this.send('/websocket/classroom/conference/invite', {users: users, 'courseid': this.self.classroomId});
   }
 
-  private handleInviteMsg(msg: Message) {
-    const body = JSON.parse(msg.body);
+  private handleInviteMsg() {
+    const body = JSON.parse("");
     this.dialog.open(IncomingCallDialogComponent, {
       height: 'auto',
       width: 'auto',
@@ -95,11 +91,11 @@ export class ClassroomService {
 
   }
 
-  private handleUsersMsg(msg: Message) {
+  private handleUsersMsg() {
     //this.users.next(JSON.parse(msg.body));
   }
 
-  private handleTicketsMsg(msg: Message) {
+  private handleTicketsMsg() {
     //this.tickets.next(JSON.parse(msg.body));
   }
 
@@ -136,8 +132,8 @@ export class ClassroomService {
     this.send('/websocket/classroom/conference/users', {courseId: this.self.classroomId});
   }
 
-  private handleConferenceUsersMsg(msg: Message) {
-    this.usersInConference.next(JSON.parse(msg.body));
+  private handleConferenceUsersMsg() {
+    this.usersInConference.next(JSON.parse(""));
   }
 
   public joinConference(user: User, mid: number = 0) {

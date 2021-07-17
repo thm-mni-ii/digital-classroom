@@ -89,7 +89,8 @@ export class AuthService {
       if (this.isAuthenticated()) {
         const token = this.getToken();
         if (Math.floor(new Date().getTime() / 1000) + 90 >= token.exp) {
-          this.requestNewToken().subscribe(() => {});
+          console.log("request token")
+          //this.requestNewToken().subscribe(() => {});
         }
       }
     }, 60000);

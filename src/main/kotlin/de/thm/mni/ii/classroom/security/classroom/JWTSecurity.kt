@@ -20,19 +20,7 @@ class JWTSecurity(private val userDetailsRepository: ClassroomUserDetailsReposit
                   private val jwtService: ClassroomJWTService) {
 
     fun jwtFilter(): AuthenticationWebFilter {
-        val authManager = ReactiveAuthenticationManager { auth ->
-            Mono.create {
-                val jwt = auth.credentials as String
-                val user = jwtService.authorize(jwt)
-                if (user != null) {
-                    it.success(
-                        ClassroomAuthentication(user, jwt, "")
-                    )
-                } else {
-                    it.success()
-                }
-            }
-        }
+        val authManager = jwtAuthenticationManager()
         val jwtFilter = AuthenticationWebFilter(authManager)
         jwtFilter.setRequiresAuthenticationMatcher(AndServerWebExchangeMatcher(
             ServerWebExchangeMatchers.pathMatchers(
@@ -47,6 +35,20 @@ class JWTSecurity(private val userDetailsRepository: ClassroomUserDetailsReposit
 
         jwtFilter.setServerAuthenticationConverter(JWTAuthenticationConverter())
         return jwtFilter
+    }
+
+    fun jwtAuthenticationManager() = ReactiveAuthenticationManager { auth ->
+        Mono.create {
+            val jwt = auth.credentials as String
+            val user = jwtService.authorize(jwt)
+            if (user != null) {
+                it.success(
+                    ClassroomAuthentication(user, jwt, "")
+                )
+            } else {
+                it.success()
+            }
+        }
     }
 
     class JWTAuthenticationConverter: ServerAuthenticationConverter {
