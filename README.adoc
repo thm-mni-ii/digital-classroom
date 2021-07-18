@@ -1,0 +1,26 @@
+= THM Digital Classroom
+
+== Current functionality
+Create conferences and join via BBB API.
+It is possible to configure the feedback system (or probably any BBB Gateway, like Greenlight or PILOS) to connect to the digital classroom instead of a BBB cluster.
+Use http://localhost:8085 as address.
+
+When creating a conference from inside the "old digital classroom" in the feedback system, a new tab should open - greeting the user.
+
+== TODOs
+- Kotlin Doc
+- Check on Spring security configuration for custom session tokens.
+
+== Open Questions
+- Use BBB or classroom vocabular?
+- Why is the JWT not sent back by the browser?
+
+== Answered Questions
+- How to configure Spring Security WebFilter for specific path?
+    -> matcher within the filter
+- A user is bound to a classroom instance. Should a central user service exist, or should users always be taken from within a data structure in a classroom instance. -> No. Users will be bound hardly to a classroom instance.
+== Notes
+
+Useful BBB API testing tool: https://mconf.github.io/api-mate/
+
+JWT: https://github.com/raphaelDL/spring-webflux-security-jwt
