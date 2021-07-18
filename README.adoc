@@ -1,7 +1,7 @@
 = THM Digital Classroom
 
 == Current functionality
-Create classrooms and join via BBB API. 
+Create classrooms and join via BBB API.
 It is possible to configure the feedback system (or any BBB Gateway, like Greenlight or PILOS) to connect to the digital classroom instead of a BBB cluster.
 Use the classrooms (default: http://localhost:8085) as BBB server address.
 
