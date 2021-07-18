@@ -21,7 +21,7 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun createClassroom(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {
+    fun createClassroom(param: MultiValueMap<String, String>): Mono<CreateRoomBBB> {
         return Mono.create {
             val classroomId = getClassroomId(param)
             val classroomInstance = classroomInstanceService.createNewClassroomInstance(
