@@ -24,7 +24,7 @@ All relevant properties may be set via an environment variable.
 |===
 === Jar Build & Deploy
 The only requirement is a JDK with version 11 or later.
-The command ```./gradlew build``` on Linux / MacOSX or ```.\gradlew.bat build```on Windows will compile the Angular frontend and produce an executable .jar artifact in _build/libs/_. which can be started via ```java -jar digital-classroom-VERSION.jar```.
+The command ```./gradlew build``` on Linux / MacOSX or ```.\gradlew.bat build``` on Windows will compile the Angular frontend and produce an executable .jar artifact in _build/libs/_. which can be started via ```java -jar digital-classroom-VERSION.jar```.
 
 === Docker Build & Deploy
 A Docker image of the application may be created via ```docker-compose build``` in the root directory of this repository. The docker container may be run with ```docker-compose up```. Any environment variables specified in <<property_values>> are propagated to the Docker container.
