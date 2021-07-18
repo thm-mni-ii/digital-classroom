@@ -1,26 +1,30 @@
 = THM Digital Classroom
 
 == Current functionality
-Create conferences and join via BBB API.
-It is possible to configure the feedback system (or probably any BBB Gateway, like Greenlight or PILOS) to connect to the digital classroom instead of a BBB cluster.
-Use http://localhost:8085 as address.
+Create classrooms and join via BBB API. 
+It is possible to configure the feedback system (or any BBB Gateway, like Greenlight or PILOS) to connect to the digital classroom instead of a BBB cluster.
+Use the classrooms (default: http://localhost:8085) as BBB server address.
 
-When creating a conference from inside the "old digital classroom" in the feedback system, a new tab should open - greeting the user.
+== How to build
 
-== TODOs
-- Kotlin Doc
-- Check on Spring security configuration for custom session tokens.
+=== Property Values [[property_values]]
+Set properties in _src/main/resources/application.properties_.
+All relevant properties may be set via an environment variable.
 
-== Open Questions
-- Use BBB or classroom vocabular?
-- Why is the JWT not sent back by the browser?
+.Custom property values
+|===
+       |Namespace       | Property      | Env. Variable       | Meaning
+1.2+^.^| _upstream.bbb_ | service-url   | BBB_UPSTREAM_URL    | The base URL of the BBB server to create conferences with.
+                        | shared-secret | BBB_UPSTREAM_SECRET | Shared secret token to compute a checksum of requests against the BBB servers API with. See: https://docs.bigbluebutton.org/dev/api.html#api-security[BBB API Specification]
+1.2+^.^| _classroom_    | shared-secret | CLASSROOM_SECRET    | Shared secret token a checksum of any request against the classrooms BBB-like API is computed with. Semantics as specified by BBB API linked above.
+                        | url           | CLASSROOM_URL       | Base URL (including the port if not default protocol port), at which the Digital Classroom application is contacted by users. Default: http://localhost:8085
+       | _server_       | port          | CLASSROOM_PORT      | Server port at which this application will listen to HTTP requests Default: 8085
+1.2+^.^| _jwt_          | secret        | JWT_SECRET          | The key JSON Web Tokens issued by the digital classroom are signed with.
+                        | expiration    | JWT_EXPIRATION      | Number of seconds after which JWTs should expire. Default: 900 (15 minutes)
+|===
+=== Jar Build & Deploy
+The only requirement is a JDK with version 11 or later.
+The command ```./gradlew build``` on Linux / MacOSX or ```.\gradlew.bat build```on Windows will compile the Angular frontend and produce an executable .jar artifact in _build/libs/_. which can be started via ```java -jar digital-classroom-VERSION.jar```.
 
-== Answered Questions
-- How to configure Spring Security WebFilter for specific path?
-    -> matcher within the filter
-- A user is bound to a classroom instance. Should a central user service exist, or should users always be taken from within a data structure in a classroom instance. -> No. Users will be bound hardly to a classroom instance.
-== Notes
-
-Useful BBB API testing tool: https://mconf.github.io/api-mate/
-
-JWT: https://github.com/raphaelDL/spring-webflux-security-jwt
+=== Docker Build & Deploy
+A Docker image of the application may be created via ```docker-compose build``` in the root directory of this repository. The docker container may be run with ```docker-compose up```. Any environment variables specified in <<property_values>> are propagated to the Docker container.
