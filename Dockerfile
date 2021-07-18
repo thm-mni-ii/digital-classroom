@@ -1,7 +1,7 @@
 FROM node:14.17.3-alpine AS build-node
 COPY ./web-gui /web-gui
 WORKDIR web-gui
-RUN npm install
+RUN npm ci
 RUN npm run build
 
 FROM gradle:6.8.3-jdk11 AS build-gradle
