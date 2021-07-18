@@ -1,6 +1,6 @@
 package de.thm.mni.ii.classroom.security.downstream
 
-import de.thm.mni.ii.classroom.properties.DownstreamGatewayProperties
+import de.thm.mni.ii.classroom.properties.ClassroomProperties
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.LoggerFactory
@@ -19,10 +19,10 @@ import reactor.kotlin.core.publisher.toMono
  * The checksum is validated by recalculating it.
  * (mockup) checksum calculation: SHA1("lastPathSegment" + "queryStringWithoutChecksum" + "sharedSecret")
  *
- * @param downstreamGatewayProperties The property object containing the shared secret.
+ * @param classroomProperties The property object containing the shared secret.
  */
 @Component
-class DownstreamAPISecurity(private val downstreamGatewayProperties: DownstreamGatewayProperties) {
+class DownstreamAPISecurity(private val classroomProperties: ClassroomProperties) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -99,7 +99,7 @@ class DownstreamAPISecurity(private val downstreamGatewayProperties: DownstreamG
                 val exchange = input.second
                 val query = exchange.request.uri.rawQuery?.replace(Regex("&checksum=\\w+"), "") ?: ""
                 val apiCall = exchange.request.path.value().substringAfterLast("/")
-                val calculatedChecksum = DigestUtils.sha1Hex("$apiCall$query${downstreamGatewayProperties.sharedSecret}")
+                val calculatedChecksum = DigestUtils.sha1Hex("$apiCall$query${classroomProperties.sharedSecret}")
                 authentication.calculatedChecksum = calculatedChecksum
                 it.success(authentication)
             }
