@@ -9,8 +9,6 @@ import javax.validation.constraints.NotBlank
 data class UpstreamBBBProperties(
 
     @NotBlank val serviceUrl: String,
-    @NotBlank val sharedSecret: String,
-    @NotBlank val originName: String,
-    @NotBlank val originVersion: String
+    @NotBlank val sharedSecret: String
 
 )

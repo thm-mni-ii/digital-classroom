@@ -57,6 +57,7 @@ class ClassroomInstanceService(private val classroomProperties: ClassroomPropert
         return classrooms[classroomId] ?: throw ClassroomNotFoundException(classroomId)
     }
 
+    // TODO: Separate concerns. This should not return a BBBResponse, but only the URL to join the user.
     fun joinUser(classroomId: String, password: String, user: User): Mono<JoinRoomBBBResponse> {
         val classroom = classrooms[classroomId]
         if (classroom == null) {
@@ -66,7 +67,7 @@ class ClassroomInstanceService(private val classroomProperties: ClassroomPropert
                 val joinedUser = classroom.joinUser(password, user)
                 val sessionToken = RandomStringUtils.randomAlphanumeric(16)
                 classroomUserDetailsRepository.insertValidToken(sessionToken, joinedUser)
-                val url = URL("${classroomProperties.url}:${serverProperties.port}/classroom/join?sessionToken=$sessionToken").toString()
+                val url = URL("${classroomProperties.url}/classroom/join?sessionToken=$sessionToken").toString()
                 it.success(
                     JoinRoomBBBResponse(
                         success = true,

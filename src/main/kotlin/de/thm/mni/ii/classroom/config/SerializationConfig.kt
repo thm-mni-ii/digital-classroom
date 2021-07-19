@@ -11,23 +11,33 @@ import org.springframework.http.codec.xml.Jaxb2XmlDecoder
 import org.springframework.http.codec.xml.Jaxb2XmlEncoder
 import org.springframework.web.reactive.config.WebFluxConfigurer
 import java.time.Instant
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
+/**
+ * DateTimeFormatter for BBB API-like responses.
+ */
 val bbbFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US)
 
+/**
+ * Configuration for XML & JSON related serialization with Jackson (JSON) or JAX-B (XML).
+ */
 @Configuration
 class SerializationConfig: WebFluxConfigurer {
 
+    /**
+     * Jackson object mapper for JSON serialization.
+     */
     @Bean
     fun objectMapper(): ObjectMapper {
-        val mapper = ObjectMapper().registerKotlinModule()
-        return mapper
+        return ObjectMapper().registerKotlinModule()
     }
 
+    /**
+     * HTTP message codec configuration. Adds JAX-B XML decoder and encoder.
+     */
     override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {
         configurer.registerDefaults(true)
         configurer.customCodecs().register(Jaxb2XmlDecoder())
@@ -36,12 +46,20 @@ class SerializationConfig: WebFluxConfigurer {
 
 }
 
+/**
+ * Jackson Json Serializer for ZonedDateTime as milliseconds since epoch.
+ * @see JsonSerializer
+ */
 class ZonedDateTimeMillisSerializer: JsonSerializer<ZonedDateTime>() {
     override fun serialize(dateTime: ZonedDateTime, gen: JsonGenerator, provider: SerializerProvider) {
         gen.writeNumber(dateTime.toInstant().toEpochMilli())
     }
 }
 
+/**
+ * Jackson Json Deserializer for ZonedDateTime from milliseconds since epoch.
+ * @see JsonDeserializer
+ */
 class ZonedDateTimeMillisDeserializer: JsonDeserializer<ZonedDateTime>() {
     override fun deserialize(parser: JsonParser, context: DeserializationContext?): ZonedDateTime {
         return ZonedDateTime.ofInstant(Instant.ofEpochMilli(parser.longValue), ZoneId.systemDefault())
