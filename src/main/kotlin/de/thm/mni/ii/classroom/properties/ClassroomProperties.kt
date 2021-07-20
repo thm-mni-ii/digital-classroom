@@ -9,10 +9,15 @@ import javax.validation.constraints.NotBlank
 data class ClassroomProperties(
 
     /**
-     * Service url with protocol, hostname and optional prefix path.
+     * Service host with protocol and hostname / ip address
      */
-    @NotBlank val url: String,
+    @NotBlank val host: String,
+
+    /**
+     * Prefix path appended to the host. May be resolved via reverse proxy.
+     */
+    val prefixPath: String = "",
 
     @NotBlank val sharedSecret: String,
 
-)
+    )

@@ -4,8 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "dist": "ng build --deploy-url /static/ --base-href \"./\"",
-    "build": "ng build --deploy-url /static/ --base-href \"./\"",
+    "dist": "ng build --deploy-url /static/",
+    "build": "ng build --deploy-url /static/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "clean": "",
