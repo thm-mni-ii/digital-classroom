@@ -13,3 +13,4 @@ services:
       - CLASSROOM_URL
       - CLASSROOM_PORT
       - JWT_SECRET
+      - JWT_EXPIRATION
