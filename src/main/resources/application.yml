@@ -5,9 +5,17 @@ upstream:
 
 classroom:
   shared-secret: ${CLASSROOM_SECRET:8Dsupersecurekeydf0}
-  url: ${CLASSROOM_URL:http://localhost}
+  host: ${CLASSROOM_HOST:http://localhost}
+  prefix-path: ${CLASSROOM_PREFIX_PATH:}
 
-server.port: ${CLASSROOM_PORT:8085}
+
+server:
+  ssl:
+    enabled: true
+    key-store: ${KEYSTORE_PATH:classpath:keystore.p12}
+    key-store-password: passwd
+    key-store-type: PKCS12
+  port: ${CLASSROOM_PORT:8085}
 
 jwt:
   secret: ${JWT_SECRET:8Dsupersecurekeydf0}
