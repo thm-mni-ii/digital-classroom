@@ -1,7 +1,7 @@
 package de.thm.mni.ii.classroom.event
 
-import de.thm.mni.ii.classroom.model.Ticket
-import de.thm.mni.ii.classroom.model.User
+import de.thm.mni.ii.classroom.model.classroom.Ticket
+import de.thm.mni.ii.classroom.model.classroom.User
 import org.springframework.context.ApplicationEvent
 
 abstract class ClassroomEvent(source: Any): ApplicationEvent(source)

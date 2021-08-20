@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.downstream.model
+package de.thm.mni.ii.classroom.model.api
 
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlTransient

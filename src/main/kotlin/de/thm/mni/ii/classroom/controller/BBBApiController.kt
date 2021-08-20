@@ -1,9 +1,9 @@
 package de.thm.mni.ii.classroom.controller
 
-import de.thm.mni.ii.classroom.downstream.model.CreateRoomBBB
-import de.thm.mni.ii.classroom.downstream.model.JoinRoomBBBResponse
-import de.thm.mni.ii.classroom.downstream.model.MessageBBB
-import de.thm.mni.ii.classroom.downstream.model.ReturnCodeBBB
+import de.thm.mni.ii.classroom.model.api.CreateRoomBBB
+import de.thm.mni.ii.classroom.model.api.JoinRoomBBBResponse
+import de.thm.mni.ii.classroom.model.api.MessageBBB
+import de.thm.mni.ii.classroom.model.api.ReturnCodeBBB
 import de.thm.mni.ii.classroom.exception.ApiException
 import de.thm.mni.ii.classroom.services.DownstreamApiService
 import org.slf4j.LoggerFactory
