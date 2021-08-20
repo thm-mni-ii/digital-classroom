@@ -67,7 +67,7 @@ class ClassroomInstanceService(private val classroomProperties: ClassroomPropert
                 val joinedUser = classroom.joinUser(password, user)
                 val sessionToken = RandomStringUtils.randomAlphanumeric(16)
                 classroomUserDetailsRepository.insertValidToken(sessionToken, joinedUser)
-                val url = URL("${classroomProperties.url}/classroom/join?sessionToken=$sessionToken").toString()
+                val url = URL("${classroomProperties.host}${classroomProperties.prefixPath}/classroom/join?sessionToken=$sessionToken").toString()
                 it.success(
                     JoinRoomBBBResponse(
                         success = true,

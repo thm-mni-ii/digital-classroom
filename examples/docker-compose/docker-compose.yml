@@ -2,10 +2,8 @@ version: '3'
 
 services:
   digital-classroom:
-    build: .
+    image: thmmniii/digital-classroom:latest
     restart: always
-    ports:
-      - 8085:8085
     environment:
       - BBB_UPSTREAM_URL
       - BBB_UPSTREAM_SECRET
