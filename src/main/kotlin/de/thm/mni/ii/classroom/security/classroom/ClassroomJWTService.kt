@@ -1,13 +1,10 @@
 package de.thm.mni.ii.classroom.security.classroom
 
-import de.thm.mni.ii.classroom.model.User
+import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.properties.JWTProperties
 import de.thm.mni.ii.classroom.util.repeatLength
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.jackson.io.JacksonDeserializer
-import io.jsonwebtoken.jackson.io.JacksonSerializer
-import io.jsonwebtoken.lang.Maps
 import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Component
 import java.security.Key

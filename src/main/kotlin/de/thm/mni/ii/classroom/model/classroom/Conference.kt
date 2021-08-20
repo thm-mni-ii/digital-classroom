@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.model
+package de.thm.mni.ii.classroom.model.classroom
 
 import java.util.*
 import kotlin.collections.HashSet

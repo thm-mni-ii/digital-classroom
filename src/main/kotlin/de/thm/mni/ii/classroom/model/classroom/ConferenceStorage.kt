@@ -1,8 +1,7 @@
-package de.thm.mni.ii.classroom.model
+package de.thm.mni.ii.classroom.model.classroom
 
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {

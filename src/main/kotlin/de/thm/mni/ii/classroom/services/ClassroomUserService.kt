@@ -1,8 +1,8 @@
 package de.thm.mni.ii.classroom.services
 
 import de.thm.mni.ii.classroom.event.TicketCreatedEvent
-import de.thm.mni.ii.classroom.model.Ticket
-import de.thm.mni.ii.classroom.model.User
+import de.thm.mni.ii.classroom.model.classroom.Ticket
+import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.security.classroom.ClassroomAuthentication
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
 import org.springframework.context.ApplicationEventPublisher

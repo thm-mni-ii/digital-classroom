@@ -1,20 +1,20 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.downstream.model.CreateRoomBBB
-import de.thm.mni.ii.classroom.downstream.model.IsMeetingRunningBBB
-import de.thm.mni.ii.classroom.downstream.model.ReturnCodeBBB
+import de.thm.mni.ii.classroom.model.api.CreateRoomBBB
+import de.thm.mni.ii.classroom.model.api.IsMeetingRunningBBB
+import de.thm.mni.ii.classroom.model.api.ReturnCodeBBB
 import de.thm.mni.ii.classroom.exception.MissingMeetingIDException
 import de.thm.mni.ii.classroom.security.exception.NoPasswordSpecifiedException
 import de.thm.mni.ii.classroom.security.exception.NoUsernameSpecifiedException
-import de.thm.mni.ii.classroom.model.User
-import de.thm.mni.ii.classroom.model.UserRole
+import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserRole
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.util.MultiValueMap
 import reactor.core.publisher.Mono
 import java.util.*
-import de.thm.mni.ii.classroom.downstream.APIQueryParamTranslation.*
-import de.thm.mni.ii.classroom.downstream.model.JoinRoomBBBResponse
+import de.thm.mni.ii.classroom.util.APIQueryParamTranslation.*
+import de.thm.mni.ii.classroom.model.api.JoinRoomBBBResponse
 
 @Component
 class DownstreamApiService(private val classroomInstanceService: ClassroomInstanceService) {
@@ -43,7 +43,8 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
         return classroomInstanceService.joinUser(
                     classroomId,
                     password,
-                    User(userId, userName, classroomId, UserRole.STUDENT))
+                    User(userId, userName, classroomId, UserRole.STUDENT)
+        )
     }
 
     fun isMeetingRunning(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {

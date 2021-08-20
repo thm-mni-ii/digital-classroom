@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.downstream
+package de.thm.mni.ii.classroom.util
 
 enum class APIQueryParamTranslation(val api: String) {
 

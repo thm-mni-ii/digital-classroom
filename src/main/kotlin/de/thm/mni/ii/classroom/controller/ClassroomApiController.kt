@@ -1,6 +1,6 @@
 package de.thm.mni.ii.classroom.controller
 
-import de.thm.mni.ii.classroom.model.Ticket
+import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.security.classroom.ClassroomAuthentication
 import de.thm.mni.ii.classroom.services.ClassroomUserService
 import org.slf4j.LoggerFactory

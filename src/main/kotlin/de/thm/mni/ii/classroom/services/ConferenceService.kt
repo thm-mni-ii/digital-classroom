@@ -1,7 +1,7 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.model.Conference
-import de.thm.mni.ii.classroom.model.User
+import de.thm.mni.ii.classroom.model.classroom.Conference
+import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.security.classroom.ClassroomAuthentication
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component

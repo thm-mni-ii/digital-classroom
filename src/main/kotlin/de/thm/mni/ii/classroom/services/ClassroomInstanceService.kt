@@ -1,9 +1,9 @@
 package de.thm.mni.ii.classroom.services
 
 import de.thm.mni.ii.classroom.exception.ClassroomNotFoundException
-import de.thm.mni.ii.classroom.model.DigitalClassroom
-import de.thm.mni.ii.classroom.model.User
-import de.thm.mni.ii.classroom.downstream.model.JoinRoomBBBResponse
+import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
+import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.api.JoinRoomBBBResponse
 import de.thm.mni.ii.classroom.properties.ClassroomProperties
 import de.thm.mni.ii.classroom.security.classroom.ClassroomUserDetailsRepository
 import org.apache.commons.lang3.RandomStringUtils

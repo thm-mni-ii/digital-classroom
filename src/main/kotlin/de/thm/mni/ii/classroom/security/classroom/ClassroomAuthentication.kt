@@ -1,6 +1,6 @@
 package de.thm.mni.ii.classroom.security.classroom
 
-import de.thm.mni.ii.classroom.model.User
+import de.thm.mni.ii.classroom.model.classroom.User
 import org.springframework.security.core.Authentication
 
 class ClassroomAuthentication(

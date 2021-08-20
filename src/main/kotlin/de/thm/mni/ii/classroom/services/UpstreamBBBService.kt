@@ -1,10 +1,9 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.downstream.model.JoinRoomBBBResponse
-import de.thm.mni.ii.classroom.downstream.model.MessageBBB
-import de.thm.mni.ii.classroom.model.Conference
-import de.thm.mni.ii.classroom.model.DigitalClassroom
-import de.thm.mni.ii.classroom.model.User
+import de.thm.mni.ii.classroom.model.api.MessageBBB
+import de.thm.mni.ii.classroom.model.classroom.Conference
+import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
+import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.properties.UpstreamBBBProperties
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.LoggerFactory
