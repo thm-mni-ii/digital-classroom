@@ -1,7 +1,7 @@
-package de.thm.mni.ii.classroom.downstream.model
+package de.thm.mni.ii.classroom.model.api
 
 import de.thm.mni.ii.classroom.config.bbbFormatter
-import de.thm.mni.ii.classroom.model.DigitalClassroom
+import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import java.time.ZonedDateTime
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement

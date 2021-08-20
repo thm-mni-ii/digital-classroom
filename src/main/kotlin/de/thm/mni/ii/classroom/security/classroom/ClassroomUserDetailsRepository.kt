@@ -1,7 +1,6 @@
 package de.thm.mni.ii.classroom.security.classroom
 
-import de.thm.mni.ii.classroom.model.User
-import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
+import de.thm.mni.ii.classroom.model.classroom.User
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component

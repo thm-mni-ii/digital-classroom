@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.model
+package de.thm.mni.ii.classroom.model.classroom
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties

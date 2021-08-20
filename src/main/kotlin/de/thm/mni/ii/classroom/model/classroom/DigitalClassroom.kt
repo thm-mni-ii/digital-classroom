@@ -1,6 +1,5 @@
-package de.thm.mni.ii.classroom.model
+package de.thm.mni.ii.classroom.model.classroom
 
-import com.google.common.collect.HashBiMap
 import de.thm.mni.ii.classroom.security.exception.InvalidMeetingPasswordException
 import de.thm.mni.ii.classroom.util.update
 import reactor.core.publisher.Flux
