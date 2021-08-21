@@ -1,7 +1,24 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import RSocketWebSocketClient from 'rsocket-websocket-client';
 import {Subject} from "rxjs";
-import {IdentitySerializer, JsonSerializer, RSocketClient} from "rsocket-core";
+import {
+  BEARER,
+  BufferEncoders,
+  encodeBearerAuthMetadata,
+  encodeCompositeMetadata,
+  encodeRoute,
+  encodeWellKnownAuthMetadata,
+  IdentitySerializer,
+  JsonSerializer,
+  MESSAGE_RSOCKET_AUTHENTICATION,
+  MESSAGE_RSOCKET_COMPOSITE_METADATA,
+  MESSAGE_RSOCKET_ROUTING,
+  RSocketClient,
+  TEXT_PLAIN,
+  WellKnownAuthType
+} from "rsocket-core";
+
+import {AuthService} from "./auth.service";
 
 @Injectable({
   providedIn: 'root'
@@ -9,20 +26,12 @@ import {IdentitySerializer, JsonSerializer, RSocketClient} from "rsocket-core";
 export class RSocketService implements OnDestroy {
 
   title = 'client';
-  message = '';
-  messages: any[];
-  client: RSocketClient<any, any>;
+  client: RSocketClient<Buffer, Buffer>;
   sub = new Subject();
 
-  constructor() {
-    this.messages = [];
-
+  constructor(auth: AuthService) {
     // Create an instance of a client
-    this.client = new RSocketClient({
-      serializers: {
-        data: JsonSerializer,
-        metadata: IdentitySerializer
-      },
+    this.client = new RSocketClient<Buffer, Buffer>({
       setup: {
         // ms btw sending keepalive to server
         keepAlive: 60000,
@@ -31,24 +40,38 @@ export class RSocketService implements OnDestroy {
         // format of `data`
         dataMimeType: 'application/json',
         // format of `metadata`
-        metadataMimeType: 'message/x.rsocket.routing.v0',
+        metadataMimeType: MESSAGE_RSOCKET_COMPOSITE_METADATA.string,
+        payload: {
+          data: undefined,
+          metadata: encodeCompositeMetadata([
+            [TEXT_PLAIN, Buffer.from('Hello World')],
+            [MESSAGE_RSOCKET_ROUTING, encodeRoute("stream/users")],
+            [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(auth.loadToken()) ],
+            ['custom/test/metadata', Buffer.from([1, 2, 3])],
+          ]),
+        },
       },
       transport: new RSocketWebSocketClient({
         url: 'wss://localhost:8085/rsocket', //window.origin.replace(/^http(s)?/, 'ws$1') + '/rsocket',
-        debug: true
-      }),
+        debug: true,
+        wsCreator: url => new WebSocket(url),
+      }, BufferEncoders),
     });
 
     // Open the connection
     this.client.connect().subscribe({
       onComplete: (socket) => {
-
         // socket provides the rsocket interactions fire/forget, request/response,
         // request/stream, etc as well as methods to close the socket.
         socket
           .requestStream({
-            data: null,
-            metadata: String.fromCharCode('messages'.length) + 'messages'
+            data: undefined,
+            metadata: encodeCompositeMetadata([
+              [TEXT_PLAIN, Buffer.from('Hello World')],
+              [MESSAGE_RSOCKET_ROUTING, encodeRoute("stream/users")],
+              [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(auth.loadToken()) ],
+              ['custom/test/metadata', Buffer.from([1, 2, 3])],
+            ]),
           })
           .subscribe({
             onComplete: () => console.log('complete'),
@@ -65,15 +88,6 @@ export class RSocketService implements OnDestroy {
               subscription.request(1000000);
             },
           });
-
-        this.sub.subscribe({
-          next: (data) => {
-            socket.fireAndForget({
-              data,
-              metadata: String.fromCharCode('send'.length) + 'send',
-            });
-          }
-        });
       },
       onError: error => {
         console.log('Connection has been refused due to:: ' + error);
@@ -87,7 +101,6 @@ export class RSocketService implements OnDestroy {
   // tslint:disable-next-line:typedef
   addMessage(newMessage: any) {
     console.log('add message:' + JSON.stringify(newMessage))
-    this.messages = [...this.messages, newMessage];
   }
 
   ngOnDestroy(): void {
@@ -95,13 +108,6 @@ export class RSocketService implements OnDestroy {
     if (this.client) {
       this.client.close();
     }
-  }
-
-  // tslint:disable-next-line:typedef
-  sendMessage() {
-    console.log('sending message:' + this.message);
-    this.sub.next(this.message);
-    this.message = '';
   }
 
 }
