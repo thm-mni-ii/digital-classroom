@@ -1,6 +1,5 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.event.TicketCreatedEvent
 import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.security.classroom.ClassroomAuthentication
@@ -29,7 +28,9 @@ class ClassroomUserService(private val classroomInstanceService: ClassroomInstan
         return classroomInstanceService
             .getClassroomInstance(auth.getClassroomId())
             .createTicket(ticket)
-            .doOnComplete{ applicationEventPublisher.publishEvent(TicketCreatedEvent(ticket)) }
+            .doOnComplete{
+                //applicationEventPublisher.publishEvent(TicketCreatedEvent(ticket))
+            }
     }
 
     fun getTickets(auth: ClassroomAuthentication): Flux<Ticket> {
