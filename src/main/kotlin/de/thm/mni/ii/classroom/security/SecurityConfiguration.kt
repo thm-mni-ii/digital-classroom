@@ -68,7 +68,7 @@ class SecurityConfiguration(private val sessionTokenSecurity: SessionTokenSecuri
             .hasAnyAuthority("STUDENT", "TUTOR", "TEACHER")
             .and()
             .authorizeExchange()
-            .pathMatchers("/*", "/static/**", "/classroom/*", "/classroom", "/websocket/**")
+            .pathMatchers("/*", "/static/**", "/classroom/*", "/classroom", "/rsocket/**", "/rsocket")
             .permitAll()
             .and()
 
