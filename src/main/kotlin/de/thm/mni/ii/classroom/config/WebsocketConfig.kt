@@ -21,8 +21,6 @@ import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-
-@Configuration
 class WebSocketConfiguration {
 
     @Bean

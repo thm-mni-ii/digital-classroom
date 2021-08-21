@@ -2,50 +2,30 @@ package de.thm.mni.ii.classroom.controller
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.messaging.handler.annotation.Payload
-import org.springframework.messaging.rsocket.RSocketRequester
-import org.springframework.messaging.rsocket.annotation.ConnectMapping
-import reactor.core.publisher.SignalType
+import org.springframework.messaging.handler.annotation.MessageMapping
+import org.springframework.stereotype.Controller
+import reactor.core.publisher.Flux
+import reactor.kotlin.core.publisher.toFlux
+import java.time.Instant
 
+@Controller
 class UserWebSocketController {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
-    private val clients: MutableList<RSocketRequester> = ArrayList()
+    private val messages: HashSet<Message> = HashSet<Message>().apply { this.add(Message("test", "test")) }
 
-
-    @ConnectMapping("/classroom")
-    fun connectClient(requester: RSocketRequester, @Payload client: String) {
-        requester.rsocket()!!
-            .onClose()
-            .doFirst {
-
-                // Add all new clients to a client list
-                logger.info("Client: {} CONNECTED.", client)
-                clients.add(requester)
-            }
-            .doOnError { error: Throwable? ->
-                // Warn when channels are closed by clients
-                logger.warn("Channel to client {} CLOSED", client)
-            }
-            .doFinally { consumer: SignalType? ->
-                // Remove disconnected clients from the client list
-                clients.remove(requester)
-                logger.info("Client {} DISCONNECTED", client)
-            }
-            .subscribe()
-
-        // Callback to client, confirming connection
-        requester.route("client-status")
-            .data("OPEN")
-            .retrieveFlux(String::class.java)
-            .doOnNext { s: String? ->
-                logger.info(
-                    "Client: {} Free Memory: {}.",
-                    client,
-                    s
-                )
-            }
-            .subscribe()
+    @MessageMapping("send")
+    fun hello(p: String) {
+        this.messages.add(Message(body = p, sentAt = Instant.now()))
+        logger.info(p)
     }
+
+    @MessageMapping("messages")
+    fun messageStream(): Flux<Message> = this.messages.toFlux().doOnNext {
+        logger.info(it.body)
+    }
+
+    data class Message(var id: String? = null, var body: String, var sentAt: Instant = Instant.now())
+
 }

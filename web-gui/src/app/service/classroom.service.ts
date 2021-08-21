@@ -1,16 +1,15 @@
 import {Injectable} from '@angular/core';
 import {Observable, Subject, BehaviorSubject, Subscription} from 'rxjs';
-import {distinctUntilChanged} from 'rxjs/operators';
 import {AuthService} from './auth.service';
 import {MatDialog} from '@angular/material/dialog';
 import {IncomingCallDialogComponent} from '../dialogs/incoming-call-dialog/incoming-call-dialog.component';
-import {Ticket} from '../model/Ticket';
 import {User} from "../model/User";
 import {HttpClient} from "@angular/common/http";
 import {ConferenceService} from "./conference.service";
+import {RSocketService} from "./r-socket.service";
 
 /**
- * Service that provides observables that asynchronacally updates tickets, users and privide Conferences to take
+ * Service that provides observables that asynchronously updates tickets, users and privide Conferences to take
  * part in a conference.
  */
 @Injectable({
@@ -18,8 +17,6 @@ import {ConferenceService} from "./conference.service";
 })
 export class ClassroomService {
   private dialog: MatDialog;
-  private users: Observable<User>;
-  private tickets: Observable<Ticket[]>;
   private usersInConference: Subject<User[]>;
   private inviteUsers: Subject<boolean>;
   private service = 'bigbluebutton';
@@ -31,7 +28,8 @@ export class ClassroomService {
   public constructor(private authService: AuthService,
                      private conferenceService: ConferenceService,
                      private mDialog: MatDialog,
-                     private http: HttpClient) {
+                     private http: HttpClient,
+                     private socketService: RSocketService) {
     this.usersInConference = new BehaviorSubject<User[]>([]);
     this.inviteUsers = new Subject<boolean>();
     this.dialog = mDialog;
