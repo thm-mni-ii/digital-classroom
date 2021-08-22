@@ -71,7 +71,6 @@ class SecurityConfiguration(private val sessionTokenSecurity: SessionTokenSecuri
             .pathMatchers("/*", "/static/**", "/classroom/*", "/classroom", "/rsocket/**", "/rsocket")
             .permitAll()
             .and()
-
             .build()
     }
 

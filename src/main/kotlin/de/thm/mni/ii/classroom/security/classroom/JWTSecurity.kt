@@ -43,7 +43,7 @@ class JWTSecurity(private val userDetailsRepository: ClassroomUserDetailsReposit
             val user = jwtService.authorize(jwt)
             if (user != null) {
                 it.success(
-                    ClassroomAuthentication(user, jwt, "")
+                    ClassroomAuthentication(user, jwt)
                 )
             } else {
                 it.success()

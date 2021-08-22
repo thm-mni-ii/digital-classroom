@@ -4,6 +4,8 @@ import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler
@@ -73,7 +75,7 @@ class SessionTokenSecurity(private val userDetailsRepository: ClassroomUserDetai
     private fun reactiveAuthenticationManager() = ReactiveAuthenticationManager { auth ->
         val user = userDetailsRepository.findBySessionToken(auth.credentials as String)
         val jwt = user?.let { jwtService.createToken(user) } ?: ""
-        Mono.just(ClassroomAuthentication(user, jwt, auth.credentials as String))
+        Mono.just(ClassroomAuthentication(user, jwt))
     }
 
     /**
@@ -83,7 +85,7 @@ class SessionTokenSecurity(private val userDetailsRepository: ClassroomUserDetai
         fun getSessionToken(exchange: ServerWebExchange): Mono<Authentication> {
             return Mono.create {
                 it.success(
-                    UsernamePasswordAuthenticationToken(null, exchange.request.queryParams.getFirst("sessionToken"), null)
+                    BearerTokenAuthenticationToken(exchange.request.queryParams.getFirst("sessionToken"))
                 )
             }
         }
