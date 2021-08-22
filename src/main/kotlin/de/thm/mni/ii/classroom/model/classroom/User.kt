@@ -55,4 +55,12 @@ data class User(
         claims["classroomId"] as String,
         UserRole.valueOf(claims["userRole"] as String)
     )
+
+    @JsonIgnore
+    constructor(claims: Map<String, Any>) : this(
+        claims["userId"] as String,
+        claims["fullName"] as String,
+        claims["classroomId"] as String,
+        UserRole.valueOf(claims["userRole"] as String)
+    )
 }
