@@ -3,7 +3,7 @@ package de.thm.mni.ii.classroom.services
 import de.thm.mni.ii.classroom.model.api.CreateRoomBBB
 import de.thm.mni.ii.classroom.model.api.IsMeetingRunningBBB
 import de.thm.mni.ii.classroom.model.api.ReturnCodeBBB
-import de.thm.mni.ii.classroom.exception.MissingMeetingIDException
+import de.thm.mni.ii.classroom.exception.api.MissingMeetingIDException
 import de.thm.mni.ii.classroom.security.exception.NoPasswordSpecifiedException
 import de.thm.mni.ii.classroom.security.exception.NoUsernameSpecifiedException
 import de.thm.mni.ii.classroom.model.classroom.User
