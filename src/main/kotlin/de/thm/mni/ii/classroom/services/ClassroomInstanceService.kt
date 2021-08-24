@@ -1,6 +1,6 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.exception.ClassroomNotFoundException
+import de.thm.mni.ii.classroom.exception.api.ClassroomNotFoundException
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.model.api.JoinRoomBBBResponse
