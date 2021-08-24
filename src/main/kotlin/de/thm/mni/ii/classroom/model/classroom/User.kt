@@ -2,6 +2,7 @@ package de.thm.mni.ii.classroom.model.classroom
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import de.thm.mni.ii.classroom.model.ClassroomDependent
 import io.jsonwebtoken.Claims
 import org.springframework.security.core.userdetails.UserDetails
 import java.security.Principal
@@ -10,9 +11,9 @@ import java.security.Principal
 data class User(
     val userId: String,
     val fullName: String,
-    val classroomId: String,
+    override val classroomId: String,
     var userRole: UserRole
-): Principal, UserDetails {
+): Principal, UserDetails, ClassroomDependent {
 
     fun isPrivileged(): Boolean = userRole == UserRole.TEACHER || userRole == UserRole.TUTOR
 

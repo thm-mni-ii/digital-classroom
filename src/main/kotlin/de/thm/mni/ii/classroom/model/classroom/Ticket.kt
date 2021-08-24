@@ -4,17 +4,19 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import de.thm.mni.ii.classroom.config.ZonedDateTimeMillisDeserializer
 import de.thm.mni.ii.classroom.config.ZonedDateTimeMillisSerializer
+import de.thm.mni.ii.classroom.model.ClassroomDependent
 import java.time.ZonedDateTime
 
-class Ticket: Comparable<Ticket> {
-    var description: String? = null
-    var creator: User? = null
+data class Ticket(
+    var description: String,
+    val creator: User,
     var assignee: User? = null
-    var status: String? = null
+): Comparable<Ticket>, ClassroomDependent {
+
     @JsonSerialize(using = ZonedDateTimeMillisSerializer::class)
     @JsonDeserialize(using = ZonedDateTimeMillisDeserializer::class)
     val createTime: ZonedDateTime = ZonedDateTime.now()
-    var queuePosition = 0
+    override val classroomId = creator.classroomId
 
     override fun compareTo(other: Ticket): Int {
         return this.createTime.compareTo(other.createTime)
@@ -29,14 +31,16 @@ class Ticket: Comparable<Ticket> {
         if (description != other.description) return false
         if (creator != other.creator) return false
         if (createTime != other.createTime) return false
+        if (classroomId != other.classroomId) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = description?.hashCode() ?: 0
-        result = 31 * result + (creator?.hashCode() ?: 0)
+        var result = description.hashCode()
+        result = 31 * result + creator.hashCode()
         result = 31 * result + createTime.hashCode()
+        result = 31 * result + classroomId.hashCode()
         return result
     }
 
