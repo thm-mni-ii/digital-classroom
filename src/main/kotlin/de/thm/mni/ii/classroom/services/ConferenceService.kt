@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
+import de.thm.mni.ii.classroom.util.component1
+import de.thm.mni.ii.classroom.util.component2
+
 @Component
 class ConferenceService(private val classroomInstanceService: ClassroomInstanceService,
                         private val upstreamBBBService: UpstreamBBBService) {
@@ -16,41 +19,44 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
 
     fun getConferencesOfClassroom(auth: ClassroomAuthentication): Flux<Conference> {
         return classroomInstanceService
-            .getClassroomInstance(auth.getClassroomId())
-            .getConferences()
+            .getClassroomInstance(auth.getClassroomId()).flatMapMany {
+                it.getConferences()
+            }
     }
 
     fun createConference(auth: ClassroomAuthentication): Mono<Conference> {
-        val classroom = classroomInstanceService.getClassroomInstance(auth.getClassroomId())
-        return upstreamBBBService
-            .createConference(classroom, auth.user!!)
-            .doOnNext { conference ->
-                logger.info("Created conference ${conference.conferenceId} in classroom ${classroom.classroomName}!")
-                classroom.saveConference(conference)
-            }
+        return classroomInstanceService.getClassroomInstance(auth.getClassroomId()).flatMap { classroom ->
+            Mono.zip(Mono.just(classroom), upstreamBBBService.createConference(classroom, auth.user!!))
+        }.map { (classroom, conference) ->
+            logger.info("Created conference ${conference.conferenceId} in classroom ${classroom.classroomName}!")
+            classroom.saveConference(conference)
+            conference
+        }
     }
 
     fun joinUser(auth: ClassroomAuthentication, conference: Conference): Mono<String> {
-        val classroom = classroomInstanceService.getClassroomInstance(auth.getClassroomId())
-        return upstreamBBBService
-            .joinConference(conference, auth.user!!, true)
-            .doOnNext {
-                logger.info("${auth.user.fullName} joined conference ${conference.conferenceId}!")
-                classroom.joinUserToConference(conference, auth.user)
-            }
-
+        return classroomInstanceService.getClassroomInstance(auth.getClassroomId()).flatMap { classroom ->
+            Mono.zip(Mono.just(classroom), upstreamBBBService.joinConference(conference, auth.user!!, true))
+        }.map { (classroom, conferenceLink) ->
+            logger.info("${auth.user!!.fullName} joined conference ${conference.conferenceId}!")
+            classroom.joinUserToConference(conference, auth.user)
+            conferenceLink
+        }
     }
 
     fun joinConferenceOfUser(auth: ClassroomAuthentication, user: User): Mono<String> {
-        val classroom = classroomInstanceService.getClassroomInstance(auth.getClassroomId())
-        return classroom.getConferenceOfUser(user).flatMap {
-            joinUser(auth, it)
+        return classroomInstanceService.getClassroomInstance(auth.getClassroomId()).flatMap { classroom ->
+            classroom.getConferenceOfUser(user)
+                .flatMap { conference ->
+                    joinUser(auth, conference)
+                }
         }
     }
 
     fun getUsersInConferences(auth: ClassroomAuthentication): Flux<User> {
-        val classroom = classroomInstanceService.getClassroomInstance(auth.getClassroomId())
-        return classroom.getUsersInConferences()
+        return classroomInstanceService.getClassroomInstance(auth.getClassroomId()).flatMapMany {
+            it.getUsersInConferences()
+        }
     }
 
 }

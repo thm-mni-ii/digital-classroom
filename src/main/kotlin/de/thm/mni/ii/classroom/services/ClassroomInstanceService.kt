@@ -1,15 +1,18 @@
 package de.thm.mni.ii.classroom.services
 
+import de.thm.mni.ii.classroom.event.ClassroomEventPublisher
 import de.thm.mni.ii.classroom.exception.api.ClassroomNotFoundException
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.model.api.JoinRoomBBBResponse
 import de.thm.mni.ii.classroom.properties.ClassroomProperties
 import de.thm.mni.ii.classroom.security.classroom.ClassroomUserDetailsRepository
+import de.thm.mni.ii.classroom.util.toPair
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
@@ -18,12 +21,9 @@ import kotlin.collections.HashMap
  * Central service for managing and creating all DigitalClassroomInstances.
  */
 @Service
-class ClassroomInstanceService(private val classroomProperties: ClassroomProperties,
-                               private val serverProperties: ServerProperties,
-                               private val classroomUserDetailsRepository: ClassroomUserDetailsRepository
-) {
+class ClassroomInstanceService {
 
-    private val classrooms = HashMap<String, DigitalClassroom>()
+    private val classrooms = HashMap<String, Pair<DigitalClassroom, ClassroomEventPublisher>>()
 
     /**
      * Creates a new classroom instance and stores it inside the classroom map.
@@ -40,48 +40,47 @@ class ClassroomInstanceService(private val classroomProperties: ClassroomPropert
                                    tutorPassword: String?,
                                    teacherPassword: String?,
                                    classroomName: String?
-    ): DigitalClassroom {
-        return classrooms.computeIfAbsent(classroomId) { id ->
-            DigitalClassroom(
-                id,
+    ): Mono<DigitalClassroom> {
+        return Mono.defer {
+            val classroom = DigitalClassroom(
+                classroomId,
                 studentPassword = studentPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 tutorPassword = tutorPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 teacherPassword = teacherPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}",
-                internalClassroomId = "${RandomStringUtils.randomAlphanumeric(40)}-${RandomStringUtils.randomAlphanumeric(13)}"
+                internalClassroomId = "${RandomStringUtils.randomAlphanumeric(40)}-${
+                    RandomStringUtils.randomAlphanumeric(
+                        13
+                    )
+                }"
             )
+            val publisher = ClassroomEventPublisher(classroom)
+            classrooms.computeIfAbsent(classroomId) { id ->
+                Pair(classroom, publisher)
+            }
+            Mono.just(classroom)
         }
     }
 
-    fun getClassroomInstance(classroomId: String): DigitalClassroom {
-        return classrooms[classroomId] ?: throw ClassroomNotFoundException(classroomId)
+    fun getClassroomInstance(classroomId: String): Mono<DigitalClassroom> {
+        return getClassroomInstanceAndPublisher(classroomId).map(Pair<DigitalClassroom, Any>::first)
+    }
+
+    fun getClassroomPublisher(classroomId: String): Mono<ClassroomEventPublisher> {
+        return getClassroomInstanceAndPublisher(classroomId).map(Pair<Any, ClassroomEventPublisher>::second)
+    }
+
+    private fun getClassroomInstanceAndPublisher(classroomId: String): Mono<Pair<DigitalClassroom, ClassroomEventPublisher>> {
+        return Mono.just(classrooms[classroomId] ?: throw ClassroomNotFoundException(classroomId))
     }
 
     // TODO: Separate concerns. This should not return a BBBResponse, but only the URL to join the user.
-    fun joinUser(classroomId: String, password: String, user: User): Mono<JoinRoomBBBResponse> {
-        val classroom = classrooms[classroomId]
-        if (classroom == null) {
-            throw ClassroomNotFoundException(classroomId)
-        } else {
-            return Mono.create {
-                val joinedUser = classroom.joinUser(password, user)
-                val sessionToken = RandomStringUtils.randomAlphanumeric(16)
-                classroomUserDetailsRepository.insertValidToken(sessionToken, joinedUser)
-                val url = URL("${classroomProperties.host}${classroomProperties.prefixPath}/classroom/join?sessionToken=$sessionToken").toString()
-                it.success(
-                    JoinRoomBBBResponse(
-                        success = true,
-                        meetingID = classroom.internalClassroomId,
-                        sessionToken = sessionToken,
-                        url = url,
-                        userID = user.userId
-                    )
-                )
-            }
-
+    fun joinUser(classroomId: String, password: String, user: User): Mono<Pair<User, DigitalClassroom>> {
+        return getClassroomInstance(classroomId).flatMap { classroom ->
+            Mono.zip(classroom.joinUser(password, user), Mono.just(classroom)).map { it.toPair() }
         }
     }
 
-    fun isRunning(classroomId: String) = classrooms.containsKey(classroomId)
+    fun isRunning(classroomId: String) = Mono.just(classrooms.containsKey(classroomId))
 
 }

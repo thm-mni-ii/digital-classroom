@@ -37,4 +37,8 @@ class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
         return Flux.fromIterable(usersConference.keys)
     }
 
+    fun isUserInConference(user: User): Mono<Boolean> {
+        return Mono.just(usersConference.containsKey(user))
+    }
+
 }
