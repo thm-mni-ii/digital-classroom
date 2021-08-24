@@ -1,46 +1,56 @@
 package de.thm.mni.ii.classroom.controller
 
+import de.thm.mni.ii.classroom.event.ClassroomEvent
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.socket.UserSocketService
+import de.thm.mni.ii.classroom.services.ClassroomInstanceService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Controller
 import reactor.core.publisher.Flux
+import reactor.core.publisher.FluxSink
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toFlux
-import reactor.kotlin.core.publisher.toMono
-import java.time.Instant
 
 @Controller
 class UserWebSocketController(
-    private val userSocketService: UserSocketService
+    private val classroomInstanceService: ClassroomInstanceService
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
-    private val messages: HashSet<Message> = HashSet<Message>().apply { this.add(Message("test", "test")) }
-
-    @MessageMapping("stream/users")
-    fun userStream(@AuthenticationPrincipal auth: User): Flux<Any> {
-        logger.info(auth.fullName)
-        return Flux.empty()
+    @MessageMapping("socket/classroom")
+    fun userStream(@AuthenticationPrincipal user: User, stream: Flux<ClassroomEvent>): Flux<ClassroomEvent> {
+        return Flux.create {
+            userConnected(user, it)
+            stream.doOnCancel {
+                logger.info("CANCEL")
+                userDisconnected(user)
+            }.doOnComplete {
+                logger.info("COMPLETE")
+                userDisconnected(user)
+            }.doOnTerminate {
+                logger.info("TERMINATE")
+                userDisconnected(user)
+            }.subscribe(::receiveEvent)
+        }
     }
 
-    @MessageMapping("stream/tickets")
-    fun messageStream(): Flux<Message> = this.messages.toFlux().doOnNext {
-        logger.info(it.body)
+    private fun receiveEvent(event: ClassroomEvent): Mono<Void> {
+        logger.info("Received event! ${event.javaClass}")
+        return Mono.empty()
     }
 
-    @MessageMapping("stream/invites")
-    fun inviteStream(): Flux<Message> = this.messages.toFlux().doOnNext {
-        logger.info(it.body)
+    private fun userDisconnected(user: User) {
+        logger.info("${user.userId} / ${user.fullName} disconnected!")
     }
 
-    data class Message(var id: String? = null, var body: String, var sentAt: Instant = Instant.now())
+    private fun userConnected(user: User, fluxSink: FluxSink<ClassroomEvent>) {
+        classroomInstanceService.getClassroomInstance(user.classroomId).doOnNext { classroom ->
+            logger.info("${user.userId} / ${user.fullName} connected to ${classroom.classroomName}!")
+        }.subscribe { classroom ->
+            classroom.connectSocket(user, fluxSink)
+        }.dispose()
+    }
 
 }

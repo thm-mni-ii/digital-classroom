@@ -35,15 +35,17 @@ data class DigitalClassroom(
 
     fun doesUserExist(user: User): Boolean = users.contains(user)
 
-    fun joinUser(password: String, user: User): User {
-        when (password) {
-            studentPassword -> user.userRole = UserRole.STUDENT
-            teacherPassword -> user.userRole = UserRole.TEACHER
-            tutorPassword -> user.userRole = UserRole.TUTOR
-            else -> throw InvalidMeetingPasswordException(classroomId)
+    fun joinUser(password: String, user: User): Mono<User> {
+        return Mono.defer {
+            when (password) {
+                studentPassword -> user.userRole = UserRole.STUDENT
+                teacherPassword -> user.userRole = UserRole.TEACHER
+                tutorPassword -> user.userRole = UserRole.TUTOR
+                else -> throw InvalidMeetingPasswordException(classroomId)
+            }
+            users[user] = null
+            Mono.just(user)
         }
-        users[user] = null
-        return user
     }
 
     fun connectSocket(user: User, socket: FluxSink<ClassroomEvent>) {
@@ -66,15 +68,12 @@ data class DigitalClassroom(
         return users.keys.toFlux()
     }
 
-    fun assignTicket(ticket: Ticket): Flux<Ticket> {
-        // This works, because tickets are equal when their creator, title and description are equal.
-        tickets.update(ticket)
-        return tickets.toFlux()
+    fun assignTicket(ticket: Ticket, user: User): Mono<Ticket> {
+        return Mono.justOrEmpty(tickets.find { it == ticket }?.apply { assignee = user })
     }
 
-    fun deleteTicket(ticket: Ticket): Flux<Ticket> {
-        tickets.remove(ticket)
-        return tickets.toFlux()
+    fun deleteTicket(ticket: Ticket): Mono<Boolean> {
+        return Mono.just(tickets.remove(ticket))
     }
 
     fun getConferenceOfUser(user: User): Mono<Conference> {
@@ -95,6 +94,14 @@ data class DigitalClassroom(
 
     fun getUsersInConferences(): Flux<User> {
         return conferenceStorage.getUsersInConferences()
+    }
+
+    fun getSockets(): Flux<FluxSink<ClassroomEvent>> = Flux.fromIterable(users.values)
+
+    fun getSocketOfUser(user: User): Mono<FluxSink<ClassroomEvent>> = Mono.justOrEmpty(users[user])
+
+    fun isUserInConference(user: User): Mono<Boolean> {
+        return conferenceStorage.isUserInConference(user)
     }
 
 
