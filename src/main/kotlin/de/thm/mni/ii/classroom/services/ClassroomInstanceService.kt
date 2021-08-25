@@ -66,10 +66,8 @@ class ClassroomInstanceService {
 
     private fun getClassroomInstanceAndPublisher(classroomId: String): Mono<Pair<DigitalClassroom, ClassroomEventPublisher>> {
         return Mono.justOrEmpty(classrooms[classroomId])
-            .switchIfEmpty(Mono.error(ClassroomNotFoundException(classroomId)))
     }
 
-    // TODO: Separate concerns. This should not return a BBBResponse, but only the URL to join the user.
     fun joinUser(classroomId: String, password: String, user: User): Mono<Pair<User, DigitalClassroom>> {
         return getClassroomInstance(classroomId).flatMap { classroom ->
             Mono.zip(classroom.joinUser(password, user), Mono.just(classroom)).map { it.toPair() }
