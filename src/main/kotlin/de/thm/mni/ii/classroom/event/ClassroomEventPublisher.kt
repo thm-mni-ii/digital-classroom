@@ -10,18 +10,18 @@ class ClassroomEventPublisher(
     private val digitalClassroom: DigitalClassroom
     ) {
 
-    private fun createTicket(ticket: Ticket): Mono<Void> {
+    fun createTicket(ticket: Ticket): Mono<Void> {
         val event = TicketEvent(ticket, true)
         return sendToAll(event)
     }
 
-    private fun userConnected(user: User): Mono<Void> {
+    fun userConnected(user: User): Mono<Void> {
         return digitalClassroom.isUserInConference(user).map { isInConference ->
             UserEvent(user, joined = true, inConference = isInConference, conferenceId = null)
         }.flatMap(this::sendToAll)
     }
 
-    private fun userDisconnected(user: User): Mono<Void> {
+    fun userDisconnected(user: User): Mono<Void> {
         val event = UserEvent(user, joined = false, inConference = false, conferenceId = null)
         return sendToAll(event)
     }
