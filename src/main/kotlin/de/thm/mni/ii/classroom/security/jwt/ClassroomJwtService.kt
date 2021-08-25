@@ -8,8 +8,6 @@ import com.nimbusds.jose.crypto.MACSigner
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.properties.JwtProperties
 import de.thm.mni.ii.classroom.util.repeatLength
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jwts
 import net.minidev.json.JSONObject
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm
 import org.springframework.security.oauth2.jwt.Jwt
@@ -17,15 +15,11 @@ import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 import javax.crypto.spec.SecretKeySpec
 
 
 @Component
-class ClassroomJwtService(private val jwtProperties: JwtProperties): ReactiveJwtDecoder {
+class ClassroomJwtService(jwtProperties: JwtProperties): ReactiveJwtDecoder {
 
     private val secretKey = SecretKeySpec(jwtProperties.secret.repeatLength(60).toByteArray(), "HmacSHA384")
     private val reactiveJwtDecoder = NimbusReactiveJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS384).build()
