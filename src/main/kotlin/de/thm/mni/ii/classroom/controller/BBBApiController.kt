@@ -33,7 +33,7 @@ class BBBApiController(private val downStreamApiService: DownstreamApiService) {
      * @return Mono producing a BBB-like answer in XML format containing an error or information about the classroom.
      * @see CreateRoomBBB
      */
-    @GetMapping("/create")
+    @GetMapping("/create", produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
     fun createClassroomInstance(@RequestParam params: MultiValueMap<String, String>): Mono<CreateRoomBBB>
         = downStreamApiService.createClassroom(params)
 
@@ -44,7 +44,7 @@ class BBBApiController(private val downStreamApiService: DownstreamApiService) {
      * @return Mono producing a BBB-like answer in XML format containing an error or the url to join the classroom.
      * @see JoinRoomBBBResponse
      */
-    @GetMapping("/join")
+    @GetMapping("/join", produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
     fun joinUserToClassroom(@RequestParam params: MultiValueMap<String, String>): Mono<JoinRoomBBBResponse>
         = downStreamApiService.joinClassroom(params)
 

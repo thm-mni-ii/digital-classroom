@@ -29,43 +29,46 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     fun createClassroom(param: MultiValueMap<String, String>): Mono<CreateRoomBBB> {
-        return getClassroomId(param).flatMap { classroomId ->
-            classroomInstanceService.createNewClassroomInstance(
-                classroomId,
-                param.getFirst(StudentPassword.api),
-                param.getFirst(TutorPassword.api),
-                param.getFirst(TeacherPassword.api),
-                param.getFirst(ClassroomName.api)
-            )}.doOnNext {
+        val classroomId = getClassroomId(param)
+        return classroomInstanceService.getClassroomInstance(classroomId)
+            .switchIfEmpty(
+                classroomInstanceService.createNewClassroomInstance(
+                    classroomId,
+                    param.getFirst(StudentPassword.api),
+                    param.getFirst(TutorPassword.api),
+                    param.getFirst(TeacherPassword.api),
+                    param.getFirst(ClassroomName.api)
+                )
+            ).doOnNext {
                 logger.info("Classroom ${it.classroomName} created!")
             }.map(::CreateRoomBBB)
 
     }
 
     fun joinClassroom(param: MultiValueMap<String, String>): Mono<JoinRoomBBBResponse> {
-        return getClassroomId(param)
-            .flatMap { classroomId ->
-                val password: String = param.getFirst(Password.api) ?: error(NoPasswordSpecifiedException())
-                val userId = param.getFirst(UserId.api) ?: UUID.randomUUID().toString()
-                val userName = param.getFirst(userName.api) ?: error(NoUsernameSpecifiedException())
-                val user = User(userId, userName, classroomId, UserRole.STUDENT)
-                classroomInstanceService.joinUser(classroomId, password, user)
-                    .flatMap { (user, classroom) ->
-                        createSessionToken(user).map { sessionToken ->
-                            Triple(user, classroom, sessionToken)
-                        }
-                    }.doOnNext { (user, classroom, sessionToken) ->
-                        logger.info("${user.userRole.name} ${user.fullName} registered in classroom ${classroom.classroomName} with token $sessionToken!")
-                    }.map { (user, classroom, sessionToken) ->
-                        JoinRoomBBBResponse(
-                            success = true,
-                            meetingID = classroom.internalClassroomId,
-                            sessionToken = sessionToken,
-                            url = URL("${classroomProperties.host}${classroomProperties.prefixPath}" +
-                                    "/classroom/join?sessionToken=$sessionToken").toString(),
-                            userID = user.userId
-                        )
+        val classroomId = getClassroomId(param)
+        return Mono.defer {
+            val password: String = param.getFirst(Password.api) ?: error(NoPasswordSpecifiedException())
+            val userId = param.getFirst(UserId.api) ?: UUID.randomUUID().toString()
+            val userName = param.getFirst(userName.api) ?: error(NoUsernameSpecifiedException())
+            val user = User(userId, userName, classroomId, UserRole.STUDENT)
+            classroomInstanceService.joinUser(classroomId, password, user)
+                .flatMap { (user, classroom) ->
+                    createSessionToken(user).map { sessionToken ->
+                        Triple(user, classroom, sessionToken)
                     }
+                }.doOnNext { (user, classroom, sessionToken) ->
+                    logger.info("${user.userRole.name} ${user.fullName} registered in classroom ${classroom.classroomName} with token $sessionToken!")
+                }.map { (user, classroom, sessionToken) ->
+                    JoinRoomBBBResponse(
+                        success = true,
+                        meetingID = classroom.internalClassroomId,
+                        sessionToken = sessionToken,
+                        url = URL("${classroomProperties.host}${classroomProperties.prefixPath}" +
+                                "/classroom/join?sessionToken=$sessionToken").toString(),
+                        userID = user.userId
+                    )
+                }
             }
     }
 
@@ -77,15 +80,12 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
     }
 
     fun isMeetingRunning(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {
-        return getClassroomId(param)
-            .flatMap(classroomInstanceService::isRunning)
+        return classroomInstanceService.isRunning(getClassroomId(param))
             .map(::IsMeetingRunningBBB)
     }
 
-    private fun getClassroomId(param: MultiValueMap<String, String>): Mono<String> {
-        return Mono
-            .justOrEmpty(param.getFirst(ClassroomId.api))
-            .switchIfEmpty(Mono.error(MissingMeetingIDException()))
+    private fun getClassroomId(param: MultiValueMap<String, String>): String {
+        return param.getFirst(ClassroomId.api) ?: throw MissingMeetingIDException()
     }
 
 }
