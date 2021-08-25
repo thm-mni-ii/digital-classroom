@@ -4,16 +4,10 @@ import de.thm.mni.ii.classroom.event.ClassroomEventPublisher
 import de.thm.mni.ii.classroom.exception.api.ClassroomNotFoundException
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.model.api.JoinRoomBBBResponse
-import de.thm.mni.ii.classroom.properties.ClassroomProperties
-import de.thm.mni.ii.classroom.security.classroom.ClassroomUserDetailsRepository
 import de.thm.mni.ii.classroom.util.toPair
 import org.apache.commons.lang3.RandomStringUtils
-import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
-import java.net.URL
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -55,7 +49,7 @@ class ClassroomInstanceService {
                 }"
             )
             val publisher = ClassroomEventPublisher(classroom)
-            classrooms.computeIfAbsent(classroomId) { id ->
+            classrooms.computeIfAbsent(classroomId) {
                 Pair(classroom, publisher)
             }
             Mono.just(classroom)
