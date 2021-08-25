@@ -3,7 +3,6 @@ package de.thm.mni.ii.classroom.model.classroom
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import de.thm.mni.ii.classroom.model.ClassroomDependent
-import io.jsonwebtoken.Claims
 import org.springframework.security.core.userdetails.UserDetails
 import java.security.Principal
 
@@ -47,14 +46,6 @@ data class User(
         Pair("fullName", fullName),
         Pair("classroomId", classroomId),
         Pair("userRole", userRole.name)
-    )
-
-    @JsonIgnore
-    constructor(claims: Claims) : this(
-        claims["userId"] as String,
-        claims["fullName"] as String,
-        claims["classroomId"] as String,
-        UserRole.valueOf(claims["userRole"] as String)
     )
 
     @JsonIgnore
