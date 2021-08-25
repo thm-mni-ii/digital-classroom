@@ -36,7 +36,6 @@ export class TicketService {
    * @param ticket The ticket to remove.
    */
   public removeTicket(ticket: Ticket) {
-    ticket.queuePosition = null;
     this.http.post<Ticket[]>("/classroom-api/ticket/delete", ticket).subscribe()
   }
 }

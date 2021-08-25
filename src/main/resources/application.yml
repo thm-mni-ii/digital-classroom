@@ -27,7 +27,14 @@ logging:
   level:
     de.thm: DEBUG
     SQL: DEBUG
-    web: DEBUG
+
+    org:
+      springframework:
+        security:
+          rsocket:
+            core: DEBUG
+        messaging:
+          rsocket: DEBUG
 
 spring:
   autoconfigure.exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration, org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration, org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration
@@ -40,3 +47,4 @@ spring:
       mapping-path: /rsocket
       transport: websocket
       ssl.enabled: true
+

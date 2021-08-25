@@ -17,7 +17,7 @@ import {User} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
-import {Conference} from "../../model/Conference";
+import {ConferenceInfo} from "../../model/Conference";
 
 @Component({
   selector: 'app-conference',
@@ -40,7 +40,7 @@ export class ClassroomComponent implements OnInit, OnDestroy {
   }
   classroomId: string;
   users: User[] = [];
-  conferences: Conference[] = [];
+  conferences: ConferenceInfo[] = [];
   usersInConference: User[] = [];
   tmpUsersInConference: User[] = [];
   tickets: Ticket[] = [];

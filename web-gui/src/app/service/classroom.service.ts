@@ -6,7 +6,7 @@ import {IncomingCallDialogComponent} from '../dialogs/incoming-call-dialog/incom
 import {User} from "../model/User";
 import {HttpClient} from "@angular/common/http";
 import {ConferenceService} from "./conference.service";
-import {RSocketService} from "./r-socket.service";
+import {RSocketService} from "../rsocket/r-socket.service";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and privide Conferences to take

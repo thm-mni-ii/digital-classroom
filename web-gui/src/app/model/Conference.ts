@@ -1,12 +1,11 @@
 import {User} from "./User";
+import {ClassroomDependent} from "../rsocket/event/ClassroomEvent";
 
-export class Conference {
-  conferenceId: string;
+export class ConferenceInfo implements ClassroomDependent {
   classroomId: string
+  conferenceId: string
   conferenceName: string
-  attendeePassword: string
-  moderatorPassword: string
   creator: User
-  visible: boolean;
-  attendees: string[];
+  visible: boolean
+  attendees: User[]
 }
