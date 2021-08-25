@@ -1,4 +1,4 @@
-package de.thm.mni.ii.classroom.security.classroom
+package de.thm.mni.ii.classroom.security.jwt
 
 import de.thm.mni.ii.classroom.model.classroom.User
 import org.springframework.security.authentication.AbstractAuthenticationToken
@@ -28,6 +28,5 @@ class ClassroomAuthentication(
     override fun setAuthenticated(isAuthenticated: Boolean) {
         valid = isAuthenticated
     }
-
 
 }

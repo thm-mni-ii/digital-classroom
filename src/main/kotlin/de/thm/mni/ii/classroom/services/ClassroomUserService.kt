@@ -2,7 +2,7 @@ package de.thm.mni.ii.classroom.services
 
 import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.security.classroom.ClassroomAuthentication
+import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

@@ -1,7 +1,7 @@
 package de.thm.mni.ii.classroom.controller
 
 import de.thm.mni.ii.classroom.model.classroom.Ticket
-import de.thm.mni.ii.classroom.security.classroom.ClassroomAuthentication
+import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import de.thm.mni.ii.classroom.services.ClassroomUserService
 import org.slf4j.LoggerFactory
 import org.springframework.security.access.annotation.Secured

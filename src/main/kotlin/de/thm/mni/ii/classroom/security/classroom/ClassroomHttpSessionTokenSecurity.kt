@@ -1,11 +1,13 @@
 package de.thm.mni.ii.classroom.security.classroom
 
+import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
+import de.thm.mni.ii.classroom.security.jwt.ClassroomJwtService
+import de.thm.mni.ii.classroom.util.component1
+import de.thm.mni.ii.classroom.util.component2
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.ReactiveAuthenticationManager
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler
@@ -16,7 +18,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
-
 /**
  * Security component authenticating and authorizing requests at the classroom API using a single-use session token.
  * Basic mechanism: Users are pre-authenticating via /api/join by the GATEWAY service and placed inside the
@@ -27,12 +28,13 @@ import reactor.kotlin.core.publisher.toMono
  * @param userDetailsRepository A DAO offering access to valid session token and UserDetails.
  * @param jwtService A service creating and verifying JWT with UserDetails.
  * @see ClassroomUserDetailsRepository
- * @see ClassroomJWTService
+ * @see ClassroomJwtService
  * @see de.thm.mni.ii.classroom.security.downstream.DownstreamAPISecurity
  */
 @Component
-class SessionTokenSecurity(private val userDetailsRepository: ClassroomUserDetailsRepository,
-                           private val jwtService: ClassroomJWTService) {
+class ClassroomHttpSessionTokenSecurity(private val userDetailsRepository: ClassroomUserDetailsRepository,
+                                        private val jwtService: ClassroomJwtService
+) {
     /**
      * Function constructing the main {@link AuthenticationWebFilter}
      * Accumulates the ReactiveAuthenticationManager, ServerAuthenticationConverter, and ServerAuthenticationSuccessHandler
@@ -67,15 +69,15 @@ class SessionTokenSecurity(private val userDetailsRepository: ClassroomUserDetai
      * The ReactiveAuthenticationManager validating the ClassroomAuthentication object.
      * If the ClassroomAuthentication object is not valid, the JWTSecurity config will try to authenticate the request.
      * The Authentication object is constructed from the ServerExchange within the sessionTokenAuthenticationConverter.
-     * @see SessionTokenSecurity.sessionTokenAuthenticationConverter
+     * @see ClassroomHttpSessionTokenSecurity.sessionTokenAuthenticationConverter
      * @see ReactiveAuthenticationManager
-     * @see JWTSecurity
+     * @see ClassroomHttpJwtSecurity
      * @see ClassroomAuthentication
      */
     private fun reactiveAuthenticationManager() = ReactiveAuthenticationManager { auth ->
-        val user = userDetailsRepository.findBySessionToken(auth.credentials as String)
-        val jwt = user?.let { jwtService.createToken(user) } ?: ""
-        Mono.just(ClassroomAuthentication(user, jwt))
+        userDetailsRepository.findBySessionToken(auth.credentials as String).flatMap { user ->
+            Mono.zip(Mono.just(user), jwtService.createToken(user))
+        }.map { (user, token) -> ClassroomAuthentication(user, token) }
     }
 
     /**

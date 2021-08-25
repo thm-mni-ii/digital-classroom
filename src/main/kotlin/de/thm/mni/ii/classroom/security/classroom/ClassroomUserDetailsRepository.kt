@@ -11,15 +11,15 @@ class ClassroomUserDetailsRepository: ReactiveUserDetailsService {
 
     private val validTokens = HashMap<String, User>()
 
-    fun findBySessionToken(sessionToken: String): User? =
-        validTokens.get(sessionToken)
+    fun findBySessionToken(sessionToken: String): Mono<User> =
+        Mono.justOrEmpty(validTokens[sessionToken])
 
     fun insertValidToken(sessionToken: String, user: User) {
         validTokens[sessionToken] = user
     }
 
-    override fun findByUsername(username: String): Mono<UserDetails?> {
-        return Mono.justOrEmpty(findBySessionToken(username))
+    override fun findByUsername(username: String): Mono<UserDetails> {
+        return findBySessionToken(username).cast(UserDetails::class.java)
     }
 
 }

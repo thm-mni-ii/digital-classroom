@@ -1,5 +1,6 @@
-package de.thm.mni.ii.classroom.security.rsocket
+package de.thm.mni.ii.classroom.security.classroom
 
+import de.thm.mni.ii.classroom.security.jwt.JwtClassroomAuthenticationConverterAdapter
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -12,14 +13,15 @@ import org.springframework.security.oauth2.server.resource.authentication.*
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor
 
 @Configuration
-class RSocketSecurityConfiguration {
+class ClassroomRSocketJwtSecurity {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Bean
     fun rSocketInterceptor(rSocket: RSocketSecurity,
                            decoder: ReactiveJwtDecoder,
-                           converter: JwtClassroomAuthenticationConverterAdapter): PayloadSocketAcceptorInterceptor {
+                           converter: JwtClassroomAuthenticationConverterAdapter
+    ): PayloadSocketAcceptorInterceptor {
         rSocket.authorizePayload {
             it.route("stream/users").authenticated()
                 .anyRequest().authenticated()

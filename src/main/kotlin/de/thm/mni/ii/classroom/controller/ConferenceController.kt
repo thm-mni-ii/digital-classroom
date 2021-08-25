@@ -2,7 +2,7 @@ package de.thm.mni.ii.classroom.controller
 
 import de.thm.mni.ii.classroom.model.classroom.Conference
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.security.classroom.ClassroomAuthentication
+import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import de.thm.mni.ii.classroom.services.ConferenceService
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
