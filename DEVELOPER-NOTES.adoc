@@ -18,8 +18,12 @@ Useful BBB API testing tool: https://mconf.github.io/api-mate/
 
 JWT: https://github.com/raphaelDL/spring-webflux-security-jwt
 
+Used Library: https://connect2id.com/products/nimbus-jose-jwt
+
 RSocket: https://github.com/rsocket/rsocket
 
 RSocket.js: https://github.com/rsocket/rsocket-js
 
 RSocket Spring: https://docs.spring.io/spring-framework/docs/current/reference/pdf/rsocket.pdf
+
+Micrometer: https://www.baeldung.com/micrometer
