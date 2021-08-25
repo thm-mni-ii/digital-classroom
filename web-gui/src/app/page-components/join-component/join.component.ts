@@ -4,7 +4,7 @@ import {DOCUMENT} from '@angular/common';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AuthService} from '../../service/auth.service';
-import {JWTToken} from "../../model/JWTToken";
+import {JWToken} from "../../model/JWToken";
 
 /**
  * Manages the login page for Submissionchecker

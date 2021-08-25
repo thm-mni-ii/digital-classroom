@@ -4,7 +4,7 @@
 import {User} from "./User";
 import {Roles} from "./Roles";
 
-export class JWTToken extends User {
+export class JWToken extends User {
   exp: number;
 
   isPrivileged(): boolean {

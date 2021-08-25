@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {Conference} from "../model/Conference";
+import {ConferenceInfo} from "../model/Conference";
 import {distinctUntilChanged} from "rxjs/operators";
 
 /**
@@ -40,13 +40,13 @@ export class ConferenceService {
 
   public createConference() {
     if (this.conferenceWindowHandle == undefined || this.conferenceWindowHandle.closed) {
-      this.http.get<Conference>("/classroom-api/conference/create").subscribe(conference => {
+      this.http.get<ConferenceInfo>("/classroom-api/conference/create").subscribe(conference => {
         this.joinConference(conference)
       })
     }
   }
 
-  public joinConference(conference: Conference) {
+  public joinConference(conference: ConferenceInfo) {
     const options = { responseType: "text" as "json"};
     if (this.conferenceWindowHandle == undefined || this.conferenceWindowHandle.closed) {
       this.http.post<string>("/classroom-api/conference/join", conference, options).subscribe(url => {
@@ -69,7 +69,7 @@ export class ConferenceService {
     return this.isWindowhandleOpen.asObservable()
   }
 
-  public getConferences(): Promise<Conference[]> {
-    return this.http.get<Conference[]>("/classroom-api/conference").toPromise()
+  public getConferences(): Promise<ConferenceInfo[]> {
+    return this.http.get<ConferenceInfo[]>("/classroom-api/conference").toPromise()
   }
 }

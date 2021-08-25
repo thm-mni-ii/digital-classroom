@@ -2,18 +2,18 @@ import {Injectable, OnDestroy} from '@angular/core';
 import RSocketWebSocketClient from 'rsocket-websocket-client';
 import {Subject} from "rxjs";
 import {
-  BufferEncoders,
   encodeBearerAuthMetadata,
   encodeCompositeMetadata,
-  encodeRoute,
+  encodeRoute, JsonSerializer,
   MESSAGE_RSOCKET_AUTHENTICATION,
   MESSAGE_RSOCKET_COMPOSITE_METADATA,
   MESSAGE_RSOCKET_ROUTING,
   RSocketClient,
-  toBuffer
+  toBuffer, BufferEncoders
 } from "rsocket-core";
 
-import {AuthService} from "./auth.service";
+import {AuthService} from "../service/auth.service";
+import {MessageEvent} from "./event/ClassroomEvent";
 
 @Injectable({
   providedIn: 'root'
@@ -44,6 +44,13 @@ export class RSocketService implements OnDestroy {
         dataMimeType: 'application/json',
         // format of `metadata`
         metadataMimeType: MESSAGE_RSOCKET_COMPOSITE_METADATA.string,
+        payload: {
+          data: undefined,
+          metadata: encodeCompositeMetadata([
+            [MESSAGE_RSOCKET_ROUTING, encodeRoute("")],
+            [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(auth.loadToken()) ],
+          ]),
+        }
       },
       transport: this.transport,
     });
@@ -55,24 +62,21 @@ export class RSocketService implements OnDestroy {
         // request/stream, etc as well as methods to close the socket.
         this.socket = socket
         socket
-          .requestStream({
-            data: undefined,
+          .requestResponse({
+            data: toBuffer(JSON.stringify(new MessageEvent("Test Event!"))),
             metadata: encodeCompositeMetadata([
-              [MESSAGE_RSOCKET_ROUTING, encodeRoute("socket/classroom")],
+              [MESSAGE_RSOCKET_ROUTING, encodeRoute("socket/classroom-event")],
               [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(auth.loadToken()) ],
             ]),
           })
           .subscribe({
-            onComplete: () => {console.log("disconnected")},
+            onComplete: payload => {console.log(payload.data)},
             onError: error => {
               console.log('Connection has been closed due to:: ' + error);
               console.log(error.message)
               console.log(error.stack)
             },
-            onSubscribe: subscription => {
-              subscription.request(10000)
-            },
-            onNext: payload => console.log(payload)
+            onSubscribe: _ => { },
           });
         this.fireEvent()
       },
@@ -85,9 +89,9 @@ export class RSocketService implements OnDestroy {
 
   fireEvent() {
     this.socket.fireAndForget({
-      data: toBuffer("Hallo Welt!"),
+      data: toBuffer(JSON.stringify(new MessageEvent("Fire!"))),
       metadata: encodeCompositeMetadata([
-        [MESSAGE_RSOCKET_ROUTING, encodeRoute("socket/client")],
+        [MESSAGE_RSOCKET_ROUTING, encodeRoute("socket/classroom-event")],
         [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(this.auth.loadToken()) ],
       ]),
     })

@@ -3,6 +3,7 @@ import {FormBuilder, FormGroup} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Ticket} from '../../model/Ticket';
+import {AuthService} from "../../service/auth.service";
 
 @Component({
   selector: 'app-newticket-dialog',
@@ -11,18 +12,19 @@ import {Ticket} from '../../model/Ticket';
 })
 export class NewTicketDialogComponent implements OnInit {
   form: FormGroup;
-  ticket: Ticket = {
-    description: "",
-    createTime: Date.now(),
-    status: 'open',
-    creator: null,
-    assignee: null,
-  };
-
-
+  ticket: Ticket
 
   constructor(private _formBuilder: FormBuilder, @Inject(MAT_DIALOG_DATA) public data: any,
-              private snackBar: MatSnackBar, public dialogRef: MatDialogRef<NewTicketDialogComponent>) { }
+              private snackBar: MatSnackBar, public dialogRef: MatDialogRef<NewTicketDialogComponent>, private auth: AuthService) {
+
+    this.ticket = {
+      description: "",
+      createTime: Date.now(),
+      creator: auth.getToken(),
+      assignee: null,
+      classroomId: auth.getToken().classroomId
+    };
+  }
 
   ngOnInit(): void {
     this.form = this._formBuilder.group({

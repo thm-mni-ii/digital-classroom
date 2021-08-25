@@ -3,6 +3,7 @@ package de.thm.mni.ii.classroom.event
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
+import org.springframework.messaging.rsocket.RSocketRequester
 import reactor.core.publisher.Mono
 
 class ClassroomEventPublisher(
@@ -27,8 +28,12 @@ class ClassroomEventPublisher(
 
     private fun sendToAll(event: ClassroomEvent): Mono<Void> {
         return digitalClassroom.getSockets().doOnNext {
-            it.next(event)
+            fireAndForget(event, it)
         }.then()
+    }
+
+    private fun fireAndForget(event: ClassroomEvent, requester: RSocketRequester) {
+        requester.route("").data(event).send().subscribe().dispose()
     }
 
 }

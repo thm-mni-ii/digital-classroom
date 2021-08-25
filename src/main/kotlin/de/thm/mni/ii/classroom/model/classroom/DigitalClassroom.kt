@@ -4,6 +4,8 @@ import de.thm.mni.ii.classroom.event.ClassroomEvent
 import de.thm.mni.ii.classroom.exception.classroom.TicketAlreadyExistsException
 import de.thm.mni.ii.classroom.security.exception.InvalidMeetingPasswordException
 import de.thm.mni.ii.classroom.util.update
+import io.rsocket.RSocket
+import org.springframework.messaging.rsocket.RSocketRequester
 import reactor.core.publisher.Flux
 import reactor.core.publisher.FluxSink
 import reactor.core.publisher.Mono
@@ -23,7 +25,7 @@ data class DigitalClassroom(
     val internalClassroomId: String // BBB API Specification
 ) {
 
-    private val users = HashMap<User, FluxSink<ClassroomEvent>?>()
+    private val users = HashMap<User, RSocketRequester?>()
     private val tickets = HashSet<Ticket>()
     private val conferenceStorage = ConferenceStorage(this)
 
@@ -48,8 +50,8 @@ data class DigitalClassroom(
         }
     }
 
-    fun connectSocket(user: User, socket: FluxSink<ClassroomEvent>) {
-        users[user] = socket
+    fun connectSocket(user: User, socketRequester: RSocketRequester) {
+        users[user] = socketRequester
     }
 
     fun createTicket(ticket: Ticket): Mono<Ticket> {
@@ -96,9 +98,9 @@ data class DigitalClassroom(
         return conferenceStorage.getUsersInConferences()
     }
 
-    fun getSockets(): Flux<FluxSink<ClassroomEvent>> = Flux.fromIterable(users.values)
+    fun getSockets(): Flux<RSocketRequester> = Flux.fromIterable(users.values.filterNotNull())
 
-    fun getSocketOfUser(user: User): Mono<FluxSink<ClassroomEvent>> = Mono.justOrEmpty(users[user])
+    fun getSocketOfUser(user: User): Mono<RSocketRequester> = Mono.justOrEmpty(users[user])
 
     fun isUserInConference(user: User): Mono<Boolean> {
         return conferenceStorage.isUserInConference(user)

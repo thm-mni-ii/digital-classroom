@@ -4,7 +4,7 @@ import {JwtHelperService} from '@auth0/angular-jwt';
 import {Observable} from 'rxjs';
 import {of, throwError} from 'rxjs';
 import {mergeMap, map} from 'rxjs/operators';
-import {JWTToken} from '../model/JWTToken';
+import {JWToken} from '../model/JWToken';
 import {Params} from "@angular/router";
 
 const TOKEN_ID = 'classroom-token';
@@ -38,7 +38,7 @@ export class AuthService {
   /**
    * @return The lastly received token.
    */
-  getToken(): JWTToken {
+  getToken(): JWToken {
     const token = this.loadToken();
     const decodedToken = this.decodeToken(token);
     if (!decodedToken) {
@@ -60,7 +60,7 @@ export class AuthService {
     }
   }
 
-  private decodeToken(token: string): JWTToken {
+  private decodeToken(token: string): JWToken {
     return this.jwtHelper.decodeToken(token);
   }
 
@@ -96,7 +96,7 @@ export class AuthService {
     }, 60000);
   }
 
-  useSessionToken(params: Params): Observable<JWTToken> {
+  useSessionToken(params: Params): Observable<JWToken> {
     return this.http.get<string>('/classroom-api/join',
       {params: params, observe: 'response'})
       .pipe(map(res => {
