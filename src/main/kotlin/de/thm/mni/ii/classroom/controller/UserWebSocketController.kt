@@ -31,7 +31,7 @@ class UserWebSocketController(
                 .doOnSuccess {
                     userDisconnected(user)
                 }.doOnError {
-
+                    userDisconnected(user, it)
                 }
             Mono.empty()
         }

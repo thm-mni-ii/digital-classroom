@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank
 
 @ConfigurationProperties(prefix = "jwt")
 @ConstructorBinding
-data class JWTProperties(
+data class JwtProperties(
 
     /**
      * Secret for JWT signature

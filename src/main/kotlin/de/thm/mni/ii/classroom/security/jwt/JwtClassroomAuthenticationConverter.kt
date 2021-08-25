@@ -1,7 +1,6 @@
-package de.thm.mni.ii.classroom.security.rsocket
+package de.thm.mni.ii.classroom.security.jwt
 
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.security.classroom.ClassroomAuthentication
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Component
