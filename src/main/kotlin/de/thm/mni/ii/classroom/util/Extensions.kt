@@ -1,5 +1,7 @@
 package de.thm.mni.ii.classroom.util
 
+import org.slf4j.Logger
+import org.slf4j.Marker
 import reactor.util.function.Tuple2
 
 /**
@@ -34,4 +36,11 @@ operator fun <T1, T2> Tuple2<T1, T2>.component1(): T1 = t1
  * Deconstructing operators for the second element of a Tuple2 of project Reactor.
  */
 operator fun <T1, T2> Tuple2<T1, T2>.component2(): T2 = t2
+
+fun Logger.logThread(task: String = "") {
+    if (isDebugEnabled) {
+        val thread = Thread.currentThread()
+        this.debug("Executing {} on {} / {} in group {}", task, thread.id, thread.name, thread.threadGroup.name)
+    }
+}
 
