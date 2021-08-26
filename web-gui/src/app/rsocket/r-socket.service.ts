@@ -48,7 +48,7 @@ export class RSocketService implements OnDestroy {
           data: undefined,
           metadata: encodeCompositeMetadata([
             [MESSAGE_RSOCKET_ROUTING, encodeRoute("")],
-            [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(auth.loadToken()) ],
+            [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(auth.loadToken())],
           ]),
         }
       },
@@ -61,23 +61,6 @@ export class RSocketService implements OnDestroy {
         // socket provides the rsocket interactions fire/forget, request/response,
         // request/stream, etc as well as methods to close the socket.
         this.socket = socket
-        socket
-          .requestResponse({
-            data: toBuffer(JSON.stringify(new MessageEvent("Test Event!"))),
-            metadata: encodeCompositeMetadata([
-              [MESSAGE_RSOCKET_ROUTING, encodeRoute("socket/classroom-event")],
-              [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(auth.loadToken()) ],
-            ]),
-          })
-          .subscribe({
-            onComplete: payload => {console.log(payload.data)},
-            onError: error => {
-              console.log('Connection has been closed due to:: ' + error);
-              console.log(error.message)
-              console.log(error.stack)
-            },
-            onSubscribe: _ => { },
-          });
         this.fireEvent()
       },
       onError: error => {
@@ -97,13 +80,32 @@ export class RSocketService implements OnDestroy {
     })
   }
 
+  requestResponse() {
+    this.socket
+      .requestResponse({
+        data: toBuffer(JSON.stringify(new MessageEvent("Test Event!"))),
+        metadata: encodeCompositeMetadata([
+          [MESSAGE_RSOCKET_ROUTING, encodeRoute("socket/classroom-event")],
+          [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(this.auth.loadToken()) ],
+        ]),
+      })
+      .subscribe({
+        onComplete: payload => {console.log(payload.data)},
+        onError: error => {
+          console.log('Connection has been closed due to:: ' + error);
+          console.log(error.message)
+          console.log(error.stack)
+        },
+        onSubscribe: _ => { },
+      });
+  }
+
   // tslint:disable-next-line:typedef
   addMessage(newMessage: any) {
     console.log('add message:' + JSON.stringify(newMessage))
   }
 
   ngOnDestroy(): void {
-    this.sub.unsubscribe();
     if (this.client) {
       this.client.close();
     }
