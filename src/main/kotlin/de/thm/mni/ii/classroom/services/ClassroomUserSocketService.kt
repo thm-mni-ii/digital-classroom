@@ -1,11 +1,9 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.event.TicketEvent
+import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
 import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
-import de.thm.mni.ii.classroom.util.logThread
 import org.slf4j.LoggerFactory
 import org.springframework.messaging.rsocket.RSocketRequester
 import org.springframework.stereotype.Service
@@ -68,11 +66,17 @@ class ClassroomUserSocketService(private val classroomInstanceService: Classroom
     }
 
     fun deleteTicket(user: User, ticket: Ticket): Mono<Boolean> {
-        if (user!!.isPrivileged() || user == ticket.creator) {
+        if (user.isPrivileged() || user == ticket.creator) {
             return classroomInstanceService
                 .getClassroomInstance(user.classroomId)
                 .flatMap { it.deleteTicket(ticket) }
         } else throw UnauthorizedException("User not authorized to delete ticket!")
+    }
+
+    fun getClassroomInfo(user: User): Mono<ClassroomInfo> {
+        return classroomInstanceService
+            .getClassroomInstance(user.classroomId)
+            .map { ClassroomInfo(it.classroomId, it.classroomName) }
     }
 
 }

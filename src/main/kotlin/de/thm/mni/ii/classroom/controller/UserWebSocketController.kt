@@ -53,7 +53,7 @@ class UserWebSocketController(
 
     @MessageMapping("socket/init-classroom")
     fun initClassroom(@AuthenticationPrincipal user: User): Mono<ClassroomInfo> {
-        return Mono.empty()
+        return userSocketService.getClassroomInfo(user)
     }
 
     @MessageMapping("socket/init-tickets")
