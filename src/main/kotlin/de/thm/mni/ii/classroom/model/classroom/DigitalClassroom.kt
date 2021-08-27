@@ -5,6 +5,7 @@ import de.thm.mni.ii.classroom.security.exception.InvalidMeetingPasswordExceptio
 import org.springframework.messaging.rsocket.RSocketRequester
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.publisher.SynchronousSink
 import reactor.kotlin.core.publisher.toFlux
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -22,6 +23,7 @@ class DigitalClassroom(
 
     private val users = HashMap<User, RSocketRequester?>()
     private val tickets = HashSet<Ticket>()
+    private val ticketIds = ticketIdGenerator()
     private val conferenceStorage = ConferenceStorage(this)
 
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
@@ -49,11 +51,20 @@ class DigitalClassroom(
         users[user] = socketRequester
     }
 
+    fun disconnectSocket(user: User) {
+        users.remove(user)
+    }
+
     fun createTicket(ticket: Ticket): Mono<Ticket> {
-        return if (tickets.add(ticket)) {
-            Mono.just(ticket)
-        } else {
-            Mono.error(TicketAlreadyExistsException(ticket))
+        return ticketIdGenerator().next().map { ticketId ->
+            ticket.ticketId = ticketId
+            ticket
+        }.flatMap { newTicket ->
+            if (!tickets.add(newTicket)) {
+                Mono.error(TicketAlreadyExistsException(newTicket))
+            } else {
+                Mono.just(newTicket)
+            }
         }
     }
 
@@ -99,6 +110,19 @@ class DigitalClassroom(
 
     fun isUserInConference(user: User): Mono<Boolean> {
         return conferenceStorage.isUserInConference(user)
+    }
+
+    private fun ticketIdGenerator(): Flux<Long> {
+        data class SequenceState(
+            var last: Long = 10000L
+        )
+        return Flux.generate(
+            { SequenceState() }
+        ) { state: SequenceState, sink: SynchronousSink<Long> ->
+            sink.next(state.last + 1)
+            state.last += 1
+            state
+        }
     }
 
 

@@ -2,10 +2,12 @@ package de.thm.mni.ii.classroom.controller
 
 import de.thm.mni.ii.classroom.event.ClassroomEvent
 import de.thm.mni.ii.classroom.event.MessageEvent
-import de.thm.mni.ii.classroom.event.TicketEvent
 import de.thm.mni.ii.classroom.event.UserEvent
+import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
+import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
+import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.services.ClassroomInstanceService
+import de.thm.mni.ii.classroom.services.ClassroomUserSocketService
 import de.thm.mni.ii.classroom.util.logThread
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -20,7 +22,7 @@ import reactor.core.publisher.Mono
 
 @Controller
 class UserWebSocketController(
-    private val classroomInstanceService: ClassroomInstanceService
+    private val userSocketService: ClassroomUserSocketService
 ) {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -49,9 +51,14 @@ class UserWebSocketController(
         }
     }
 
+    @MessageMapping("socket/init-classroom")
+    fun initClassroom(@AuthenticationPrincipal user: User): Mono<ClassroomInfo> {
+        return Mono.empty()
+    }
+
     @MessageMapping("socket/init-tickets")
-    fun initTickets(@AuthenticationPrincipal user: User): Flux<TicketEvent> {
-        return Flux.empty()
+    fun initTickets(@AuthenticationPrincipal user: User): Flux<Ticket> {
+        return userSocketService.getTickets(user)
     }
 
     @MessageMapping("socket/init-users")
@@ -60,27 +67,22 @@ class UserWebSocketController(
     }
 
     @MessageMapping("socket/init-conferences")
-    fun initConferences(@AuthenticationPrincipal user: User): Flux<UserEvent> {
+    fun initConferences(@AuthenticationPrincipal user: User): Flux<ConferenceInfo> {
         return Flux.empty()
     }
 
-    private fun userDisconnected(user: User) {
-        logger.logThread("userDisconnected")
-        logger.info("${user.userId} / ${user.fullName} disconnected!")
-    }
-
-    private fun userDisconnected(user: User, throwable: Throwable) {
-        logger.logThread("userDisconnected")
-        logger.error("${user.userId} / ${user.fullName} disconnected with error!", throwable.message)
-    }
-
     private fun userConnected(user: User, socketRequester: RSocketRequester) {
-        classroomInstanceService.getClassroomInstance(user.classroomId).doOnNext { classroom ->
-            logger.logThread("userConnected")
-            logger.info("${user.userId} / ${user.fullName} connected to ${classroom.classroomName}!")
-        }.subscribe { classroom ->
-            classroom.connectSocket(user, socketRequester)
-        }.dispose()
+        logger.info("${user.userId} / ${user.fullName} connected to ${user.classroomId}!")
+        userSocketService.userConnected(user, socketRequester)
+    }
+
+    private fun userDisconnected(user: User, throwable: Throwable? = null) {
+        if (throwable == null) {
+            logger.info("${user.userId} / ${user.fullName} disconnected from ${user.classroomId}!")
+        } else {
+            logger.error("${user.userId} / ${user.fullName} disconnected from ${user.classroomId} with error {}!", throwable.message)
+        }
+        userSocketService.userDisconnected(user)
     }
 
 }
