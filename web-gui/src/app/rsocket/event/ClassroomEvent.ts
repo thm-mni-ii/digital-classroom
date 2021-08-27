@@ -6,7 +6,7 @@ export interface ClassroomDependent {
   classroomId: string
 }
 
-abstract class ClassroomEvent {
+export abstract class ClassroomEvent {
   private eventName: string
 
   protected constructor(eventName: string) {

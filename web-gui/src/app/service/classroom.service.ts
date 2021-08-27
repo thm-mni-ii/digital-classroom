@@ -7,6 +7,7 @@ import {User} from "../model/User";
 import {HttpClient} from "@angular/common/http";
 import {ConferenceService} from "./conference.service";
 import {RSocketService} from "../rsocket/r-socket.service";
+import {ClassroomInfo} from "../model/ClassroomInfo";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and privide Conferences to take
@@ -19,7 +20,6 @@ export class ClassroomService {
   private dialog: MatDialog;
   private usersInConference: Subject<User[]>;
   private inviteUsers: Subject<boolean>;
-  private service = 'bigbluebutton';
   incomingCallSubscriptions: Subscription[] = [];
   private heartbeatInterval: number;
   private heartbeatTime = 5000;
@@ -29,7 +29,7 @@ export class ClassroomService {
                      private conferenceService: ConferenceService,
                      private mDialog: MatDialog,
                      private http: HttpClient,
-                     private socketService: RSocketService) {
+                     private rSocketService: RSocketService) {
     this.usersInConference = new BehaviorSubject<User[]>([]);
     this.inviteUsers = new Subject<boolean>();
     this.dialog = mDialog;
@@ -59,6 +59,8 @@ export class ClassroomService {
    */
   public join(self: User) {
     this.self = self
+    return this.rSocketService
+      .requestResponse<ClassroomInfo>("socket/init-classroom", "")
   }
 
   /**

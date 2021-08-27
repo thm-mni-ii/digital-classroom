@@ -1,18 +1,17 @@
 import { Injectable } from '@angular/core';
 import {Ticket} from "../model/Ticket";
-import {HttpClient} from "@angular/common/http";
+import {RSocketService} from "../rsocket/r-socket.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TicketService {
 
-  constructor(private http: HttpClient) {
+  constructor(private rSocketService: RSocketService) {
 
   }
 
-  public getTickets(): Promise<Ticket[]> {
-    return this.http.get<Ticket[]>("/classroom-api/ticket").toPromise()
+  public getTickets() {
   }
 
   /**
@@ -20,7 +19,7 @@ export class TicketService {
    * @param ticket The ticket to create.
    */
   public createTicket(ticket: Ticket) {
-    this.http.post<Ticket[]>("/classroom-api/ticket", ticket).subscribe()
+    //this.http.post<Ticket[]>("/classroom-api/ticket", ticket).subscribe()
   }
 
   /**
@@ -28,7 +27,7 @@ export class TicketService {
    * @param ticket The ticket to update.
    */
   public updateTicket(ticket: Ticket) {
-    this.http.put<Ticket[]>("/classroom-api/ticket", ticket).subscribe()
+    //this.http.put<Ticket[]>("/classroom-api/ticket", ticket).subscribe()
   }
 
   /**
@@ -36,6 +35,6 @@ export class TicketService {
    * @param ticket The ticket to remove.
    */
   public removeTicket(ticket: Ticket) {
-    this.http.post<Ticket[]>("/classroom-api/ticket/delete", ticket).subscribe()
+    //this.http.post<Ticket[]>("/classroom-api/ticket/delete", ticket).subscribe()
   }
 }

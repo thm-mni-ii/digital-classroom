@@ -1,19 +1,25 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import RSocketWebSocketClient from 'rsocket-websocket-client';
-import {Subject} from "rxjs";
+import {Observable, ReplaySubject} from "rxjs";
 import {
+  BufferEncoders,
   encodeBearerAuthMetadata,
   encodeCompositeMetadata,
-  encodeRoute, JsonSerializer,
+  encodeRoute,
   MESSAGE_RSOCKET_AUTHENTICATION,
   MESSAGE_RSOCKET_COMPOSITE_METADATA,
   MESSAGE_RSOCKET_ROUTING,
   RSocketClient,
-  toBuffer, BufferEncoders
+  toBuffer
 } from "rsocket-core";
 
 import {AuthService} from "../service/auth.service";
-import {MessageEvent} from "./event/ClassroomEvent";
+import {ReactiveSocket, Payload} from "rsocket-types";
+import {arrayBufferToUtf8String} from "rsocket-rxjs/dist/lib/utlities/conversions";
+import {flowableToObservable, singleToObservable} from "../util/FlowableAdapter";
+import {first, map, take} from "rxjs/operators";
+import {flatMap} from "rxjs/internal/operators";
+import {Flowable, Single} from "rsocket-flowable";
 
 @Injectable({
   providedIn: 'root'
@@ -22,8 +28,8 @@ export class RSocketService implements OnDestroy {
 
   title = 'client';
   client: RSocketClient<Buffer, Buffer>;
-  sub = new Subject();
-  socket: any
+  private socketSubject: ReplaySubject<ReactiveSocket<Buffer, Buffer>>
+    = new ReplaySubject<ReactiveSocket<Buffer, Buffer>>(1)
   auth: AuthService = undefined
 
   transport = new RSocketWebSocketClient({
@@ -58,10 +64,7 @@ export class RSocketService implements OnDestroy {
     // Open the connection
     this.client.connect().subscribe({
       onComplete: (socket) => {
-        // socket provides the rsocket interactions fire/forget, request/response,
-        // request/stream, etc as well as methods to close the socket.
-        this.socket = socket
-        this.fireEvent()
+        this.socketSubject.next(socket)
       },
       onError: error => {
         console.log('Connection has been refused due to:: ' + error);
@@ -70,39 +73,51 @@ export class RSocketService implements OnDestroy {
     });
   }
 
-  fireEvent() {
-    this.socket.fireAndForget({
-      data: toBuffer(JSON.stringify(new MessageEvent("Fire!"))),
-      metadata: encodeCompositeMetadata([
-        [MESSAGE_RSOCKET_ROUTING, encodeRoute("socket/classroom-event")],
-        [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(this.auth.loadToken()) ],
-      ]),
-    })
-  }
-
-  requestResponse() {
-    this.socket
-      .requestResponse({
-        data: toBuffer(JSON.stringify(new MessageEvent("Test Event!"))),
-        metadata: encodeCompositeMetadata([
-          [MESSAGE_RSOCKET_ROUTING, encodeRoute("socket/classroom-event")],
-          [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(this.auth.loadToken()) ],
-        ]),
+  public requestResponse<T>(route: string, data: any): Observable<T> {
+    return this.socketSubject.pipe(
+      first<ReactiveSocket<Buffer, Buffer>>(),
+      map((socket: ReactiveSocket<Buffer, Buffer>) => {
+        return socket.requestResponse({
+          data: this.encodeData(data),
+          metadata: this.createMetadata(route)
+        })
+      }),
+      flatMap((single: Single<Payload<Buffer, Buffer>>) => {
+        return singleToObservable<Payload<Buffer, Buffer>>(single);
+      }),
+      map((payload: Payload<Buffer, Buffer>) => {
+          const objString = arrayBufferToUtf8String(payload.data);
+          return <T>JSON.parse(objString);
       })
-      .subscribe({
-        onComplete: payload => {console.log(payload.data)},
-        onError: error => {
-          console.log('Connection has been closed due to:: ' + error);
-          console.log(error.message)
-          console.log(error.stack)
-        },
-        onSubscribe: _ => { },
-      });
+    );
   }
 
-  // tslint:disable-next-line:typedef
-  addMessage(newMessage: any) {
-    console.log('add message:' + JSON.stringify(newMessage))
+  public requestStream<T>(route: string, data: any): Observable<T> {
+    return this.socketSubject.pipe(
+      first<ReactiveSocket<Buffer, Buffer>>(),
+      map((socket: ReactiveSocket<Buffer, Buffer>) => {
+        return socket.requestStream({
+          data: this.encodeData(data),
+          metadata: this.createMetadata(route)
+        })
+      }),
+      flatMap((single: Flowable<Payload<Buffer, Buffer>>) => {
+        return flowableToObservable<Payload<Buffer, Buffer>>(single);
+      }),
+      map((payload: Payload<Buffer, Buffer>) => {
+        const objString = arrayBufferToUtf8String(payload.data);
+        return <T>JSON.parse(objString);
+      })
+    );
+  }
+
+  private encodeData = (data: any): Buffer => toBuffer(JSON.stringify(data));
+
+  private createMetadata(route: string): Buffer {
+    return encodeCompositeMetadata([
+      [MESSAGE_RSOCKET_ROUTING, encodeRoute(route)],
+      [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(this.auth.loadToken()) ],
+    ])
   }
 
   ngOnDestroy(): void {
