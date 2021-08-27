@@ -62,7 +62,7 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
                 }.map { (user, classroom, sessionToken) ->
                     JoinRoomBBBResponse(
                         success = true,
-                        meetingID = classroom.internalClassroomId,
+                        meetingID = classroom.classroomId,
                         sessionToken = sessionToken,
                         url = URL("${classroomProperties.host}${classroomProperties.prefixPath}" +
                                 "/classroom/join?sessionToken=$sessionToken").toString(),
