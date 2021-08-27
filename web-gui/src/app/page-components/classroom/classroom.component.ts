@@ -18,6 +18,7 @@ import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
 import {ConferenceInfo} from "../../model/Conference";
+import {ClassroomInfo} from "../../model/ClassroomInfo";
 
 @Component({
   selector: 'app-conference',
@@ -38,7 +39,7 @@ export class ClassroomComponent implements OnInit, OnDestroy {
               private userService: UserService,
               @Inject(DOCUMENT) document) {
   }
-  classroomId: string;
+  classroomInfo: ClassroomInfo = undefined
   users: User[] = [];
   conferences: ConferenceInfo[] = [];
   usersInConference: User[] = [];
@@ -52,24 +53,21 @@ export class ClassroomComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const token = this.auth.getToken()
     this.self = token
-    this.classroomId = token.classroomId
     this.joinClassroom(token);
 
-    this.route.params.subscribe(param => {
-        this.classroomId = param.id;
-      });
-    this.classroomService.getUsersInConference().subscribe((users) => {
-      this.tmpUsersInConference = users;
-    });
-    this.userService.getUsersInClassroom().then(users =>
-      this.users = users
-    )
-    this.conferenceService.getConferences().then(conferences => {
-      this.conferences = conferences
-    })
-    this.ticketService.getTickets().then(tickets => {
+    //this.classroomService.getUsersInConference().subscribe((users) => {
+    //  this.tmpUsersInConference = users;
+    //});
+    //this.userService.getUsersInClassroom().then(users =>
+    //  this.users = users
+    //)
+    //this.conferenceService.getConferences().then(conferences => {
+    //  this.conferences = conferences
+    //})
+    //this.ticketService.getTickets()
+      /*.then(tickets => {
       this.tickets = tickets
-    })
+    })*/
     //setTimeout(() => this.refresh(), 1000);
     //this.intervalID = setInterval(() => this.refresh(), 10000);
   }
@@ -95,7 +93,7 @@ export class ClassroomComponent implements OnInit, OnDestroy {
     this.dialog.open(AssignTicketDialogComponent, {
       height: 'auto',
       width: 'auto',
-      data: {courseID: this.classroomId, ticket: ticket}
+      data: {courseID: this.classroomInfo.classroomId, ticket: ticket}
     });
   }
 
@@ -132,7 +130,9 @@ export class ClassroomComponent implements OnInit, OnDestroy {
 
   joinClassroom(user: User) {
     Notification.requestPermission().then();
-    this.classroomService.join(user);
+    this.classroomService.join(user).subscribe(
+      classroomInfo => this.classroomInfo = classroomInfo
+    )
   }
 
   leaveClassroom() {
@@ -171,9 +171,6 @@ export class ClassroomComponent implements OnInit, OnDestroy {
   }
 
   private refresh() {
-    this.ticketService.getTickets().then(tickets => {
-      this.tickets = tickets
-    })
     this.userService.getUsersInClassroom().then(users => {
       this.users = users
     })
