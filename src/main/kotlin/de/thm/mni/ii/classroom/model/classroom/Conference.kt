@@ -4,16 +4,16 @@ import de.thm.mni.ii.classroom.model.ClassroomDependent
 import java.util.*
 import kotlin.collections.HashSet
 
-data class Conference(
-    val conferenceId: String,
+class Conference(
+    conferenceId: String,
     override val classroomId: String,
-    val conferenceName: String,
+    conferenceName: String,
     val attendeePassword: String,
     val moderatorPassword: String,
-    val creator: User,
-    val visible: Boolean,
-    val attendees: HashSet<User>
-): ClassroomDependent {
+    creator: User,
+    visible: Boolean,
+    attendees: HashSet<User>
+): ConferenceInfo(classroomId, conferenceId, conferenceName, creator, visible, attendees) {
     constructor(digitalClassroom: DigitalClassroom, creator: User): this(
         UUID.randomUUID().toString(),
         digitalClassroom.classroomId,
@@ -35,11 +35,3 @@ data class Conference(
 
 }
 
-data class ConferenceInfo(
-    override val classroomId: String,
-    val conferenceId: String,
-    val conferenceName: String,
-    val creator: User,
-    val visible: Boolean,
-    val attendees: HashSet<User>,
-): ClassroomDependent

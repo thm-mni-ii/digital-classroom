@@ -1,13 +1,9 @@
 package de.thm.mni.ii.classroom.model.classroom
 
-import de.thm.mni.ii.classroom.event.ClassroomEvent
 import de.thm.mni.ii.classroom.exception.classroom.TicketAlreadyExistsException
 import de.thm.mni.ii.classroom.security.exception.InvalidMeetingPasswordException
-import de.thm.mni.ii.classroom.util.update
-import io.rsocket.RSocket
 import org.springframework.messaging.rsocket.RSocketRequester
 import reactor.core.publisher.Flux
-import reactor.core.publisher.FluxSink
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import java.time.ZonedDateTime
@@ -16,14 +12,13 @@ import java.time.temporal.ChronoUnit
 /**
  * Class representing a digital classroom instance.
  */
-data class DigitalClassroom(
-    val classroomId: String,
+class DigitalClassroom(
+    classroomId: String,
     val studentPassword: String,
     val tutorPassword: String,
     val teacherPassword: String,
-    val classroomName: String,
-    val internalClassroomId: String // BBB API Specification
-) {
+    classroomName: String
+): ClassroomInfo(classroomId, classroomName) {
 
     private val users = HashMap<User, RSocketRequester?>()
     private val tickets = HashSet<Ticket>()

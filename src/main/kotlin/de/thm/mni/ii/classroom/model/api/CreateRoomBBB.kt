@@ -35,7 +35,7 @@ class CreateRoomBBB(@field:XmlElement private val meetingID: String,
 
     constructor(instance: DigitalClassroom, messageKey: String = "", message: String = ""): this(
         instance.classroomId,
-        instance.internalClassroomId,
+        instance.classroomId,
         instance.studentPassword,
         instance.teacherPassword,
         instance.creationTimestamp,

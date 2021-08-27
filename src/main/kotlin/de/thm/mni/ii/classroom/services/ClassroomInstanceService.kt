@@ -41,12 +41,7 @@ class ClassroomInstanceService {
                 studentPassword = studentPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 tutorPassword = tutorPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 teacherPassword = teacherPassword ?: RandomStringUtils.randomAlphanumeric(30),
-                classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}",
-                internalClassroomId = "${RandomStringUtils.randomAlphanumeric(40)}-${
-                    RandomStringUtils.randomAlphanumeric(
-                        13
-                    )
-                }"
+                classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}"
             )
             val publisher = ClassroomEventPublisher(classroom)
             classrooms.computeIfAbsent(classroomId) {
