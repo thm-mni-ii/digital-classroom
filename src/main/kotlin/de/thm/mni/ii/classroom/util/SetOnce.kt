@@ -5,6 +5,7 @@ import kotlin.reflect.KProperty
 
 inline fun <reified T> setOnce(): ReadWriteProperty<Any, T> = SetOnceProperty()
 
+@Suppress("UNCHECKED_CAST")
 class SetOnceProperty<T> : ReadWriteProperty<Any, T> {
 
     private object EMPTY
