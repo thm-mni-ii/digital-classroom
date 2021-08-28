@@ -18,6 +18,7 @@ export class NewTicketDialogComponent implements OnInit {
               private snackBar: MatSnackBar, public dialogRef: MatDialogRef<NewTicketDialogComponent>, private auth: AuthService) {
 
     this.ticket = {
+      ticketId: null,
       description: "",
       createTime: Date.now(),
       creator: auth.getToken(),

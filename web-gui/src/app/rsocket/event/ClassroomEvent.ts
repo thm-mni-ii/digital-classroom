@@ -1,5 +1,4 @@
 import {User} from "../../model/User";
-import {Ticket} from "../../model/Ticket";
 import {ConferenceInfo} from "../../model/Conference";
 
 export interface ClassroomDependent {
@@ -7,7 +6,7 @@ export interface ClassroomDependent {
 }
 
 export abstract class ClassroomEvent {
-  private eventName: string
+  eventName: string
 
   protected constructor(eventName: string) {
     this.eventName = eventName
@@ -33,15 +32,6 @@ export class UserEvent extends ClassroomEvent {
     super("UserEvent");
   }
 
-}
-
-export class TicketEvent extends ClassroomEvent {
-  ticket: Ticket
-  open: Boolean
-
-  constructor() {
-    super("TicketEvent");
-  }
 }
 
 export class ConferenceEvent extends ClassroomEvent {

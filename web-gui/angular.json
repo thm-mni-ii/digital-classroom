@@ -35,7 +35,8 @@
             ],
             "allowedCommonJsDependencies": [
               "rsocket-core",
-              "rsocket-websocket-client"
+              "rsocket-websocket-client",
+              "rsocket-flowable"
             ],
             "scripts": []
           },

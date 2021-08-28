@@ -1,6 +1,6 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import RSocketWebSocketClient from 'rsocket-websocket-client';
-import {Observable, ReplaySubject} from "rxjs";
+import {Observable, ReplaySubject, Subject} from "rxjs";
 import {
   BufferEncoders,
   encodeBearerAuthMetadata,
@@ -15,10 +15,17 @@ import {
 
 import {AuthService} from "../service/auth.service";
 import {ReactiveSocket, Payload} from "rsocket-types";
-import {flowableToObservable, singleToObservable} from "../util/FlowableAdapter";
-import {first, map} from "rxjs/operators";
-import {flatMap} from "rxjs/internal/operators";
+import {
+  createMetadata,
+  decodeToString,
+  encodeData,
+  flowableToObservable,
+  singleToObservable
+} from "../util/socket-utils";
+import {first, map, switchMap} from "rxjs/operators";
 import {Flowable, Single} from "rsocket-flowable";
+import {EventListenerService} from "./event-listener.service";
+import {flatMap} from "rxjs/internal/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -33,10 +40,10 @@ export class RSocketService implements OnDestroy {
 
   transport = new RSocketWebSocketClient({
     url: 'wss://localhost:8085/rsocket', //window.origin.replace(/^http(s)?/, 'ws$1') + '/rsocket',
-    debug: true,
+    debug: true
   }, BufferEncoders)
 
-  constructor(auth: AuthService) {
+  constructor(auth: AuthService, private responder: EventListenerService) {
     this.auth = auth
     // Create an instance of a client
     this.client = new RSocketClient({
@@ -57,6 +64,7 @@ export class RSocketService implements OnDestroy {
           ]),
         }
       },
+      responder: responder,
       transport: this.transport,
     });
 
@@ -72,51 +80,62 @@ export class RSocketService implements OnDestroy {
     });
   }
 
-  public requestResponse<T>(route: string, data: any): Observable<T> {
+  public fireAndForget<T>(route: string, data: any = "") {
+    return this.socketSubject.pipe(
+      first<ReactiveSocket<Buffer, Buffer>>(),
+      map(socket => {
+        return socket.fireAndForget({
+          data: encodeData(data),
+          metadata: createMetadata(route, this.auth.loadToken())
+        })
+      })
+    ).subscribe();
+  }
+
+  public requestResponse<T>(route: string, data: any = ""): Observable<T> {
     return this.socketSubject.pipe(
       first<ReactiveSocket<Buffer, Buffer>>(),
       map((socket: ReactiveSocket<Buffer, Buffer>) => {
         return socket.requestResponse({
-          data: this.encodeData(data),
-          metadata: this.createMetadata(route)
+          data: encodeData(data),
+          metadata: createMetadata(route, this.auth.loadToken())
         })
       }),
-      flatMap((single: Single<Payload<Buffer, Buffer>>) => {
+      switchMap((single: Single<Payload<Buffer, Buffer>>) => {
         return singleToObservable<Payload<Buffer, Buffer>>(single);
       }),
       map((payload: Payload<Buffer, Buffer>) => {
-          return <T>JSON.parse(this.decodeToString(payload.data));
+          return <T>JSON.parse(decodeToString(payload.data));
       })
     );
   }
 
-  private decodeToString = (buffer: Buffer) => new TextDecoder('utf-8').decode(buffer);
-
-  public requestStream<T>(route: string, data: any): Observable<T> {
+  public requestStream<T>(route: string, data: any = ""): Observable<T> {
+    const sub = new ReplaySubject<T>(1)
+    this.socketSubject.subscribe(socket => {
+      flowableToObservable(socket.requestStream({
+        data: encodeData(data),
+        metadata: createMetadata(route, this.auth.loadToken())
+      })).subscribe(payload => {
+        const obj = <T>JSON.parse(decodeToString(payload.data));
+        sub.next(obj)
+      })
+    })
+    return sub;
+    /*
     return this.socketSubject.pipe(
       first<ReactiveSocket<Buffer, Buffer>>(),
-      map((socket: ReactiveSocket<Buffer, Buffer>) => {
-        return socket.requestStream({
-          data: this.encodeData(data),
-          metadata: this.createMetadata(route)
-        })
-      }),
-      flatMap((single: Flowable<Payload<Buffer, Buffer>>) => {
-        return flowableToObservable<Payload<Buffer, Buffer>>(single);
+      switchMap((socket: ReactiveSocket<Buffer, Buffer>) => {
+        return flowableToObservable(socket.requestStream({
+          data: encodeData(data),
+          metadata: createMetadata(route, this.auth.loadToken())
+        }))
       }),
       map((payload: Payload<Buffer, Buffer>) => {
-        return <T>JSON.parse(this.decodeToString(payload.data));
+        return <T>JSON.parse(decodeToString(payload.data));
       })
     );
-  }
-
-  private encodeData = (data: any): Buffer => toBuffer(JSON.stringify(data));
-
-  private createMetadata(route: string): Buffer {
-    return encodeCompositeMetadata([
-      [MESSAGE_RSOCKET_ROUTING, encodeRoute(route)],
-      [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(this.auth.loadToken()) ],
-    ])
+    */
   }
 
   ngOnDestroy(): void {
@@ -125,4 +144,7 @@ export class RSocketService implements OnDestroy {
     }
   }
 
+  isConnected(): boolean {
+    return true
+  }
 }

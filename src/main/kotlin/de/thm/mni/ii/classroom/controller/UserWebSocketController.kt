@@ -1,13 +1,13 @@
 package de.thm.mni.ii.classroom.controller
 
 import de.thm.mni.ii.classroom.event.ClassroomEvent
-import de.thm.mni.ii.classroom.event.MessageEvent
 import de.thm.mni.ii.classroom.event.UserEvent
 import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.services.ClassroomUserSocketService
+import de.thm.mni.ii.classroom.services.ClassroomEventReceiverService
+import de.thm.mni.ii.classroom.services.ClassroomUserService
 import de.thm.mni.ii.classroom.util.logThread
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -22,7 +22,8 @@ import reactor.core.publisher.Mono
 
 @Controller
 class UserWebSocketController(
-    private val userSocketService: ClassroomUserSocketService
+    private val userService: ClassroomUserService,
+    private val classroomEventReceiverService: ClassroomEventReceiverService
 ) {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
@@ -45,20 +46,18 @@ class UserWebSocketController(
 
     @MessageMapping("socket/classroom-event")
     fun receiveEvent(@AuthenticationPrincipal user: User, @Payload event: ClassroomEvent) {
-        when (event) {
-            is MessageEvent -> logger.info("Received Message: ${event.message}")
-            else -> logger.info("Received unknown event! ${event.javaClass.name}")
-        }
+        classroomEventReceiverService.classroomEventReceived(user, event)
     }
 
     @MessageMapping("socket/init-classroom")
     fun initClassroom(@AuthenticationPrincipal user: User): Mono<ClassroomInfo> {
-        return userSocketService.getClassroomInfo(user)
+        return userService.getClassroomInfo(user)
     }
 
     @MessageMapping("socket/init-tickets")
     fun initTickets(@AuthenticationPrincipal user: User): Flux<Ticket> {
-        return userSocketService.getTickets(user)
+        logger.info("Ticket init!")
+        return userService.getTickets(user)
     }
 
     @MessageMapping("socket/init-users")
@@ -73,7 +72,7 @@ class UserWebSocketController(
 
     private fun userConnected(user: User, socketRequester: RSocketRequester) {
         logger.info("${user.userId} / ${user.fullName} connected to ${user.classroomId}!")
-        userSocketService.userConnected(user, socketRequester)
+        userService.userConnected(user, socketRequester)
     }
 
     private fun userDisconnected(user: User, throwable: Throwable? = null) {
@@ -82,7 +81,7 @@ class UserWebSocketController(
         } else {
             logger.error("${user.userId} / ${user.fullName} disconnected from ${user.classroomId} with error {}!", throwable.message)
         }
-        userSocketService.userDisconnected(user)
+        userService.userDisconnected(user)
     }
 
 }

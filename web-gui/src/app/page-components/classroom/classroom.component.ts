@@ -13,7 +13,7 @@ import {Roles} from '../../model/Roles';
 import {InviteToConferenceDialogComponent} from '../../dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component';
 import {AssignTicketDialogComponent} from '../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component';
 import {Ticket} from '../../model/Ticket';
-import {User} from "../../model/User";
+import {User, UserDisplay} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
@@ -31,7 +31,6 @@ export class ClassroomComponent implements OnInit, OnDestroy {
               public conferenceService: ConferenceService,
               public classroomService: ClassroomService,
               private dialog: MatDialog,
-              public auth: AuthService,
               private snackbar: MatSnackBar,
               private sanitizer: DomSanitizer,
               private router: Router,
@@ -40,44 +39,33 @@ export class ClassroomComponent implements OnInit, OnDestroy {
               @Inject(DOCUMENT) document) {
   }
   classroomInfo: ClassroomInfo = undefined
+  currentUser: UserDisplay = undefined
   users: User[] = [];
+  tickets: Ticket[] = [];
   conferences: ConferenceInfo[] = [];
   usersInConference: User[] = [];
-  tickets: Ticket[] = [];
-  self: User;
   isCourseSubscriber: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   subscriptions: Subscription[] = [];
   intervalID;
 
   ngOnInit(): void {
-    const token = this.auth.getToken()
-    this.self = token
-    this.joinClassroom(token);
-
-    //this.classroomService.getUsersInConference().subscribe((users) => {
-    //  this.tmpUsersInConference = users;
-    //});
-    //this.userService.getUsersInClassroom().then(users =>
-    //  this.users = users
-    //)
-    //this.conferenceService.getConferences().then(conferences => {
-    //  this.conferences = conferences
-    //})
-    //this.ticketService.getTickets()
-      /*.then(tickets => {
-      this.tickets = tickets
-    })*/
-    //setTimeout(() => this.refresh(), 1000);
-    //this.intervalID = setInterval(() => this.refresh(), 10000);
+    Notification.requestPermission().then();
+    this.classroomService.currentUserObservable.subscribe(
+      currentUser => this.currentUser = currentUser
+    )
+    this.classroomService.classroomInfo.subscribe(
+      classroomInfo => this.classroomInfo = classroomInfo
+    )
+    this.classroomService.tickets.subscribe(
+      tickets => this.tickets = tickets
+    )
+    this.classroomService.users.subscribe(
+      users => this.users = users
+    )
   }
 
   ngOnDestroy(): void {
     clearInterval(this.intervalID);
-  }
-
-  public isAuthorized() {
-    const courseRole = this.auth.getToken().userRole
-    return Roles.isPrivileged(courseRole)
   }
 
   public inviteToConference(users) {
@@ -99,12 +87,11 @@ export class ClassroomComponent implements OnInit, OnDestroy {
   public sortTickets(tickets: Ticket[]) {
     if (tickets.length <= 0) return null
     return tickets.sort( (a, b) => {
-      const userId: String = this.auth.getToken().userId;
-      if (a.assignee?.userId === userId && b.assignee?.userId === userId) {
+      if (a.assignee?.userId === this.currentUser.userId && b.assignee?.userId === this.currentUser.userId) {
         return a.createTime > b.createTime ? 1 : -1;
-      } else if (a.assignee?.userId === userId) {
+      } else if (a.assignee?.userId === this.currentUser.userId) {
         return -1;
-      } else if (b.assignee?.userId === userId) {
+      } else if (b.assignee?.userId === this.currentUser.userId) {
         return 1;
       }
       return a.createTime > b.createTime ? 1 : -1;
@@ -127,13 +114,6 @@ export class ClassroomComponent implements OnInit, OnDestroy {
     });
   }
 
-  joinClassroom(user: User) {
-    Notification.requestPermission().then();
-    this.classroomService.join(user).subscribe(
-      classroomInfo => this.classroomInfo = classroomInfo
-    )
-  }
-
   leaveClassroom() {
     this.classroomService.leave();
   }
@@ -152,8 +132,7 @@ export class ClassroomComponent implements OnInit, OnDestroy {
       width: 'auto',
     }).beforeClosed().subscribe((ticket: Ticket) => {
       if (ticket) {
-        ticket.creator = this.self
-        this.ticketService.createTicket(ticket);
+        this.classroomService.createTicket(ticket);
       }
     });
   }

@@ -1,7 +1,5 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.event.ClassroomEventPublisher
-import de.thm.mni.ii.classroom.exception.api.ClassroomNotFoundException
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.util.toPair
@@ -17,7 +15,7 @@ import kotlin.collections.HashMap
 @Service
 class ClassroomInstanceService {
 
-    private val classrooms = HashMap<String, Pair<DigitalClassroom, ClassroomEventPublisher>>()
+    private val classrooms = HashMap<String, DigitalClassroom>()
 
     /**
      * Creates a new classroom instance and stores it inside the classroom map.
@@ -43,23 +41,12 @@ class ClassroomInstanceService {
                 teacherPassword = teacherPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}"
             )
-            val publisher = ClassroomEventPublisher(classroom)
-            classrooms.computeIfAbsent(classroomId) {
-                Pair(classroom, publisher)
-            }
+            classrooms.computeIfAbsent(classroomId) { classroom }
             Mono.just(classroom)
         }
     }
 
     fun getClassroomInstance(classroomId: String): Mono<DigitalClassroom> {
-        return getClassroomInstanceAndPublisher(classroomId).map(Pair<DigitalClassroom, Any>::first)
-    }
-
-    fun getClassroomPublisher(classroomId: String): Mono<ClassroomEventPublisher> {
-        return getClassroomInstanceAndPublisher(classroomId).map(Pair<Any, ClassroomEventPublisher>::second)
-    }
-
-    private fun getClassroomInstanceAndPublisher(classroomId: String): Mono<Pair<DigitalClassroom, ClassroomEventPublisher>> {
         return Mono.justOrEmpty(classrooms[classroomId])
     }
 
