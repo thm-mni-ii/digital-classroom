@@ -15,9 +15,8 @@ import {
 
 import {AuthService} from "../service/auth.service";
 import {ReactiveSocket, Payload} from "rsocket-types";
-import {arrayBufferToUtf8String} from "rsocket-rxjs/dist/lib/utlities/conversions";
 import {flowableToObservable, singleToObservable} from "../util/FlowableAdapter";
-import {first, map, take} from "rxjs/operators";
+import {first, map} from "rxjs/operators";
 import {flatMap} from "rxjs/internal/operators";
 import {Flowable, Single} from "rsocket-flowable";
 
@@ -69,7 +68,7 @@ export class RSocketService implements OnDestroy {
       onError: error => {
         console.log('Connection has been refused due to:: ' + error);
       },
-      onSubscribe: cancel => {}
+      onSubscribe: () => {}
     });
   }
 
@@ -86,11 +85,12 @@ export class RSocketService implements OnDestroy {
         return singleToObservable<Payload<Buffer, Buffer>>(single);
       }),
       map((payload: Payload<Buffer, Buffer>) => {
-          const objString = arrayBufferToUtf8String(payload.data);
-          return <T>JSON.parse(objString);
+          return <T>JSON.parse(this.decodeToString(payload.data));
       })
     );
   }
+
+  private decodeToString = (buffer: Buffer) => new TextDecoder('utf-8').decode(buffer);
 
   public requestStream<T>(route: string, data: any): Observable<T> {
     return this.socketSubject.pipe(
@@ -105,8 +105,7 @@ export class RSocketService implements OnDestroy {
         return flowableToObservable<Payload<Buffer, Buffer>>(single);
       }),
       map((payload: Payload<Buffer, Buffer>) => {
-        const objString = arrayBufferToUtf8String(payload.data);
-        return <T>JSON.parse(objString);
+        return <T>JSON.parse(this.decodeToString(payload.data));
       })
     );
   }

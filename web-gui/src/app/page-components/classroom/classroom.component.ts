@@ -43,7 +43,6 @@ export class ClassroomComponent implements OnInit, OnDestroy {
   users: User[] = [];
   conferences: ConferenceInfo[] = [];
   usersInConference: User[] = [];
-  tmpUsersInConference: User[] = [];
   tickets: Ticket[] = [];
   self: User;
   isCourseSubscriber: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -170,14 +169,4 @@ export class ClassroomComponent implements OnInit, OnDestroy {
     return this.users.filter(u => u.userId === userId).length !== 0;
   }
 
-  private refresh() {
-    this.userService.getUsersInClassroom().then(users => {
-      this.users = users
-    })
-    this.conferenceService.getConferences().then(conferences => {
-      this.conferences = conferences
-    })
-    //this.users = this.sortUsers(JSON.parse(JSON.stringify(this.users)));
-    //this.usersInConference = this.sortUsers(JSON.parse(JSON.stringify(this.tmpUsersInConference)));
-  }
 }
