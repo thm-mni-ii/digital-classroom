@@ -13,7 +13,6 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^12.1.2",
     "@angular/cdk": "^12.1.2",
     "@angular/common": "^12.1.2",
     "@angular/compiler": "^12.1.2",
@@ -24,14 +23,11 @@
     "@angular/platform-browser-dynamic": "^12.1.2",
     "@angular/router": "^12.1.2",
     "@auth0/angular-jwt": "^5.0.2",
-    "ng-rsocket-rxjs": "0.0.12",
     "rsocket-core": "0.0.27",
-    "rsocket-rxjs": "^0.1.2",
     "rsocket-types": "^0.0.27",
     "rsocket-websocket-client": "0.0.27",
     "rxjs": "~6.6.0",
-    "tslib": "^2.2.0",
-    "zone.js": "~0.11.4"
+    "tslib": "^2.2.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^12.1.2",
@@ -42,19 +38,12 @@
     "@angular-eslint/template-parser": "12.3.1",
     "@angular/cli": "^12.1.2",
     "@angular/compiler-cli": "^12.1.2",
-    "@types/jasmine": "~3.6.0",
     "@types/rsocket-core": "^0.0.7",
     "@types/rsocket-types": "^0.0.3",
     "@types/rsocket-websocket-client": "^0.0.4",
     "@typescript-eslint/eslint-plugin": "4.28.2",
     "@typescript-eslint/parser": "4.28.2",
     "eslint": "^7.26.0",
-    "jasmine-core": "~3.7.0",
-    "karma": "~6.3.0",
-    "karma-chrome-launcher": "~3.1.0",
-    "karma-coverage": "~2.0.3",
-    "karma-jasmine": "~4.0.0",
-    "karma-jasmine-html-reporter": "^1.7.0",
     "typescript": "~4.3.2"
   }
 }

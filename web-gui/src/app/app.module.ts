@@ -20,7 +20,6 @@ import {JoinComponent} from "./page-components/join-component/join.component";
 import { UnauthorizedComponent } from './page-components/unauthorized/unauthorized.component';
 import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
 import {IsPrivilegedPipe} from "./pipes/user-teacher-filter";
-import {RSocketRxjsModule} from "ng-rsocket-rxjs";
 
 @NgModule({
   declarations: [
@@ -49,9 +48,6 @@ import {RSocketRxjsModule} from "ng-rsocket-rxjs";
       config: {
         tokenGetter: tokenGetter,
       }
-    }),
-    RSocketRxjsModule.forRoot({
-      url: window.origin.replace(/^http(s)?/, 'ws$1') + '/rsocket'
     })
   ],
   providers: [httpInterceptorProviders],
