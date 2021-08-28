@@ -15,7 +15,7 @@ class Ticket(
     var assignee: User? = null
 ): Comparable<Ticket>, ClassroomDependent {
 
-    var ticketId: Long by setOnce()
+    var ticketId: Long? = null
 
     @JsonSerialize(using = ZonedDateTimeMillisSerializer::class)
     @JsonDeserialize(using = ZonedDateTimeMillisDeserializer::class)

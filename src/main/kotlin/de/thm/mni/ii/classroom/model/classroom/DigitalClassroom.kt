@@ -1,14 +1,15 @@
 package de.thm.mni.ii.classroom.model.classroom
 
 import de.thm.mni.ii.classroom.exception.classroom.TicketAlreadyExistsException
+import de.thm.mni.ii.classroom.exception.classroom.TicketNotFoundException
 import de.thm.mni.ii.classroom.security.exception.InvalidMeetingPasswordException
 import org.springframework.messaging.rsocket.RSocketRequester
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.publisher.SynchronousSink
 import reactor.kotlin.core.publisher.toFlux
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Class representing a digital classroom instance.
@@ -23,7 +24,7 @@ class DigitalClassroom(
 
     private val users = HashMap<User, RSocketRequester?>()
     private val tickets = HashSet<Ticket>()
-    private val ticketIds = ticketIdGenerator()
+    private val nextTicketId = AtomicLong(10000L)
     private val conferenceStorage = ConferenceStorage(this)
 
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
@@ -55,33 +56,38 @@ class DigitalClassroom(
         users.remove(user)
     }
 
-    fun createTicket(ticket: Ticket): Mono<Ticket> {
-        return ticketIdGenerator().next().map { ticketId ->
-            ticket.ticketId = ticketId
-            ticket
-        }.flatMap { newTicket ->
-            if (!tickets.add(newTicket)) {
-                Mono.error(TicketAlreadyExistsException(newTicket))
-            } else {
-                Mono.just(newTicket)
-            }
-        }
-    }
-
     fun getTickets(): Flux<Ticket> {
         return tickets.toFlux()
     }
 
+    fun createTicket(ticket: Ticket): Mono<Pair<Ticket, DigitalClassroom>> {
+        return Mono.just(ticket).apply {
+            ticket.ticketId = nextTicketId.getAndIncrement()
+        }.flatMap { newTicket ->
+            if (tickets.add(newTicket)) {
+                Mono.just(newTicket)
+            } else {
+                Mono.error(TicketAlreadyExistsException(newTicket))
+            }
+        }.map { Pair(it, this) }
+    }
+
+    fun assignTicket(ticket: Ticket, user: User): Mono<Pair<Ticket, DigitalClassroom>> {
+        return Mono.justOrEmpty(tickets.find { it == ticket })
+            .switchIfEmpty(Mono.error(TicketNotFoundException(ticket)))
+            .map { it.apply { assignee = user } }
+            .map { Pair(it, this) }
+    }
+
+    fun deleteTicket(ticket: Ticket): Mono<Pair<Ticket, DigitalClassroom>> {
+        return Mono.justOrEmpty(tickets.find { it == ticket })
+            .switchIfEmpty(Mono.error(TicketNotFoundException(ticket)))
+            .doOnNext { tickets.remove(it) }
+            .map { Pair(it, this) }
+    }
+
     fun getUsers(): Flux<User> {
         return users.keys.toFlux()
-    }
-
-    fun assignTicket(ticket: Ticket, user: User): Mono<Ticket> {
-        return Mono.justOrEmpty(tickets.find { it == ticket }?.apply { assignee = user })
-    }
-
-    fun deleteTicket(ticket: Ticket): Mono<Boolean> {
-        return Mono.just(tickets.remove(ticket))
     }
 
     fun getConferenceOfUser(user: User): Mono<Conference> {
@@ -104,25 +110,12 @@ class DigitalClassroom(
         return conferenceStorage.getUsersInConferences()
     }
 
-    fun getSockets(): Flux<RSocketRequester> = Flux.fromIterable(users.values.filterNotNull())
+    fun getSockets(): Flux<Pair<User, RSocketRequester?>> = Flux.fromIterable(users.toList())
 
     fun getSocketOfUser(user: User): Mono<RSocketRequester> = Mono.justOrEmpty(users[user])
 
     fun isUserInConference(user: User): Mono<Boolean> {
         return conferenceStorage.isUserInConference(user)
-    }
-
-    private fun ticketIdGenerator(): Flux<Long> {
-        data class SequenceState(
-            var last: Long = 10000L
-        )
-        return Flux.generate(
-            { SequenceState() }
-        ) { state: SequenceState, sink: SynchronousSink<Long> ->
-            sink.next(state.last + 1)
-            state.last += 1
-            state
-        }
     }
 
 

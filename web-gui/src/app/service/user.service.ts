@@ -1,20 +1,23 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
 import {User} from "../model/User";
+import {RSocketService} from "../rsocket/r-socket.service";
+import {Observable} from "rxjs";
+import {UserEvent} from "../rsocket/event/ClassroomEvent";
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private rSocketService: RSocketService) {
 
   }
 
   /**
    * Gets all User in classroom.
    */
-  public async getUsersInClassroom(): Promise<User[]> {
-    return this.http.get<User[]>("/classroom-api/users").toPromise()
+  public getUsersInClassroom(): Observable<UserEvent> {
+    return this.rSocketService.requestStream<UserEvent>("socket/init-users")
   }
 }

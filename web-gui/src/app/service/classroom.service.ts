@@ -3,11 +3,14 @@ import {Observable, Subject, BehaviorSubject, Subscription} from 'rxjs';
 import {AuthService} from './auth.service';
 import {MatDialog} from '@angular/material/dialog';
 import {IncomingCallDialogComponent} from '../dialogs/incoming-call-dialog/incoming-call-dialog.component';
-import {User} from "../model/User";
+import {User, UserDisplay} from "../model/User";
 import {HttpClient} from "@angular/common/http";
 import {ConferenceService} from "./conference.service";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {ClassroomInfo} from "../model/ClassroomInfo";
+import {Ticket} from "../model/Ticket";
+import {TicketService} from "./ticket.service";
+import {map} from "rxjs/operators";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and privide Conferences to take
@@ -17,23 +20,32 @@ import {ClassroomInfo} from "../model/ClassroomInfo";
   providedIn: 'root'
 })
 export class ClassroomService {
-  private dialog: MatDialog;
+
+  private userSubject: Subject<UserDisplay[]> = new BehaviorSubject([])
+  users: Observable<UserDisplay[]> = this.userSubject.asObservable()
+
+  public tickets = this.ticketService.ticketObservable
+
+  private classroomInfoSubject: Subject<ClassroomInfo> = new BehaviorSubject(new ClassroomInfo())
+  classroomInfo: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
+
+  private selfSubject: Subject<User> = new BehaviorSubject(this.authService.getToken())
+  currentUserObservable: Observable<User> = this.selfSubject.asObservable()
+  currentUser: User
+
   private usersInConference: Subject<User[]>;
   private inviteUsers: Subject<boolean>;
-  incomingCallSubscriptions: Subscription[] = [];
-  private heartbeatInterval: number;
-  private heartbeatTime = 5000;
-  private self: User;
 
   public constructor(private authService: AuthService,
                      private conferenceService: ConferenceService,
-                     private mDialog: MatDialog,
-                     private http: HttpClient,
-                     private rSocketService: RSocketService) {
+                     private dialog: MatDialog,
+                     private rSocketService: RSocketService,
+                     private ticketService: TicketService) {
     this.usersInConference = new BehaviorSubject<User[]>([]);
     this.inviteUsers = new Subject<boolean>();
-    this.dialog = mDialog;
+    this.currentUserObservable.subscribe(currentUser => this.currentUser = currentUser)
   }
+
   /**
    * @return Users in public conferences.
    */
@@ -49,16 +61,18 @@ export class ClassroomService {
    * @return True if service is connected to the backend.
    */
   public isJoined() {
-    return true
+    return this.rSocketService.isConnected()
+  }
+
+  public isNotSelf(user: User) {
+    return user.userId != this.currentUser.userId
   }
 
   /**
    * Connect to backend
    * @return Observable that completes if connected.
-   * @param self the user joined in this classroom.
    */
-  public join(self: User) {
-    this.self = self
+  public join() {
     return this.rSocketService
       .requestResponse<ClassroomInfo>("socket/init-classroom", "")
   }
@@ -68,8 +82,6 @@ export class ClassroomService {
    * @return Observable that completes when disconnected.
    */
   public leave() {
-    this.send('/websocket/classroom/leave', {courseId: this.self.classroomId});
-    clearInterval(this.heartbeatInterval);
     return
   }
 
@@ -78,7 +90,6 @@ export class ClassroomService {
    * @param users The users to invite
    */
   public inviteToConference(users: User[]) {
-    this.send('/websocket/classroom/conference/invite', {users: users, 'courseid': this.self.classroomId});
   }
 
   private handleInviteMsg() {
@@ -92,23 +103,12 @@ export class ClassroomService {
   }
 
   private handleUsersMsg() {
-    //this.users.next(JSON.parse(msg.body));
   }
 
   private handleTicketsMsg() {
-    //this.tickets.next(JSON.parse(msg.body));
-  }
-
-  private requestUsersUpdate() {
-    this.send('/websocket/classroom/users', {courseId: this.self.classroomId});
-  }
-
-  private requestTicketsUpdate() {
-    this.send('/websocket/classroom/tickets', {courseId: this.self.classroomId});
   }
 
   private joinCourse() {
-    this.send('/websocket/classroom/join', {courseId: this.self.classroomId});
   }
 
   private constructHeaders() {
@@ -127,32 +127,33 @@ export class ClassroomService {
     this.conferenceService.createConference()
   }
 
-  private requestConferenceUsersUpdate() {
-    this.requestUsersUpdate();
-    this.send('/websocket/classroom/conference/users', {courseId: this.self.classroomId});
-  }
-
   private handleConferenceUsersMsg() {
     this.usersInConference.next(JSON.parse(""));
   }
 
   public joinConference(user: User, mid: number = 0) {
-    this.send('/websocket/classroom/conference/join', {user: user, mid: mid, courseId: this.self.classroomId});
   }
 
   public showConference() {
-    this.send('/websocket/classroom/conference/show', {});
   }
 
   public hideConference() {
-    this.send('/websocket/classroom/conference/hide', {});
   }
 
   public showUser() {
-    this.send('/websocket/classroom/user/show', {courseId: this.self.classroomId});
   }
 
   public hideUser() {
-    this.send('/websocket/classroom/user/hide', {courseId: this.self.classroomId});
+  }
+
+  public createTicket(ticket: Ticket) {
+    this.currentUserObservable.pipe(
+      map((user) => {
+        ticket.creator = user
+        return ticket
+      })
+    ).subscribe(ticket => {
+      this.ticketService.createTicket(ticket)
+    })
   }
 }

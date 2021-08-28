@@ -40,27 +40,20 @@ export class AssignTicketDialogComponent implements OnInit {
     this.classroomService.getUsersInConference().subscribe((users) => {
       this.usersInConference = users;
     });
-    this.userService.getUsersInClassroom().then((users) => {
-      this.users = users
-    });
     this.dialogRef.afterOpened().subscribe(() => this.disabled = false);
   }
+
   public assignTicket(assignee, ticket) {
       this.ticket.assignee = assignee;
       this.ticketService.updateTicket(ticket);
       this.snackBar.open(`${assignee.prename} ${assignee.surname} wurde dem Ticket als Bearbeiter zugewiesen`, 'OK', {duration: 3000});
       this.dialogRef.close();
-    }
+  }
 
   public closeTicket(ticket) {
     this.ticketService.removeTicket(ticket);
     this.snackBar.open(`Das Ticket wurde geschlossen`, 'OK', {duration: 3000});
     this.dialogRef.close();
-  }
-
-  public isAuthorized() {
-    const userRole = this.auth.getToken().userRole
-    return Roles.isTeacher(userRole) || Roles.isTutor(userRole);
   }
 
   public startCall(invitee) {
