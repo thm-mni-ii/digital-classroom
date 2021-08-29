@@ -27,7 +27,6 @@ logging:
   level:
     de.thm: DEBUG
     SQL: DEBUG
-
     org:
       springframework:
         security:
