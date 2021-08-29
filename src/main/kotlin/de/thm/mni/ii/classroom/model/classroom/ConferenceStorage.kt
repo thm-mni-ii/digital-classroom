@@ -13,13 +13,12 @@ class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
 
     fun getUsersOfConference(conference: Conference) = Mono.justOrEmpty(conferenceUsers[conference])
 
-    fun joinUser(conference: Conference, user: User): Flux<User> {
-        usersConference[user] = conference
-        return Flux.fromIterable(
-            conferenceUsers
-                .computeIfAbsent(conference) { HashSet() }
+    fun joinUser(conference: Conference, user: User): Mono<User> {
+        return Mono.just(user).doOnNext {
+            usersConference[user] = conference
+            conferenceUsers.computeIfAbsent(conference) { HashSet() }
                 .also { it.add(user) }
-        )
+        }
     }
 
     fun createConference(conference: Conference): Mono<Conference> {
@@ -28,9 +27,7 @@ class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
     }
 
     fun getConferences(): Flux<Conference> {
-        return Flux.fromIterable(conferenceUsers.entries.map { entry ->
-            entry.key.also { it.fillAttendees(entry.value) }
-        })
+        return Flux.fromIterable(conferenceUsers.keys)
     }
 
     fun getUsersInConferences(): Flux<User> {

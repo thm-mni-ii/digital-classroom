@@ -11,7 +11,9 @@ export class TicketEvent extends ClassroomEvent {
     ticket: Ticket
     ticketAction: TicketAction
 
-    constructor() {
-        super("TicketEvent");
+    constructor(ticket: Ticket, action: TicketAction) {
+      super("TicketEvent");
+      this.ticket = ticket
+      this.ticketAction = action
     }
 }

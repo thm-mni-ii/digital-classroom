@@ -12,20 +12,12 @@ import {AuthService} from "../../service/auth.service";
 })
 export class NewTicketDialogComponent implements OnInit {
   form: FormGroup;
-  ticket: Ticket
 
-  constructor(private _formBuilder: FormBuilder, @Inject(MAT_DIALOG_DATA) public data: any,
-              private snackBar: MatSnackBar, public dialogRef: MatDialogRef<NewTicketDialogComponent>, private auth: AuthService) {
-
-    this.ticket = {
-      ticketId: null,
-      description: "",
-      createTime: Date.now(),
-      creator: auth.getToken(),
-      assignee: null,
-      classroomId: auth.getToken().classroomId
-    };
-  }
+  constructor(private _formBuilder: FormBuilder,
+              @Inject(MAT_DIALOG_DATA) public data: any,
+              private snackBar: MatSnackBar,
+              public dialogRef: MatDialogRef<NewTicketDialogComponent>
+  ) { }
 
   ngOnInit(): void {
     this.form = this._formBuilder.group({
@@ -35,10 +27,11 @@ export class NewTicketDialogComponent implements OnInit {
   }
 
   createTicket() {
-    this.ticket.description = this.form.get('desc').value.trim()
-     if (this.ticket.description !== '') {
+    const description = this.form.get('desc').value.trim()
+    const ticket = new Ticket(description)
+    if (ticket.description !== '') {
        this.snackBar.open(`Das Ticket wurde erfolgreich erstellt.`, 'OK', {duration: 3000});
-       this.dialogRef.close(this.ticket);
+       this.dialogRef.close(ticket);
      } else {
        this.snackBar.open(`Das Ticket konnte nicht erstellt werden!`, 'OK', {duration: 3000});
      }

@@ -22,18 +22,6 @@ export class MessageEvent extends ClassroomEvent {
   }
 }
 
-export class UserEvent extends ClassroomEvent {
-  user: User
-  joined: Boolean
-  inConference: Boolean
-  conferenceId: String
-
-  constructor() {
-    super("UserEvent");
-  }
-
-}
-
 export class ConferenceEvent extends ClassroomEvent {
   conferenceInfo: ConferenceInfo
   inProgress: Boolean

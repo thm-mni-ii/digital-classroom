@@ -1,4 +1,4 @@
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Ticket} from "../model/Ticket";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
@@ -61,9 +61,7 @@ export class TicketService {
    * @param ticket The ticket to create.
    */
   public createTicket(ticket: Ticket) {
-    const ticketEvent = new TicketEvent()
-    ticketEvent.ticket = ticket
-    ticketEvent.ticketAction = TicketAction.CREATE
+    const ticketEvent = new TicketEvent(ticket, TicketAction.CREATE)
     return this.rSocketService.fireAndForget("socket/classroom-event", ticketEvent)
   }
 
@@ -72,7 +70,8 @@ export class TicketService {
    * @param ticket The ticket to update.
    */
   public updateTicket(ticket: Ticket) {
-    //this.http.put<Ticket[]>("/classroom-api/ticket", ticket).subscribe()
+    const ticketEvent = new TicketEvent(ticket, TicketAction.ASSIGN)
+    return this.rSocketService.fireAndForget("socket/classroom-event", ticketEvent)
   }
 
   /**
@@ -80,6 +79,7 @@ export class TicketService {
    * @param ticket The ticket to remove.
    */
   public removeTicket(ticket: Ticket) {
-    //this.http.post<Ticket[]>("/classroom-api/ticket/delete", ticket).subscribe()
+    const ticketEvent = new TicketEvent(ticket, TicketAction.CLOSE)
+    return this.rSocketService.fireAndForget("socket/classroom-event", ticketEvent)
   }
 }

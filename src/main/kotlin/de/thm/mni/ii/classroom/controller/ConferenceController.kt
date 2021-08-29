@@ -29,12 +29,12 @@ class ConferenceController(private val conferenceService: ConferenceService) {
 
     @PostMapping("/conference/join")
     fun joinConference(auth: ClassroomAuthentication, @RequestBody conference: Conference): Mono<String> {
-        return conferenceService.joinUser(auth, conference)
+        return conferenceService.joinUser(auth.user!!, conference)
     }
 
     @PostMapping("/conference/join/user")
     fun joinConferenceOfUser(auth: ClassroomAuthentication, @RequestBody user: User): Mono<String> {
-        return conferenceService.joinConferenceOfUser(auth, user)
+        return conferenceService.joinConferenceOfUser(auth.user!!, user)
     }
 
 }
