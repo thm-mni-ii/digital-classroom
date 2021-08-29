@@ -1,10 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {AuthService} from '../../service/auth.service';
 import {TitlebarService} from '../../service/titlebar.service';
 import {Observable, of} from 'rxjs';
-import {Roles} from '../../model/Roles';
-import {MatDialog} from '@angular/material/dialog';
 
 /**
  * Root component shows sidenav and titlebar

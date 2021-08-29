@@ -1,7 +1,6 @@
 <mat-card class="menu-bar">
   {{classroomService.currentUser.fullName}} - {{classroomService.currentUser.userRole}}
 
-
   <span class="spacer"></span>
 
   <button mat-icon-button color="primary" *ngIf="classroomService.isJoined() " (click)="classroomService.createTicket()" matTooltip="Ticket erstellen"><mat-icon >live_help</mat-icon></button>
