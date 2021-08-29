@@ -34,7 +34,7 @@ export class AssignTicketDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.classroomService.users.subscribe((users) => {
+    this.classroomService.userObservable.subscribe((users) => {
       this.usersInConference = users;
       this.users = users
     });

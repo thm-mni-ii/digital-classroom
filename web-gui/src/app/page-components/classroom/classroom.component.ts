@@ -57,14 +57,10 @@ export class ClassroomComponent implements OnInit, OnDestroy {
       this.classroomService.tickets.subscribe(
       tickets => this.tickets = tickets
       ),
-      this.classroomService.users.subscribe(
+      this.classroomService.userObservable.subscribe(
       users => this.users = users
       )
     )
-  }
-
-  public isAuthorized(user: User) {
-    return Roles.isPrivileged(user.userRole)
   }
 
   ngOnDestroy(): void {
@@ -117,10 +113,6 @@ export class ClassroomComponent implements OnInit, OnDestroy {
     });
   }
 
-  leaveClassroom() {
-    this.classroomService.leave();
-  }
-
   public parseCourseRole(role: String): String {
     switch (role) {
       case 'TEACHER': return 'Dozent';
@@ -128,27 +120,6 @@ export class ClassroomComponent implements OnInit, OnDestroy {
       case 'STUDENT': return 'Student';
       default: return "Student";
     }
-  }
-  public createTicket() {
-    this.dialog.open(NewTicketDialogComponent, {
-      height: 'auto',
-      width: 'auto',
-    }).beforeClosed().subscribe((ticket: Ticket) => {
-      if (ticket) {
-        this.classroomService.createTicket(ticket);
-      }
-    });
-  }
-
-  public isInConference(user: User) {
-    return this.usersInConference.filter(u => u.userId === user.userId).length !== 0;
-  }
-
-  public isInConferenceId(userId: string) {
-    return this.usersInConference.filter(u => u.userId === userId).length !== 0;
-  }
-  public isInClassroom(userId: string) {
-    return this.users.filter(u => u.userId === userId).length !== 0;
   }
 
 }
