@@ -29,19 +29,7 @@ class UserWebSocketController(
 
     @ConnectMapping
     fun connect(@AuthenticationPrincipal user: User, requester: RSocketRequester): Mono<Void> {
-        logger.logThread("connected")
-        return Mono.defer {
-            logger.logThread("deferredMono connected")
-            userConnected(user, requester)
-            val socket = requester.rsocket()!!
-            socket.onClose()
-                .doOnSuccess {
-                    userDisconnected(user)
-                }.doOnError {
-                    userDisconnected(user, it)
-                }
-            Mono.empty()
-        }
+        return userService.userConnected(user, requester)
     }
 
     @MessageMapping("socket/classroom-event")
@@ -68,20 +56,6 @@ class UserWebSocketController(
     @MessageMapping("socket/init-conferences")
     fun initConferences(@AuthenticationPrincipal user: User): Flux<ConferenceInfo> {
         return Flux.empty()
-    }
-
-    private fun userConnected(user: User, socketRequester: RSocketRequester) {
-        logger.info("${user.userId} / ${user.fullName} connected to ${user.classroomId}!")
-        userService.userConnected(user, socketRequester)
-    }
-
-    private fun userDisconnected(user: User, throwable: Throwable? = null) {
-        if (throwable == null) {
-            logger.info("${user.userId} / ${user.fullName} disconnected from ${user.classroomId}!")
-        } else {
-            logger.error("${user.userId} / ${user.fullName} disconnected from ${user.classroomId} with error {}!", throwable.message)
-        }
-        userService.userDisconnected(user)
     }
 
 }

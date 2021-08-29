@@ -4,8 +4,8 @@ import de.thm.mni.ii.classroom.model.classroom.User
 
 data class UserEvent(
     val user: User,
-    val inConference: Boolean,
-    val conferenceId: String?,
+    val inConference: Boolean = false,
+    val conferenceId: String? = null,
     val userAction: UserAction
 ): ClassroomEvent(UserEvent::class.simpleName!!)
 

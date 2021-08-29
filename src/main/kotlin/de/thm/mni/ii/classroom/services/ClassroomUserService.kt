@@ -2,6 +2,8 @@ package de.thm.mni.ii.classroom.services
 
 import de.thm.mni.ii.classroom.event.TicketAction
 import de.thm.mni.ii.classroom.event.TicketEvent
+import de.thm.mni.ii.classroom.event.UserAction
+import de.thm.mni.ii.classroom.event.UserEvent
 import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.Ticket
@@ -23,16 +25,38 @@ class ClassroomUserService(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun userConnected(user: User, socketRequester: RSocketRequester) {
-        classroomInstanceService.getClassroomInstance(user.classroomId).doOnNext { classroom ->
-            classroom.connectSocket(user, socketRequester)
-        }.subscribe()
+    fun userConnected(user: User, socketRequester: RSocketRequester): Mono<Void> {
+        return classroomInstanceService.getClassroomInstance(user.classroomId)
+            .doOnNext { classroom ->
+                classroom.connectSocket(user, socketRequester)
+            }.doOnNext { classroom ->
+                senderService.sendToAll(classroom, UserEvent(user, userAction = UserAction.JOIN)).subscribe()
+            }.doOnSuccess {
+                logger.info("${user.userId}/${user.fullName} connected to ${user.classroomId}!")
+            }.flatMap {
+                socketRequester.rsocketClient().source()}
+            .doOnNext {
+                it.onClose().doOnSuccess {
+                    userDisconnected(user)
+                }.doOnError {
+                    userDisconnected(user, it)
+                }.subscribe()
+            }.thenEmpty(Mono.empty())
     }
 
-    fun userDisconnected(user: User) {
-        classroomInstanceService.getClassroomInstance(user.classroomId).subscribe { classroom ->
-            classroom.disconnectSocket(user)
-        }.dispose()
+    private fun userDisconnected(user: User, throwable: Throwable? = null) {
+        classroomInstanceService.getClassroomInstance(user.classroomId)
+            .doOnNext { classroom ->
+                classroom.disconnectSocket(user)
+            }.doOnNext { classroom ->
+                senderService.sendToAll(classroom, UserEvent(user, userAction = UserAction.LEAVE)).subscribe()
+            }.doOnNext {
+                if (throwable == null) {
+                    logger.info("${user.userId} / ${user.fullName} disconnected from ${user.classroomId}!")
+                } else {
+                    logger.error("${user.userId} / ${user.fullName} disconnected from ${user.classroomId} with error {}!", throwable.message)
+                }
+            }.subscribe()
     }
 
     fun getTickets(user: User): Flux<Ticket> {
