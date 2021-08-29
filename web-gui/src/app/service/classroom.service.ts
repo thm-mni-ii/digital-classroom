@@ -9,9 +9,11 @@ import {RSocketService} from "../rsocket/r-socket.service";
 import {ClassroomInfo} from "../model/ClassroomInfo";
 import {Ticket} from "../model/Ticket";
 import {TicketService} from "./ticket.service";
-import {map} from "rxjs/operators";
+import {filter, map} from "rxjs/operators";
 import {UserService} from "./user.service";
 import {Roles} from "../model/Roles";
+import {NewTicketDialogComponent} from "../dialogs/newticket-dialog/new-ticket-dialog.component";
+import {flatMap} from "rxjs/internal/operators";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and privide Conferences to take
@@ -23,7 +25,8 @@ import {Roles} from "../model/Roles";
 export class ClassroomService {
 
   public tickets = this.ticketService.ticketObservable
-  public users = this.userService.userObservable
+  public userObservable = this.userService.userObservable
+  private users: User[] = []
 
   private classroomInfoSubject: Subject<ClassroomInfo> = new BehaviorSubject(new ClassroomInfo())
   classroomInfo: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
@@ -44,6 +47,7 @@ export class ClassroomService {
     this.usersInConference = new BehaviorSubject<User[]>([]);
     this.inviteUsers = new Subject<boolean>();
     this.currentUserObservable.subscribe(currentUser => this.currentUser = currentUser)
+    this.userObservable.subscribe(users => this.users = users)
   }
 
   public isCurrentUserAuthorized(): boolean {
@@ -150,15 +154,33 @@ export class ClassroomService {
   public hideUser() {
   }
 
-  public createTicket(ticket: Ticket) {
-    this.currentUserObservable.pipe(
-      map((user) => {
-        ticket.classroomId = user.classroomId
-        ticket.creator = user
+  public createTicket() {
+    this.dialog.open(NewTicketDialogComponent, {
+      height: 'auto',
+      width: 'auto',
+    }).beforeClosed().pipe(
+      filter(ticket => ticket),
+      map((ticket: Ticket) => {
+        ticket.classroomId = this.currentUser.classroomId
+        ticket.creator = this.currentUser
         return ticket
       })
-    ).subscribe(ticket => {
+    ).subscribe((ticket: Ticket) => {
       this.ticketService.createTicket(ticket)
-    })
+    });
   }
+
+  public isInConference(user: User) {
+    return false
+    //return this.usersInConference.filter(u => u.userId === user.userId).length !== 0;
+  }
+
+  public isInConferenceId(userId: string) {
+    return false
+    //return this.usersInConference.filter(u => u.userId === userId).length !== 0;
+  }
+  public isInClassroom(userId: string) {
+    return this.users.filter(u => u.userId === userId).length !== 0;
+  }
+
 }

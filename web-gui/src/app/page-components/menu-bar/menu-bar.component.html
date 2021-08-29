@@ -1,3 +1,17 @@
 <mat-card class="menu-bar">
-  <ng-content></ng-content>
+  {{classroomService.currentUser.fullName}} - {{classroomService.currentUser.userRole}}
+
+
+  <span class="spacer"></span>
+
+  <button mat-icon-button color="primary" *ngIf="classroomService.isJoined() " (click)="classroomService.createTicket()" matTooltip="Ticket erstellen"><mat-icon >live_help</mat-icon></button>
+  <!--<button mat-icon-button color="primary" *ngIf="isAuthorized() && classroomService.isJoined()" (click)="createConference()" matTooltip="Konferenzeinstellungen"><mat-icon >duo</mat-icon></button>-->
+  <button mat-icon-button color="primary" *ngIf="classroomService.isJoined() && !conferenceService.conferenceWindowOpen" (click)="this.conferenceService.createConference()" matTooltip="Konferenz öffnen"><mat-icon >videocam</mat-icon></button>
+  <button mat-icon-button color="primary" *ngIf="classroomService.isJoined() && conferenceService.conferenceWindowOpen" (click)="this.conferenceService.closeConference()" matTooltip="Konferenz schliessen"><mat-icon >videocam_off</mat-icon></button>
+  <button mat-icon-button color="primary" *ngIf="classroomService.isJoined() && !classroomService.isInClassroom(classroomService.currentUser.userId)" (click)="this.classroomService.showUser()" matTooltip="Nutzer sichtbar machen"><mat-icon >visibility</mat-icon></button>
+  <button mat-icon-button color="primary" *ngIf="classroomService.isJoined() && classroomService.isInClassroom(classroomService.currentUser.userId)" (click)="this.classroomService.hideUser()" matTooltip="Nutzer unsichtbar machen"><mat-icon >visibility_off</mat-icon></button>
+  <button mat-icon-button color="primary" *ngIf="classroomService.isJoined() && conferenceService.conferenceWindowOpen && !classroomService.isInConferenceId(classroomService.currentUser.userId)" (click)="this.classroomService.showConference()" matTooltip="Konferenz sichtbar machen"><mat-icon >lock_open</mat-icon></button>
+  <button mat-icon-button color="primary" *ngIf="classroomService.isJoined() && conferenceService.conferenceWindowOpen && classroomService.isInConferenceId(classroomService.currentUser.userId)" (click)="this.classroomService.hideConference()" matTooltip="Konferenz unsichtbar machen"><mat-icon >lock</mat-icon></button>
+  <button mat-icon-button class="warn" *ngIf="classroomService.isJoined()" (click)="classroomService.leave()" matTooltip="Online Übungsraum verlassen"><mat-icon >cancel</mat-icon></button>
+
 </mat-card>
