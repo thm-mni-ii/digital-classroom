@@ -8,6 +8,7 @@ import de.thm.mni.ii.classroom.model.classroom.User
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
 
 @Service
 class ClassroomEventReceiverService(private val userService: ClassroomUserService) {
@@ -18,12 +19,15 @@ class ClassroomEventReceiverService(private val userService: ClassroomUserServic
         when (event) {
             is MessageEvent -> messageEventReceived(user, event)
             is TicketEvent -> ticketEventReceived(user, event)
-            else -> logger.info("Received unknown event! ${event.javaClass.name}")
+            else -> {
+                logger.info("Received unknown event! ${event.javaClass.name}")
+            }
         }
     }
 
-    private fun messageEventReceived(user: User, messageEvent: MessageEvent) {
+    private fun messageEventReceived(user: User, messageEvent: MessageEvent): Mono<Void> {
         logger.info("Received message ${messageEvent.message} from ${user.fullName}")
+        return Mono.empty()
     }
 
     private fun ticketEventReceived(user: User, ticketEvent: TicketEvent) {
