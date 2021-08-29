@@ -1,14 +1,12 @@
 package de.thm.mni.ii.classroom.controller
 
 import de.thm.mni.ii.classroom.event.ClassroomEvent
-import de.thm.mni.ii.classroom.event.UserEvent
 import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.services.ClassroomEventReceiverService
 import de.thm.mni.ii.classroom.services.ClassroomUserService
-import de.thm.mni.ii.classroom.util.logThread
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.messaging.handler.annotation.MessageMapping
