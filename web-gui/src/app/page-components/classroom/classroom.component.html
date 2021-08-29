@@ -17,10 +17,10 @@
   <div class="ticketColumn users">
     <h3 >Online Nutzer</h3>
     <mat-list>
-      <mat-card class="user mat-list-item" *ngFor="let user of this.users">
+      <mat-card class="user" *ngFor="let user of this.users">
         <p class="user-item">{{user.fullName}}<span class="subtext-role"><sub>{{parseCourseRole(user.userRole)}}</sub></span></p>
         <span class="meta">
-          <mat-icon *ngIf="classroomService.currentUser.isAuthorized() && classroomService.isNotSelf(user)"
+          <mat-icon *ngIf="this.classroomService.isCurrentUserAuthorized() && classroomService.isNotSelf(user)"
                     class="material-icons call" color="accent" (click)="inviteToConference([user])">call</mat-icon>
           <mat-icon *ngIf="isInConference(user)" class="material-icons call" color="accent" (click)="this.classroomService.joinConference(user)">phone_callback</mat-icon>
           <!-- <mat-icon *ngIf="classroomService.isInConference(user) && !classroomService.hasOpenConference(user)" class="material-icons call" color="accent" (click)="joinConference(classroomService.isInConference(user).creator)">meeting_room</mat-icon> -->
@@ -31,7 +31,7 @@
   <div class="ticketColumn tickets">
     <h3>Offene Tickets</h3>
     <mat-list>
-      <mat-card class="ticket-mat-card mat-list-item" (click)="assignTeacher(ticket)" *ngFor="let ticket of sortTickets(tickets); index as i"
+      <mat-card class="ticket-mat-card" (click)="assignTeacher(ticket)" *ngFor="let ticket of sortTickets(tickets); index as i"
                 [ngClass]="{
                 'unassigned': ticket.assignee === undefined,
                 'selfassigned': ticket.assignee !== undefined && ticket.assignee?.userId === this.currentUser.userId,

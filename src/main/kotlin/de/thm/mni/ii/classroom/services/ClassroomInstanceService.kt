@@ -28,10 +28,10 @@ class ClassroomInstanceService {
      * @param classroomName informal name given to the classroom.
      */
     fun createNewClassroomInstance(classroomId: String,
+                                   classroomName: String?,
                                    studentPassword: String?,
                                    tutorPassword: String?,
-                                   teacherPassword: String?,
-                                   classroomName: String?
+                                   teacherPassword: String?
     ): Mono<DigitalClassroom> {
         return Mono.defer {
             val classroom = DigitalClassroom(

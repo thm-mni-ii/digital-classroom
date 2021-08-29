@@ -33,11 +33,11 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
         return classroomInstanceService.getClassroomInstance(classroomId)
             .switchIfEmpty(
                 classroomInstanceService.createNewClassroomInstance(
-                    classroomId,
-                    param.getFirst(StudentPassword.api),
-                    param.getFirst(TutorPassword.api),
-                    param.getFirst(TeacherPassword.api),
-                    param.getFirst(ClassroomName.api)
+                    classroomId = classroomId,
+                    classroomName = param.getFirst(ClassroomName.api),
+                    studentPassword = param.getFirst(StudentPassword.api),
+                    tutorPassword = param.getFirst(TutorPassword.api),
+                    teacherPassword = param.getFirst(TeacherPassword.api),
                 )
             ).doOnNext {
                 logger.info("Classroom ${it.classroomName} created!")
@@ -50,8 +50,8 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
         return Mono.defer {
             val password: String = param.getFirst(Password.api) ?: error(NoPasswordSpecifiedException())
             val userId = param.getFirst(UserId.api) ?: UUID.randomUUID().toString()
-            val userName = param.getFirst(userName.api) ?: error(NoUsernameSpecifiedException())
-            val user = User(userId, userName, classroomId, UserRole.STUDENT)
+            val fullName = param.getFirst(userName.api) ?: error(NoUsernameSpecifiedException())
+            val user = User(classroomId, userId, fullName, UserRole.STUDENT)
             classroomInstanceService.joinUser(classroomId, password, user)
                 .flatMap { (user, classroom) ->
                     createSessionToken(user).map { sessionToken ->

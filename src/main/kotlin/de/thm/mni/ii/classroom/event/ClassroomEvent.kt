@@ -24,13 +24,6 @@ data class MessageEvent(
     val message: String
 ): ClassroomEvent(MessageEvent::class.simpleName!!)
 
-data class UserEvent(
-    val user: User,
-    val joined: Boolean,
-    val inConference: Boolean,
-    val conferenceId: String?,
-): ClassroomEvent(UserEvent::class.simpleName!!)
-
 data class ConferenceEvent(
     val conferenceInfo: ConferenceInfo,
     val inProgress: Boolean

@@ -11,6 +11,6 @@ export class IsPrivilegedPipe implements PipeTransform {
     if (!users) {
       return users;
     }
-    return users.filter(user => user.isAuthorized());
+    return users.filter(user => Roles.isPrivileged(user.userRole));
   }
 }

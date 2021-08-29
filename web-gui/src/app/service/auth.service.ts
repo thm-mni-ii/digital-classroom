@@ -4,8 +4,8 @@ import {JwtHelperService} from '@auth0/angular-jwt';
 import {Observable} from 'rxjs';
 import {of, throwError} from 'rxjs';
 import {mergeMap, map} from 'rxjs/operators';
-import {JWToken} from '../model/JWToken';
 import {Params} from "@angular/router";
+import {User} from "../model/User";
 
 const TOKEN_ID = 'classroom-token';
 
@@ -38,7 +38,7 @@ export class AuthService {
   /**
    * @return The lastly received token.
    */
-  getToken(): JWToken {
+  getToken(): User {
     const token = this.loadToken();
     const decodedToken = this.decodeToken(token);
     if (!decodedToken) {
@@ -60,8 +60,8 @@ export class AuthService {
     }
   }
 
-  private decodeToken(token: string): JWToken {
-    return this.jwtHelper.decodeToken(token);
+  private decodeToken(token: string): User {
+    return this.jwtHelper.decodeToken<User>(token);
   }
 
   private static extractTokenFromHeader(response: HttpResponse<any>): string {
@@ -84,19 +84,20 @@ export class AuthService {
     return this.http.get('/api/v1/login/token', {}).pipe(map(() => null));
   }
 
+
   public startTokenAutoRefresh() {
     setInterval(() => {
       if (this.isAuthenticated()) {
         const token = this.getToken();
-        if (Math.floor(new Date().getTime() / 1000) + 90 >= token.exp) {
-          console.log("request token")
+        //if (Math.floor(new Date().getTime() / 1000) + 90 >= token.exp) {
+        //  console.log("request token")
           //this.requestNewToken().subscribe(() => {});
-        }
+        //}
       }
     }, 60000);
   }
 
-  useSessionToken(params: Params): Observable<JWToken> {
+  useSessionToken(params: Params): Observable<User> {
     return this.http.get<string>('/classroom-api/join',
       {params: params, observe: 'response'})
       .pipe(map(res => {

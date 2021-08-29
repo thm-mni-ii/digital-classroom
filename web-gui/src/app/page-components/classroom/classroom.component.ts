@@ -8,17 +8,16 @@ import {DOCUMENT} from '@angular/common';
 import {Subscription, BehaviorSubject} from 'rxjs';
 import {ClassroomService} from '../../service/classroom.service';
 import {NewTicketDialogComponent} from '../../dialogs/newticket-dialog/new-ticket-dialog.component';
-import {AuthService} from '../../service/auth.service';
-import {Roles} from '../../model/Roles';
 import {InviteToConferenceDialogComponent} from '../../dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component';
 import {AssignTicketDialogComponent} from '../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component';
 import {Ticket} from '../../model/Ticket';
-import {User, UserDisplay} from "../../model/User";
+import {User} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
 import {ConferenceInfo} from "../../model/Conference";
 import {ClassroomInfo} from "../../model/ClassroomInfo";
+import {Roles} from "../../model/Roles";
 
 @Component({
   selector: 'app-conference',
@@ -39,33 +38,37 @@ export class ClassroomComponent implements OnInit, OnDestroy {
               @Inject(DOCUMENT) document) {
   }
   classroomInfo: ClassroomInfo = undefined
-  currentUser: UserDisplay = undefined
+  currentUser: User = undefined
   users: User[] = [];
   tickets: Ticket[] = [];
   conferences: ConferenceInfo[] = [];
   usersInConference: User[] = [];
-  isCourseSubscriber: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   subscriptions: Subscription[] = [];
-  intervalID;
 
   ngOnInit(): void {
     Notification.requestPermission().then();
-    this.classroomService.currentUserObservable.subscribe(
+    this.subscriptions.push(
+      this.classroomService.currentUserObservable.subscribe(
       currentUser => this.currentUser = currentUser
-    )
-    this.classroomService.classroomInfo.subscribe(
+      ),
+      this.classroomService.classroomInfo.subscribe(
       classroomInfo => this.classroomInfo = classroomInfo
-    )
-    this.classroomService.tickets.subscribe(
+      ),
+      this.classroomService.tickets.subscribe(
       tickets => this.tickets = tickets
-    )
-    this.classroomService.users.subscribe(
+      ),
+      this.classroomService.users.subscribe(
       users => this.users = users
+      )
     )
   }
 
+  public isAuthorized(user: User) {
+    return Roles.isPrivileged(user.userRole)
+  }
+
   ngOnDestroy(): void {
-    clearInterval(this.intervalID);
+    this.subscriptions.forEach(sub => sub.unsubscribe())
   }
 
   public inviteToConference(users) {

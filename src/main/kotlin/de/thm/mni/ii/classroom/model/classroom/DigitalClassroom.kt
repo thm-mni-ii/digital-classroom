@@ -102,7 +102,7 @@ class DigitalClassroom(
         return conferenceStorage.createConference(conference)
     }
 
-    fun joinUserToConference(conference: Conference, user: User): Flux<User> {
+    fun joinUserToConference(conference: Conference, user: User): Mono<User> {
         return conferenceStorage.joinUser(conference, user)
     }
 

@@ -7,10 +7,10 @@ import org.springframework.security.core.userdetails.UserDetails
 import java.security.Principal
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class User(
+class User(
+    override val classroomId: String,
     val userId: String,
     val fullName: String,
-    override val classroomId: String,
     var userRole: UserRole
 ): Principal, UserDetails, ClassroomDependent {
 
@@ -42,17 +42,38 @@ data class User(
 
     @JsonIgnore
     fun getJwtClaims(): MutableMap<String, Any> = mutableMapOf(
+        Pair("classroomId", classroomId),
         Pair("userId", userId),
         Pair("fullName", fullName),
-        Pair("classroomId", classroomId),
         Pair("userRole", userRole.name)
     )
 
     @JsonIgnore
     constructor(claims: Map<String, Any>) : this(
+        claims["classroomId"] as String,
         claims["userId"] as String,
         claims["fullName"] as String,
-        claims["classroomId"] as String,
         UserRole.valueOf(claims["userRole"] as String)
     )
+
+    @JsonIgnore
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as User
+
+        if (classroomId != other.classroomId) return false
+        if (userId != other.userId) return false
+
+        return true
+    }
+
+    @JsonIgnore
+    override fun hashCode(): Int {
+        var result = classroomId.hashCode()
+        result = 31 * result + userId.hashCode()
+        return result
+    }
+
 }

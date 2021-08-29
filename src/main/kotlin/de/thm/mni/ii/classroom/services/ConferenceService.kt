@@ -13,7 +13,8 @@ import de.thm.mni.ii.classroom.util.component2
 
 @Component
 class ConferenceService(private val classroomInstanceService: ClassroomInstanceService,
-                        private val upstreamBBBService: UpstreamBBBService) {
+                        private val upstreamBBBService: UpstreamBBBService,
+                        private val eventSenderService: ClassroomEventSenderService) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -34,21 +35,22 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
         }
     }
 
-    fun joinUser(auth: ClassroomAuthentication, conference: Conference): Mono<String> {
-        return classroomInstanceService.getClassroomInstance(auth.getClassroomId()).flatMap { classroom ->
-            Mono.zip(Mono.just(classroom), upstreamBBBService.joinConference(conference, auth.user!!, true))
-        }.map { (classroom, conferenceLink) ->
-            logger.info("${auth.user!!.fullName} joined conference ${conference.conferenceId}!")
-            classroom.joinUserToConference(conference, auth.user)
+    fun joinUser(user: User, conference: Conference): Mono<String> {
+        return classroomInstanceService.getClassroomInstance(user.classroomId).flatMap { classroom ->
+            Mono.zip(Mono.just(classroom), upstreamBBBService.joinConference(conference, user, true))
+        }.doOnNext { (classroom, _) ->
+            logger.info("${user.fullName} joins conference ${conference.conferenceId}!")
+            classroom.joinUserToConference(conference, user).subscribe()
+        }.map { (_, conferenceLink) ->
             conferenceLink
         }
     }
 
-    fun joinConferenceOfUser(auth: ClassroomAuthentication, user: User): Mono<String> {
-        return classroomInstanceService.getClassroomInstance(auth.getClassroomId()).flatMap { classroom ->
-            classroom.getConferenceOfUser(user)
+    fun joinConferenceOfUser(joiningUser: User, conferencingUser: User): Mono<String> {
+        return classroomInstanceService.getClassroomInstance(joiningUser.classroomId).flatMap { classroom ->
+            classroom.getConferenceOfUser(conferencingUser)
                 .flatMap { conference ->
-                    joinUser(auth, conference)
+                    joinUser(joiningUser, conference)
                 }
         }
     }

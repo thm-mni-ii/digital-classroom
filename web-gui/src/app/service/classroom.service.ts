@@ -3,14 +3,15 @@ import {Observable, Subject, BehaviorSubject, Subscription} from 'rxjs';
 import {AuthService} from './auth.service';
 import {MatDialog} from '@angular/material/dialog';
 import {IncomingCallDialogComponent} from '../dialogs/incoming-call-dialog/incoming-call-dialog.component';
-import {User, UserDisplay} from "../model/User";
-import {HttpClient} from "@angular/common/http";
+import {User} from "../model/User";
 import {ConferenceService} from "./conference.service";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {ClassroomInfo} from "../model/ClassroomInfo";
 import {Ticket} from "../model/Ticket";
 import {TicketService} from "./ticket.service";
 import {map} from "rxjs/operators";
+import {UserService} from "./user.service";
+import {Roles} from "../model/Roles";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and privide Conferences to take
@@ -21,10 +22,8 @@ import {map} from "rxjs/operators";
 })
 export class ClassroomService {
 
-  private userSubject: Subject<UserDisplay[]> = new BehaviorSubject([])
-  users: Observable<UserDisplay[]> = this.userSubject.asObservable()
-
   public tickets = this.ticketService.ticketObservable
+  public users = this.userService.userObservable
 
   private classroomInfoSubject: Subject<ClassroomInfo> = new BehaviorSubject(new ClassroomInfo())
   classroomInfo: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
@@ -40,10 +39,15 @@ export class ClassroomService {
                      private conferenceService: ConferenceService,
                      private dialog: MatDialog,
                      private rSocketService: RSocketService,
-                     private ticketService: TicketService) {
+                     private ticketService: TicketService,
+                     private userService: UserService) {
     this.usersInConference = new BehaviorSubject<User[]>([]);
     this.inviteUsers = new Subject<boolean>();
     this.currentUserObservable.subscribe(currentUser => this.currentUser = currentUser)
+  }
+
+  public isCurrentUserAuthorized(): boolean {
+    return Roles.isPrivileged(this.currentUser.userRole)
   }
 
   /**
@@ -149,6 +153,7 @@ export class ClassroomService {
   public createTicket(ticket: Ticket) {
     this.currentUserObservable.pipe(
       map((user) => {
+        ticket.classroomId = user.classroomId
         ticket.creator = user
         return ticket
       })
