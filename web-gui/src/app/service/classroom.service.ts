@@ -86,14 +86,6 @@ export class ClassroomService {
   }
 
   /**
-   * Disconnects from the endpoint.
-   * @return Observable that completes when disconnected.
-   */
-  public leave() {
-    return
-  }
-
-  /**
    * Invites user to a conference by following the link provided as href.
    * @param users The users to invite
    */
