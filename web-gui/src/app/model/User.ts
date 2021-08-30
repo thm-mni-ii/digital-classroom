@@ -5,11 +5,17 @@ export class User implements ClassroomDependent {
   classroomId: string;
   userId: string;
   fullName: string;
-  userRole?: string; // STUDENT, TUTOR or TEACHER
+  userRole?: UserRole; // STUDENT, TUTOR or TEACHER
   inConference?: boolean;
   conferenceId?: string;
 
   public isAuthorized() {
     return Roles.isPrivileged(this.userRole)
   }
+}
+
+enum UserRole {
+  STUDENT = "STUDENT",
+  TUTOR = "TUTOR",
+  TEACHER = "TEACHER"
 }
