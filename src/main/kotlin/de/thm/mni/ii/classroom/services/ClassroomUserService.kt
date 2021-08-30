@@ -5,7 +5,6 @@ import de.thm.mni.ii.classroom.event.TicketEvent
 import de.thm.mni.ii.classroom.event.UserAction
 import de.thm.mni.ii.classroom.event.UserEvent
 import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
-import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
@@ -81,15 +80,15 @@ class ClassroomUserService(
             }.subscribe()
     }
 
-    fun assignTicket(user: User, ticket: Ticket) {
+    fun assignTicket(user: User, receivedTicket: Ticket) {
         classroomInstanceService
             .getClassroomInstance(user.classroomId)
             .filter {
-                user.isPrivileged() && ticket.classroomId == user.classroomId
+                user.isPrivileged() && receivedTicket.assignee!!.isPrivileged() && receivedTicket.classroomId == user.classroomId
             }.switchIfEmpty {
-                Mono.error(IllegalArgumentException())
+                Mono.error(UnauthorizedException("User not authorized to assign ticket!"))
             }.flatMap {
-                it.assignTicket(ticket, user)
+                it.assignTicket(receivedTicket, receivedTicket.assignee!!)
             }.doOnNext { (ticket, classroom) ->
                 senderService.sendToAll(classroom, TicketEvent(ticket, TicketAction.ASSIGN)).subscribe()
             }.doOnSuccess { (ticket, classroom) ->

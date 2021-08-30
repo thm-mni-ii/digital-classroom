@@ -72,10 +72,10 @@ class DigitalClassroom(
         }.map { Pair(it, this) }
     }
 
-    fun assignTicket(ticket: Ticket, user: User): Mono<Pair<Ticket, DigitalClassroom>> {
+    fun assignTicket(ticket: Ticket, newAssignee: User): Mono<Pair<Ticket, DigitalClassroom>> {
         return Mono.justOrEmpty(tickets.find { it == ticket })
             .switchIfEmpty(Mono.error(TicketNotFoundException(ticket)))
-            .map { it.apply { assignee = user } }
+            .map { it.apply { assignee = newAssignee } }
             .map { Pair(it, this) }
     }
 

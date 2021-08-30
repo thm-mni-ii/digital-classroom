@@ -76,11 +76,13 @@ export class ClassroomComponent implements OnInit, OnDestroy {
   }
 
   public assignTeacher(ticket) {
-    this.dialog.open(AssignTicketDialogComponent, {
-      height: 'auto',
-      width: 'auto',
-      data: {courseID: this.classroomInfo.classroomId, ticket: ticket}
-    });
+    if (this.classroomService.isCurrentUserAuthorized()) {
+      this.dialog.open(AssignTicketDialogComponent, {
+        height: 'auto',
+        width: 'auto',
+        data: {courseID: this.classroomInfo.classroomId, ticket: ticket}
+      });
+    }
   }
 
   public sortTickets(tickets: Ticket[]) {
