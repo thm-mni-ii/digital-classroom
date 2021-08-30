@@ -1,6 +1,6 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import RSocketWebSocketClient from 'rsocket-websocket-client';
-import {Observable, ReplaySubject, Subject} from "rxjs";
+import {Observable, ReplaySubject} from "rxjs";
 import {
   BufferEncoders,
   encodeBearerAuthMetadata,
@@ -9,8 +9,7 @@ import {
   MESSAGE_RSOCKET_AUTHENTICATION,
   MESSAGE_RSOCKET_COMPOSITE_METADATA,
   MESSAGE_RSOCKET_ROUTING,
-  RSocketClient,
-  toBuffer
+  RSocketClient
 } from "rsocket-core";
 
 import {AuthService} from "../service/auth.service";
@@ -23,23 +22,21 @@ import {
   singleToObservable
 } from "../util/socket-utils";
 import {first, map, switchMap} from "rxjs/operators";
-import {Flowable, Single} from "rsocket-flowable";
+import {Single} from "rsocket-flowable";
 import {EventListenerService} from "./event-listener.service";
-import {flatMap} from "rxjs/internal/operators";
 
 @Injectable({
   providedIn: 'root'
 })
 export class RSocketService implements OnDestroy {
 
-  title = 'client';
   client: RSocketClient<Buffer, Buffer>;
   private socketSubject: ReplaySubject<ReactiveSocket<Buffer, Buffer>>
     = new ReplaySubject<ReactiveSocket<Buffer, Buffer>>(1)
   auth: AuthService = undefined
 
   transport = new RSocketWebSocketClient({
-    url: 'wss://localhost:8085/rsocket', //window.origin.replace(/^http(s)?/, 'ws$1') + '/rsocket',
+    url: window.origin.replace(/^http(s)?/, 'ws$1') + '/rsocket',
     debug: true
   }, BufferEncoders)
 
