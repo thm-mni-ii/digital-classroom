@@ -13,7 +13,6 @@ import {filter, map} from "rxjs/operators";
 import {UserService} from "./user.service";
 import {Roles} from "../model/Roles";
 import {NewTicketDialogComponent} from "../dialogs/newticket-dialog/new-ticket-dialog.component";
-import {flatMap} from "rxjs/internal/operators";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and privide Conferences to take
@@ -52,13 +51,6 @@ export class ClassroomService {
 
   public isCurrentUserAuthorized(): boolean {
     return Roles.isPrivileged(this.currentUser.userRole)
-  }
-
-  /**
-   * @return Users in public conferences.
-   */
-  public getUsersInConference(): Observable<User[]> {
-    return this.usersInConference.asObservable();
   }
 
   public userInviter(): Observable<boolean> {

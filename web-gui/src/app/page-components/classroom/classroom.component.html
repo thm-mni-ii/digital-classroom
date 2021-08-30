@@ -21,9 +21,9 @@
     <mat-list>
       <mat-card class="ticket-mat-card" (click)="assignTeacher(ticket)" *ngFor="let ticket of sortTickets(tickets); index as i"
                 [ngClass]="{
-                'unassigned': ticket.assignee === undefined,
-                'selfassigned': ticket.assignee !== undefined && ticket.assignee?.userId === this.currentUser.userId,
-                'otherassigned': ticket.assignee !== undefined && ticket.assignee?.userId !== ticket.creator.userId && ticket.assignee?.userId !== currentUser.userId
+                'unassigned': ticket.assignee === null,
+                'selfassigned': ticket.assignee !== null && ticket.assignee?.userId === this.currentUser.userId,
+                'otherassigned': ticket.assignee !== null && ticket.assignee.userId !== ticket.creator.userId && ticket.assignee.userId !== currentUser.userId
                 }">
         <mat-card-content>
           <div class="grid-container">

@@ -34,7 +34,7 @@ class ClassroomEventReceiverService(private val userService: ClassroomUserServic
         when (ticketEvent.ticketAction) {
             TicketAction.CREATE -> userService.createTicket(user, ticketEvent.ticket)
             TicketAction.ASSIGN -> userService.assignTicket(user, ticketEvent.ticket)
-            TicketAction.CLOSE -> userService.closeTicket(user, ticketEvent.ticket)
+            TicketAction.CLOSE  -> userService.closeTicket(user, ticketEvent.ticket)
         }
     }
 

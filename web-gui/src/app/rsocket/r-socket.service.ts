@@ -90,30 +90,29 @@ export class RSocketService implements OnDestroy {
   }
 
   public requestResponse<T>(route: string, data: any = ""): Observable<T> {
-    return this.socketSubject.pipe(
-      first<ReactiveSocket<Buffer, Buffer>>(),
-      map((socket: ReactiveSocket<Buffer, Buffer>) => {
-        return socket.requestResponse({
-          data: encodeData(data),
-          metadata: createMetadata(route, this.auth.loadToken())
-        })
-      }),
-      switchMap((single: Single<Payload<Buffer, Buffer>>) => {
-        return singleToObservable<Payload<Buffer, Buffer>>(single);
-      }),
-      map((payload: Payload<Buffer, Buffer>) => {
-          return <T>JSON.parse(decodeToString(payload.data));
+    const sub = new ReplaySubject<T>(1)
+    this.socketSubject.subscribe(socket => {
+      socket.requestResponse({
+        data: encodeData(data),
+        metadata: createMetadata(route, this.auth.loadToken())
+      }).subscribe({
+        onComplete: payload => {
+          const obj = <T>JSON.parse(decodeToString(payload.data));
+          sub.next(obj)
+        },
+        onError: error => sub.error(error)
       })
-    );
+    })
+    return sub;
   }
 
   public requestStream<T>(route: string, data: any = ""): Observable<T> {
     const sub = new ReplaySubject<T>(1)
     this.socketSubject.subscribe(socket => {
-      flowableToObservable(socket.requestStream({
+      socket.requestStream({
         data: encodeData(data),
         metadata: createMetadata(route, this.auth.loadToken())
-      })).subscribe(payload => {
+      }).subscribe(payload => {
         const obj = <T>JSON.parse(decodeToString(payload.data));
         sub.next(obj)
       })
