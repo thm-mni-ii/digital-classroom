@@ -3,7 +3,7 @@ import {User} from "../model/User";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {EventListenerService} from "../rsocket/event-listener.service";
-import {filter, map} from "rxjs/operators";
+import {concatAll, filter, finalize, map} from "rxjs/operators";
 import {UserAction, UserEvent} from "../rsocket/event/UserEvent";
 
 @Injectable({
@@ -29,7 +29,7 @@ export class UserService {
     this.rSocketService.requestStream<User>("socket/init-users", "Init Users").pipe(
       // Filter users already in this.users (currentUser)
       map(user => this.users.set(user.userId, user)),
-      map(() => this.publish())
+      finalize(() => this.publish())
     ).subscribe()
   }
 

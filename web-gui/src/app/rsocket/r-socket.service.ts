@@ -18,11 +18,8 @@ import {
   createMetadata,
   decodeToString,
   encodeData,
-  flowableToObservable,
-  singleToObservable
 } from "../util/socket-utils";
 import {first, map, switchMap} from "rxjs/operators";
-import {Single} from "rsocket-flowable";
 import {EventListenerService} from "./event-listener.service";
 
 @Injectable({
