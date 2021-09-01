@@ -3,7 +3,7 @@
     <button mat-flat-button *ngIf="this.classroomService.isCurrentUserAuthorized() && !classroomService.isSelf(ticket.creator)"
             color="accent" (click)="startCall([ticket.creator])">Zu Konferenz einladen</button>
     <button mat-flat-button *ngIf="isInConference(ticket.creator) && !classroomService.isSelf(ticket.creator)"
-            color="accent" (click)="this.classroomService.joinConference(ticket.creator)">Konferenz beitreten</button>
+            color="accent" (click)="this.joinConference(ticket.creator)">Konferenz beitreten</button>
     <button mat-flat-button *ngIf="classroomService.isSelf(ticket.creator)" color="warn" (click)="closeTicket(ticket)">Ticket Schliessen</button>
   </mat-dialog-actions>
 </div>

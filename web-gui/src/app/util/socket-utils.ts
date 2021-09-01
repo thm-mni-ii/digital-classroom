@@ -14,28 +14,21 @@ export function singleToObservable<T>(single: Single<T>): Observable<T> {
   single.subscribe({
     onComplete: next => { subject.next(next) },
     onError: error => { subject.error(error) },
-    onSubscribe: _ => { },
+    onSubscribe: cancel => { },
   });
   return subject
 }
 
 export function flowableToObservable<T>(flowable: Flowable<T>): Observable<T> {
-    return new Observable<T>(subscriber => {
-        flowable.subscribe(payload => {
-          subscriber.next(payload)
-        });
-      }
-    )
-  /*
   return new Observable<T>(subscriber => {
       flowable.subscribe({
         onNext: next => { subscriber.next(next) },
         onError: error => { subscriber.error(error) },
-        onSubscribe: _ => { },
+        onSubscribe: subscription => subscription.request(2147483647),
         onComplete: () => subscriber.complete()
       });
     }
-  )*/
+  )
 }
 
 export function decodeToString(buffer: Buffer): string {

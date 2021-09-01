@@ -10,11 +10,11 @@ import {ClassroomService} from '../../service/classroom.service';
 import {InviteToConferenceDialogComponent} from '../../dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component';
 import {AssignTicketDialogComponent} from '../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component';
 import {Ticket} from '../../model/Ticket';
-import {parseCourseRole, User} from "../../model/User";
+import {parseCourseRole, User, UserDisplay} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
-import {ConferenceInfo} from "../../model/Conference";
+import {ConferenceInfo} from "../../model/ConferenceInfo";
 import {ClassroomInfo} from "../../model/ClassroomInfo";
 
 @Component({
@@ -26,10 +26,9 @@ export class ClassroomComponent implements OnInit, OnDestroy {
 
   classroomInfo: ClassroomInfo = undefined
   currentUser: User = undefined
-  users: User[] = [];
+  users: UserDisplay[] = [];
   tickets: Ticket[] = [];
   conferences: ConferenceInfo[] = [];
-  usersInConference: User[] = [];
   subscriptions: Subscription[] = [];
   parseCourseRole: Function = parseCourseRole
 
@@ -81,7 +80,7 @@ export class ClassroomComponent implements OnInit, OnDestroy {
       this.dialog.open(AssignTicketDialogComponent, {
         height: 'auto',
         width: 'auto',
-        data: {courseID: this.classroomInfo.classroomId, ticket: ticket}
+        data: ticket
       });
     }
   }

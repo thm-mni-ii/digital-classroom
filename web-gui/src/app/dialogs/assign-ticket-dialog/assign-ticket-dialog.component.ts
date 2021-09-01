@@ -5,7 +5,7 @@ import { first } from 'rxjs/operators';
 import {ClassroomService} from '../../service/classroom.service';
 import {AuthService} from '../../service/auth.service';
 import {Ticket} from '../../model/Ticket';
-import {User} from "../../model/User";
+import {User, UserDisplay} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
@@ -17,9 +17,7 @@ import {ConferenceService} from "../../service/conference.service";
 })
 export class AssignTicketDialogComponent implements OnInit {
   ticket: Ticket;
-  courseID: number;
-  users: User[] = [];
-  usersInConference: User[] = [];
+  users: UserDisplay[] = [];
   disabled = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: Ticket,
@@ -34,7 +32,6 @@ export class AssignTicketDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.classroomService.userObservable.subscribe((users) => {
-      this.usersInConference = users;
       this.users = users
     });
     this.dialogRef.afterOpened().subscribe(() => this.disabled = false);
@@ -66,10 +63,10 @@ export class AssignTicketDialogComponent implements OnInit {
     this.dialogRef.close();
   }
   public isInConference(user: User) {
-    return this.usersInConference.filter(u => u.userId === user.userId).length !== 0;
+    return this.users.find(user => user.userId === user.userId).inConference
   }
 
   public joinConference(user: User) {
-    this.classroomService.joinConference(user);
+    this.classroomService.joinConferenceOfUser(user);
   }
 }

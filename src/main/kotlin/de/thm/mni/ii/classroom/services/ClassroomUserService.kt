@@ -7,6 +7,7 @@ import de.thm.mni.ii.classroom.event.UserEvent
 import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
 import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserDisplay
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
 import org.slf4j.LoggerFactory
 import org.springframework.messaging.rsocket.RSocketRequester
@@ -117,6 +118,12 @@ class ClassroomUserService(
         return classroomInstanceService
             .getClassroomInstance(user.classroomId)
             .flatMapMany { it.getUsers() }
+    }
+
+    fun getUserDisplays(user: User): Flux<UserDisplay> {
+        return classroomInstanceService
+            .getClassroomInstance(user.classroomId)
+            .flatMapMany { it.getUserDisplays() }
     }
 
     fun getClassroomInfo(user: User): Mono<ClassroomInfo> {

@@ -3,8 +3,8 @@ import {ClassroomEvent} from "./ClassroomEvent";
 
 export class UserEvent extends ClassroomEvent {
   user: User
-  inConference: Boolean
-  conferenceId: String
+  inConference: boolean
+  conferenceId: string
   userAction: UserAction
 
   constructor() {

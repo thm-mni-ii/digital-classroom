@@ -1,10 +1,7 @@
 package de.thm.mni.ii.classroom.controller
 
 import de.thm.mni.ii.classroom.event.ClassroomEvent
-import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
-import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
-import de.thm.mni.ii.classroom.model.classroom.Ticket
-import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.*
 import de.thm.mni.ii.classroom.services.ClassroomEventReceiverService
 import de.thm.mni.ii.classroom.services.ClassroomUserService
 import org.slf4j.Logger
@@ -47,8 +44,8 @@ class UserWebSocketController(
     }
 
     @MessageMapping("socket/init-users")
-    fun initUsers(@AuthenticationPrincipal user: User): Flux<User> {
-        return userService.getUsers(user).doOnNext {
+    fun initUsers(@AuthenticationPrincipal user: User): Flux<UserDisplay> {
+        return userService.getUserDisplays(user).doOnNext {
             logger.info("${it.fullName}, ${it.userId}")
         }
     }

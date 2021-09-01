@@ -67,6 +67,6 @@ export class ManageTicketDialogComponent implements OnInit {
     // return this.usersInConference.filter(u => u.userId === user.userId).length !== 0;
   }
   public joinConference(user: User) {
-    this.classroomService.joinConference(user);
+    this.classroomService.joinConferenceOfUser(user);
   }
 }

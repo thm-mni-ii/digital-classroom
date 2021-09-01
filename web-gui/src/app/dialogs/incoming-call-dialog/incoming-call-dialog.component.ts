@@ -42,7 +42,7 @@ export class IncomingCallDialogComponent implements OnInit {
   }
   // todo: fix string constants ( enum didnt work)
   public acceptCall() {
-    this.classroomService.joinConference(this.inviter, this.cid);
+    this.classroomService.joinConferenceOfUser(this.inviter);
     this.dialogRef.close();
   }
 

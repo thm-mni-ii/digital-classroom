@@ -9,7 +9,7 @@ class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
     private val usersConference = HashMap<User, Conference>()
     private val conferenceUsers = HashMap<Conference, HashSet<User>>()
 
-    fun getConferenceOfUser(user: User) = Mono.justOrEmpty(usersConference[user])
+    fun getConferenceOfUser(user: User) = usersConference[user]
 
     fun getUsersOfConference(conference: Conference) = Mono.justOrEmpty(conferenceUsers[conference])
 
@@ -36,6 +36,10 @@ class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
 
     fun isUserInConference(user: User): Mono<Boolean> {
         return Mono.just(usersConference.containsKey(user))
+    }
+
+    fun getConference(conferenceId: String): Mono<Conference> {
+        return Mono.just(conferenceUsers.keys.first { it.conferenceId == conferenceId })
     }
 
 }

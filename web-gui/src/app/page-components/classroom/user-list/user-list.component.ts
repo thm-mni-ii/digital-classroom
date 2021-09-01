@@ -1,5 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {User} from "../../../model/User";
+import {Component, Input} from '@angular/core';
+import {User, UserDisplay} from "../../../model/User";
 import {ClassroomService} from "../../../service/classroom.service";
 import {parseCourseRole} from "../../../model/User";
 
@@ -10,7 +10,7 @@ import {parseCourseRole} from "../../../model/User";
 })
 export class UserListComponent {
 
-  @Input() public users: User[]
+  @Input() public users: UserDisplay[]
   public parseCourseRole: Function = parseCourseRole
 
   constructor(

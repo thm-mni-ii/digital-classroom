@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails
 import java.security.Principal
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class User(
+open class User(
     override val classroomId: String,
     val userId: String,
     val fullName: String,
