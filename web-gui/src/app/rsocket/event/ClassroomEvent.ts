@@ -1,5 +1,5 @@
 import {User} from "../../model/User";
-import {ConferenceInfo} from "../../model/Conference";
+import {ConferenceInfo} from "../../model/ConferenceInfo";
 
 export interface ClassroomDependent {
   classroomId: string

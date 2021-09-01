@@ -1,40 +1,35 @@
 package de.thm.mni.ii.classroom.controller
 
-import de.thm.mni.ii.classroom.model.classroom.Conference
+import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import de.thm.mni.ii.classroom.services.ConferenceService
-import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Flux
+import org.springframework.messaging.handler.annotation.MessageMapping
+import org.springframework.messaging.handler.annotation.Payload
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.stereotype.Controller
 import reactor.core.publisher.Mono
 
-@RestController
-@RequestMapping("/classroom-api")
+@Controller
 class ConferenceController(private val conferenceService: ConferenceService) {
 
-    @GetMapping("/conference")
-    fun getConferences(auth: ClassroomAuthentication): Flux<Conference> {
-        return conferenceService.getConferencesOfClassroom(auth)
+    @MessageMapping("socket/conference/create")
+    fun createConference(@AuthenticationPrincipal user: User, @Payload conferenceInfo: ConferenceInfo): Mono<ConferenceInfo> {
+        return conferenceService.createConference(user, conferenceInfo)
     }
 
-    @GetMapping("/conference/user")
-    fun getUsersInConference(auth: ClassroomAuthentication): Flux<User> {
-        return conferenceService.getUsersInConferences(auth)
+    @MessageMapping("socket/conference/join")
+    fun joinConference(@AuthenticationPrincipal user: User, @Payload conferenceInfo: ConferenceInfo): Mono<String> {
+        return conferenceService.joinConference(user, conferenceInfo)
     }
 
-    @GetMapping("/conference/create")
-    fun createConference(auth: ClassroomAuthentication): Mono<Conference> {
-        return conferenceService.createConference(auth)
+    @MessageMapping("socket/conference/join-user")
+    fun joinConferenceOfUser(@AuthenticationPrincipal joiningUser: User, @Payload conferencingUser: User): Mono<String> {
+        return conferenceService.joinConferenceOfUser(joiningUser, conferencingUser)
     }
 
-    @PostMapping("/conference/join")
-    fun joinConference(auth: ClassroomAuthentication, @RequestBody conference: Conference): Mono<String> {
-        return conferenceService.joinUser(auth.user!!, conference)
-    }
-
-    @PostMapping("/conference/join/user")
-    fun joinConferenceOfUser(auth: ClassroomAuthentication, @RequestBody user: User): Mono<String> {
-        return conferenceService.joinConferenceOfUser(auth.user!!, user)
+    @MessageMapping("socket/conference/end")
+    fun endConference(@AuthenticationPrincipal user: User, @Payload conferenceInfo: ConferenceInfo): Mono<Void> {
+        TODO("NOT YET IMPLEMENTED")
     }
 
 }

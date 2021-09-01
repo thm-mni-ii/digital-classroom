@@ -7,9 +7,13 @@ import org.springframework.messaging.rsocket.RSocketRequester
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toMono
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicLong
+import de.thm.mni.ii.classroom.util.component1
+import de.thm.mni.ii.classroom.util.component2
+import org.slf4j.LoggerFactory
 
 /**
  * Class representing a digital classroom instance.
@@ -21,6 +25,8 @@ class DigitalClassroom(
     val teacherPassword: String,
     classroomName: String
 ): ClassroomInfo(classroomId, classroomName) {
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     private val users = HashMap<User, RSocketRequester?>()
     private val tickets = HashSet<Ticket>()
@@ -57,7 +63,9 @@ class DigitalClassroom(
     }
 
     fun getTickets(): Flux<Ticket> {
-        return tickets.toFlux()
+        return tickets.toFlux().doOnNext {
+            logger.info("Ticket: ${it.description}")
+        }
     }
 
     fun createTicket(ticket: Ticket): Mono<Pair<Ticket, DigitalClassroom>> {
@@ -90,8 +98,14 @@ class DigitalClassroom(
         return users.keys.toFlux()
     }
 
+    fun getUserDisplays(): Flux<UserDisplay> {
+        return this.getUsers().map { user ->
+            UserDisplay(user, conferenceStorage.getConferenceOfUser(user))
+        }
+    }
+
     fun getConferenceOfUser(user: User): Mono<Conference> {
-        return conferenceStorage.getConferenceOfUser(user)
+        return Mono.justOrEmpty(conferenceStorage.getConferenceOfUser(user))
     }
 
     fun getConferences(): Flux<Conference> {
@@ -116,6 +130,10 @@ class DigitalClassroom(
 
     fun isUserInConference(user: User): Mono<Boolean> {
         return conferenceStorage.isUserInConference(user)
+    }
+
+    fun getConference(conferenceId: String): Mono<Conference> {
+        return conferenceStorage.getConference(conferenceId)
     }
 
 

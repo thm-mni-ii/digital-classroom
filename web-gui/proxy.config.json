@@ -10,11 +10,5 @@
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
-  },
-  "/rsocket": {
-    "target": "https://localhost:8085/rsocket",
-    "secure": false,
-    "logLevel": "debug",
-    "wss": true
   }
 }

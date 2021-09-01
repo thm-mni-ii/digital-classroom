@@ -4,7 +4,7 @@ import {RSocketService} from "../rsocket/r-socket.service";
 import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {TicketAction, TicketEvent} from "../rsocket/event/TicketEvent";
 import {EventListenerService} from "../rsocket/event-listener.service";
-import {finalize, map} from "rxjs/operators";
+import {finalize, map, tap} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +28,7 @@ export class TicketService {
 
   private initTickets() {
     this.rSocketService.requestStream<Ticket>("socket/init-tickets", "Init Tickets").pipe(
-      map(ticket => this.tickets.push(ticket)),
+      tap(ticket => this.tickets.push(ticket)),
       finalize(() => this.publish())
     ).subscribe()
   }
