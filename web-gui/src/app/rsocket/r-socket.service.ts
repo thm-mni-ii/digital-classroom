@@ -13,13 +13,13 @@ import {
 } from "rsocket-core";
 
 import {AuthService} from "../service/auth.service";
-import {ReactiveSocket, Payload} from "rsocket-types";
+import {ReactiveSocket} from "rsocket-types";
 import {
   createMetadata,
   decodeToString,
   encodeData,
 } from "../util/socket-utils";
-import {first, map, switchMap} from "rxjs/operators";
+import {first, map} from "rxjs/operators";
 import {EventListenerService} from "./event-listener.service";
 
 @Injectable({

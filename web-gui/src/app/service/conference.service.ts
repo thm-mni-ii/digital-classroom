@@ -1,8 +1,10 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {ConferenceInfo} from "../model/Conference";
-import {distinctUntilChanged} from "rxjs/operators";
+import {finalize, map} from "rxjs/operators";
+import {RSocketService} from "../rsocket/r-socket.service";
+import {EventListenerService} from "../rsocket/event-listener.service";
+import {ConferenceEvent} from "../rsocket/event/ClassroomEvent";
 
 /**
  * Handles the creation and retrivement of conference links.
@@ -12,64 +14,54 @@ import {distinctUntilChanged} from "rxjs/operators";
   providedIn: 'root'
 })
 export class ConferenceService {
-  private personalConferenceLink: BehaviorSubject<string>;
-  private bbbConferenceLink: BehaviorSubject<object>;
-  private conferenceWindowHandle: Window;
-  private isWindowhandleOpen: Subject<Boolean>;
-  conferenceWindowOpen: Boolean = false;
 
-  public constructor(private http: HttpClient) {
-    this.isWindowhandleOpen = new Subject<Boolean>();
-    this.isWindowhandleOpen.asObservable().pipe(distinctUntilChanged()).subscribe((isOpen) => {
-      if (!isOpen) {
-        this.closeConference();
-      }
-    });
-    this.personalConferenceLink = new BehaviorSubject<string>("");
-    this.bbbConferenceLink = new  BehaviorSubject<object>({});
-    setInterval(() => {
-      if (this.conferenceWindowHandle) {
-        if (this.conferenceWindowHandle.closed) {
-          this.isWindowhandleOpen.next(false);
-        } else {
-          this.isWindowhandleOpen.next(true);
-        }
-      }
-    }, 1000);
+  private conferences: Map<string, ConferenceInfo> = new Map<string, ConferenceInfo>()
+  private conferenceSubject: Subject<ConferenceInfo[]> = new BehaviorSubject([])
+  conferenceObservable: Observable<ConferenceInfo[]> = this.conferenceSubject.asObservable()
+
+  private conferenceWindowHandle: Window;
+
+
+  conferenceWindowOpen: boolean = false
+  private conferenceInfo: ConferenceInfo;
+
+  constructor(
+    private rSocketService: RSocketService,
+    private eventListenerService: EventListenerService
+  ) {
+    this.initConferences()
+    this.eventListenerService.conferenceEvents.pipe(
+      map((conferenceEvent: ConferenceEvent) => this.handleConferenceEvent(conferenceEvent)),
+      map(() => this.publish())
+    ).subscribe()
+  }
+
+  private initConferences() {
+    this.rSocketService.requestStream<ConferenceInfo>("socket/init-conferences", "Init Conferences").pipe(
+      map(conf => this.conferences.set(conf.conferenceId, conf)),
+      finalize(() => this.publish())
+    ).subscribe()
+  }
+
+  private handleConferenceEvent(conferenceEvent: ConferenceEvent) {
+  }
+
+  private publish() {
   }
 
   public createConference() {
-    if (this.conferenceWindowHandle == undefined || this.conferenceWindowHandle.closed) {
-      this.http.get<ConferenceInfo>("/classroom-api/conference/create").subscribe(conference => {
-        this.joinConference(conference)
-      })
-    }
+    const conferenceEvent = new ConferenceEvent()
+    this.rSocketService.requestResponse("socket/conference/create", conferenceEvent)
   }
 
   public joinConference(conference: ConferenceInfo) {
-    const options = { responseType: "text" as "json"};
-    if (this.conferenceWindowHandle == undefined || this.conferenceWindowHandle.closed) {
-      this.http.post<string>("/classroom-api/conference/join", conference, options).subscribe(url => {
-        this.conferenceWindowHandle = open(url.toString())
-        this.conferenceWindowOpen = true
-      })
-    } else {
-      this.conferenceWindowHandle.focus()
-    }
+    this.rSocketService.requestResponse("socket/conference/join", conference.conferenceId)
+    // USER_JOIN Event
+    this.rSocketService.fireAndForget("socket/classroom-event")
   }
 
-  public closeConference() {
-    if (this.conferenceWindowHandle && !this.conferenceWindowHandle.closed) {
-      this.conferenceWindowHandle.close();
-    }
-    this.conferenceWindowOpen = false
+  public closeConference(conference: ConferenceInfo = this.conferenceInfo) {
+    this.rSocketService.requestResponse("socket/conference/close", conference.conferenceId)
   }
 
-  public getConferenceWindowHandle(): Observable<Boolean> {
-    return this.isWindowhandleOpen.asObservable()
-  }
-
-  public getConferences(): Promise<ConferenceInfo[]> {
-    return this.http.get<ConferenceInfo[]>("/classroom-api/conference").toPromise()
-  }
 }

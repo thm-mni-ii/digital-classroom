@@ -5,19 +5,17 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DomSanitizer} from '@angular/platform-browser';
 import {DOCUMENT} from '@angular/common';
-import {Subscription, BehaviorSubject} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {ClassroomService} from '../../service/classroom.service';
-import {NewTicketDialogComponent} from '../../dialogs/newticket-dialog/new-ticket-dialog.component';
 import {InviteToConferenceDialogComponent} from '../../dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component';
 import {AssignTicketDialogComponent} from '../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component';
 import {Ticket} from '../../model/Ticket';
-import {User} from "../../model/User";
+import {parseCourseRole, User} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
 import {ConferenceInfo} from "../../model/Conference";
 import {ClassroomInfo} from "../../model/ClassroomInfo";
-import {Roles} from "../../model/Roles";
 
 @Component({
   selector: 'app-conference',
@@ -25,6 +23,16 @@ import {Roles} from "../../model/Roles";
   styleUrls: ['./classroom.component.scss']
 })
 export class ClassroomComponent implements OnInit, OnDestroy {
+
+  classroomInfo: ClassroomInfo = undefined
+  currentUser: User = undefined
+  users: User[] = [];
+  tickets: Ticket[] = [];
+  conferences: ConferenceInfo[] = [];
+  usersInConference: User[] = [];
+  subscriptions: Subscription[] = [];
+  parseCourseRole: Function = parseCourseRole
+
   constructor(private route: ActivatedRoute,
               private titlebarService: TitlebarService,
               public conferenceService: ConferenceService,
@@ -37,13 +45,6 @@ export class ClassroomComponent implements OnInit, OnDestroy {
               private userService: UserService,
               @Inject(DOCUMENT) document) {
   }
-  classroomInfo: ClassroomInfo = undefined
-  currentUser: User = undefined
-  users: User[] = [];
-  tickets: Ticket[] = [];
-  conferences: ConferenceInfo[] = [];
-  usersInConference: User[] = [];
-  subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
     Notification.requestPermission().then();
@@ -113,15 +114,6 @@ export class ClassroomComponent implements OnInit, OnDestroy {
         }
       }
     });
-  }
-
-  public parseCourseRole(role: String): String {
-    switch (role) {
-      case 'TEACHER': return 'Dozent';
-      case 'TUTOR': return 'Tutor';
-      case 'STUDENT': return 'Student';
-      default: return "Student";
-    }
   }
 
 }

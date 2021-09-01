@@ -1,5 +1,5 @@
 <mat-card class="menu-bar">
-  {{classroomService.currentUser.fullName}} - {{classroomService.currentUser.userRole}}
+  {{classroomService.currentUser.fullName}} - {{parseCourseRole(classroomService.currentUser.userRole)}}
 
   <span class="spacer"></span>
 

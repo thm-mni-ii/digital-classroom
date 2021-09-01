@@ -1,5 +1,4 @@
 import {ClassroomDependent} from "../rsocket/event/ClassroomEvent";
-import {Roles} from "./Roles";
 
 export class User implements ClassroomDependent {
   classroomId: string;
@@ -8,14 +7,19 @@ export class User implements ClassroomDependent {
   userRole?: UserRole; // STUDENT, TUTOR or TEACHER
   inConference?: boolean;
   conferenceId?: string;
-
-  public isAuthorized() {
-    return Roles.isPrivileged(this.userRole)
-  }
 }
 
-enum UserRole {
+export enum UserRole {
   STUDENT = "STUDENT",
   TUTOR = "TUTOR",
   TEACHER = "TEACHER"
+}
+
+export function parseCourseRole(role: UserRole): String {
+  switch (role) {
+    case 'TEACHER': return 'Dozent';
+    case 'TUTOR': return 'Tutor';
+    case 'STUDENT': return 'Student';
+    default: return "Student";
+  }
 }
