@@ -27,7 +27,6 @@ export class UserService {
 
   private initUsers() {
     this.rSocketService.requestStream<User>("socket/init-users", "Init Users").pipe(
-      // Filter users already in this.users (currentUser)
       map(user => this.users.set(user.userId, user)),
       finalize(() => this.publish())
     ).subscribe()

@@ -21,6 +21,10 @@ import { UnauthorizedComponent } from './page-components/unauthorized/unauthoriz
 import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
 import {IsNotSelfPipe } from './pipes/is-not-self.pipe';
 import {IsPrivilegedPipe} from "./pipes/is-privileged-pipe";
+import {ManageTicketDialogComponent} from "./dialogs/manage-ticket-dialog/manage-ticket-dialog.component";
+import { ConferenceListComponent } from './page-components/classroom/conference-list/conference-list.component';
+import {UserListComponent} from "./page-components/classroom/user-list/user-list.component";
+import {TicketListComponent} from "./page-components/classroom/ticket-list/ticket-list.component";
 
 @NgModule({
   declarations: [
@@ -34,7 +38,11 @@ import {IsPrivilegedPipe} from "./pipes/is-privileged-pipe";
     IncomingCallDialogComponent,
     JoinComponent,
     UnauthorizedComponent,
-    IsNotSelfPipe
+    IsNotSelfPipe,
+    ManageTicketDialogComponent,
+    ConferenceListComponent,
+    UserListComponent,
+    TicketListComponent
   ],
   imports: [
     BrowserModule,

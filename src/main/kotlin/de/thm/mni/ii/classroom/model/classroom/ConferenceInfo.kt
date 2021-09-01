@@ -8,5 +8,4 @@ open class ConferenceInfo(
     open val conferenceName: String,
     open val creator: User,
     open val visible: Boolean,
-    open val attendees: HashSet<User>,
 ): ClassroomDependent

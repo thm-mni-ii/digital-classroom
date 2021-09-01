@@ -64,8 +64,8 @@ export class ClassroomService {
     return this.rSocketService.isConnected()
   }
 
-  public isNotSelf(user: User) {
-    return user.userId != this.currentUser.userId
+  public isSelf(user: User) {
+    return user.userId === this.currentUser.userId
   }
 
   /**
