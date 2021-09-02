@@ -14,7 +14,6 @@ import {ConferenceService} from "../../service/conference.service";
   styleUrls: ['./assign-ticket-dialog.component.scss']
 })
 export class AssignTicketDialogComponent implements OnInit {
-  ticket: Ticket;
   users: UserDisplay[] = [];
   disabled = false;
 
@@ -25,7 +24,6 @@ export class AssignTicketDialogComponent implements OnInit {
               private conferenceService: ConferenceService,
               private ticketService: TicketService,
               public auth: AuthService) {
-    this.ticket = data
   }
 
   ngOnInit(): void {
@@ -36,9 +34,9 @@ export class AssignTicketDialogComponent implements OnInit {
   }
 
   public assignTicket(assignee, ticket) {
-      this.ticket.assignee = assignee;
+      this.data.assignee = assignee;
       this.ticketService.updateTicket(ticket);
-      this.snackBar.open(`${assignee.prename} ${assignee.surname} wurde dem Ticket als Bearbeiter zugewiesen`, 'OK', {duration: 3000});
+      this.snackBar.open(`${assignee.fullName} wurde dem Ticket als Bearbeiter zugewiesen`, 'OK', {duration: 3000});
       this.dialogRef.close();
   }
 
@@ -54,7 +52,7 @@ export class AssignTicketDialogComponent implements OnInit {
     }
     this.disabled = true;
     this.classroomService.inviteToConference(invitee);
-    this.snackBar.open(`${invitee.prename} ${invitee.surname} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
+    this.snackBar.open(`${invitee.fullName} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
     this.dialogRef.close();
   }
 

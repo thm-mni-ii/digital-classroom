@@ -3,7 +3,6 @@ import {FormBuilder, FormGroup} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Ticket} from '../../model/Ticket';
-import {AuthService} from "../../service/auth.service";
 
 @Component({
   selector: 'app-newticket-dialog',
