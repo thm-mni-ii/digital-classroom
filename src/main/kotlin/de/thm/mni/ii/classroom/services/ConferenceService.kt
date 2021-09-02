@@ -4,10 +4,7 @@ import de.thm.mni.ii.classroom.event.ConferenceAction
 import de.thm.mni.ii.classroom.event.ConferenceEvent
 import de.thm.mni.ii.classroom.event.UserAction
 import de.thm.mni.ii.classroom.event.UserEvent
-import de.thm.mni.ii.classroom.model.classroom.Conference
-import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
-import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
-import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.*
 import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -39,7 +36,7 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
             }.map(::ConferenceInfo)
     }
 
-    fun joinConference(user: User, conferenceInfo: ConferenceInfo): Mono<String> {
+    fun joinConference(user: User, conferenceInfo: ConferenceInfo): Mono<JoinLink> {
         return classroomInstanceService.getClassroomInstance(user.classroomId)
             .flatMap { classroom ->
                 Mono.zip(Mono.just(classroom), classroom.getConference(conferenceInfo.conferenceId!!))
@@ -48,7 +45,7 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
             }
     }
 
-    fun joinConferenceOfUser(joiningUser: User, conferencingUser: User): Mono<String> {
+    fun joinConferenceOfUser(joiningUser: User, conferencingUser: User): Mono<JoinLink> {
         return classroomInstanceService.getClassroomInstance(joiningUser.classroomId)
             .flatMap { classroom ->
                 Mono.zip(Mono.just(classroom), classroom.getConferenceOfUser(conferencingUser))
@@ -57,10 +54,11 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
             }
     }
 
-    private fun joinUser(user: User, conference: Conference, classroom: DigitalClassroom): Mono<String> {
+    private fun joinUser(user: User, conference: Conference, classroom: DigitalClassroom): Mono<JoinLink> {
         return upstreamBBBService.joinConference(conference, user, true)
             .doOnSuccess {
                 logger.info("${user.fullName} joins conference ${conference.conferenceId}!")
+                classroom.joinUserToConference(conference, user).subscribe()
                 eventSenderService.sendToAll(
                     classroom,
                     UserEvent(user, true, conference.conferenceId, UserAction.JOIN_CONFERENCE)

@@ -1,6 +1,7 @@
 package de.thm.mni.ii.classroom.controller
 
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
+import de.thm.mni.ii.classroom.model.classroom.JoinLink
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.services.ConferenceService
 import org.springframework.messaging.handler.annotation.MessageMapping
@@ -18,12 +19,12 @@ class ConferenceController(private val conferenceService: ConferenceService) {
     }
 
     @MessageMapping("socket/conference/join")
-    fun joinConference(@AuthenticationPrincipal user: User, @Payload conferenceInfo: ConferenceInfo): Mono<String> {
+    fun joinConference(@AuthenticationPrincipal user: User, @Payload conferenceInfo: ConferenceInfo): Mono<JoinLink> {
         return conferenceService.joinConference(user, conferenceInfo)
     }
 
     @MessageMapping("socket/conference/join-user")
-    fun joinConferenceOfUser(@AuthenticationPrincipal joiningUser: User, @Payload conferencingUser: User): Mono<String> {
+    fun joinConferenceOfUser(@AuthenticationPrincipal joiningUser: User, @Payload conferencingUser: User): Mono<JoinLink> {
         return conferenceService.joinConferenceOfUser(joiningUser, conferencingUser)
     }
 

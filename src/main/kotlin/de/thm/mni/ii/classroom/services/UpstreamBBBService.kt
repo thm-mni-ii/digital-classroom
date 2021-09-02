@@ -3,6 +3,7 @@ package de.thm.mni.ii.classroom.services
 import de.thm.mni.ii.classroom.model.api.MessageBBB
 import de.thm.mni.ii.classroom.model.classroom.Conference
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
+import de.thm.mni.ii.classroom.model.classroom.JoinLink
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.properties.UpstreamBBBProperties
 import org.apache.commons.codec.digest.DigestUtils
@@ -45,14 +46,14 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
             }
         }
 
-    fun joinConference(conference: Conference, user: User, asModerator: Boolean): Mono<String> {
+    fun joinConference(conference: Conference, user: User, asModerator: Boolean): Mono<JoinLink> {
         val queryParams = mapOf(
             Pair("meetingID", conference.conferenceId),
             Pair("fullName", user.fullName),
             Pair("userID", user.userId),
             Pair("password", if (asModerator) conference.moderatorPassword else conference.attendeePassword)
         )
-        return Mono.just(buildApiRequest("join", queryParams))
+        return Mono.just(buildApiRequest("join", queryParams)).map(::JoinLink)
         /*return Mono.create { sink ->
             WebClient.create(request).get().retrieve().toEntity(JoinRoomBBBResponse::class.java)
                 .subscribe {

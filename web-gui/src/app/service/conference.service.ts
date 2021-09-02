@@ -5,7 +5,7 @@ import {RSocketService} from "../rsocket/r-socket.service";
 import {EventListenerService} from "../rsocket/event-listener.service";
 import {ConferenceEvent} from "../rsocket/event/ClassroomEvent";
 import {User, UserDisplay} from "../model/User";
-import {ConferenceInfo} from "../model/ConferenceInfo";
+import {ConferenceInfo, JoinLink} from "../model/ConferenceInfo";
 import {ClassroomService} from "./classroom.service";
 import {UserService} from "./user.service";
 
@@ -69,18 +69,36 @@ export class ConferenceService {
     this.rSocketService.requestResponse<ConferenceInfo>("socket/conference/create", conferenceInfo).subscribe(conference => {
       this.currentConferenceSubject.next(conference)
     })
+    this.currentConferenceObservable.subscribe(conf => {
+      this.joinConference(conf)
+    })
   }
 
   public joinConference(conference: ConferenceInfo) {
-    this.rSocketService.requestResponse<string>("socket/conference/join", conference)
+    if (this.conferenceWindowHandle == undefined || this.conferenceWindowHandle.closed) {
+      this.rSocketService.requestResponse<JoinLink>("socket/conference/join", conference).subscribe( joinLink => {
+        this.openConferenceWindow(joinLink)
+      })
+  } else {
+      this.conferenceWindowHandle.focus()
+    }
   }
 
   public joinConferenceOfUser(conferencingUser: User) {
-    this.rSocketService.requestResponse<string>("socket/conference/join-user", conferencingUser)
+      this.rSocketService.requestResponse<JoinLink>("socket/conference/join-user", conferencingUser).subscribe( joinLink => {
+      this.openConferenceWindow(joinLink)
+    })
+  }
+
+  private openConferenceWindow(joinLink: JoinLink) {
+    this.conferenceWindowHandle = open(joinLink.url)
+    this.conferenceWindowHandle.addEventListener("close", () => this.closeConference())
+    this.conferenceWindowOpen = true
   }
 
   public closeConference(conference: ConferenceInfo = this.conferenceInfo) {
-    this.rSocketService.requestResponse<string>("socket/conference/close", conference)
+    console.log("conference closed!")
+    this.rSocketService.fireAndForget("socket/conference/end", conference)
   }
 
 }

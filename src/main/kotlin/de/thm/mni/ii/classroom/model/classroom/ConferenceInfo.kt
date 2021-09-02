@@ -17,3 +17,5 @@ open class ConferenceInfo(
         conference.visible
     )
 }
+
+data class JoinLink(val url: String)
