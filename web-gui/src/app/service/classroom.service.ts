@@ -127,8 +127,13 @@ export class ClassroomService {
     });
   }
 
-  public isInConference(userId: string) {
-    return this.users.find(userDisplay => userDisplay.userId === userId).inConference
+  public isInConference(userId: string): boolean {
+    const userDisplay = this.users.find(userDisplay => userDisplay.userId === userId)
+    if (userDisplay !== undefined) {
+      return userDisplay.inConference
+    } else {
+      return false
+    }
   }
 
 }

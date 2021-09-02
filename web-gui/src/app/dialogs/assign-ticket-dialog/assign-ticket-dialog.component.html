@@ -3,16 +3,16 @@
    <mat-dialog-content style="max-height: 100%; overflow: hidden;">
     <mat-action-list  *ngFor="let user of users | isPrivileged">
       <mat-list-item>
-        <button mat-flat-button (click)="assignTicket(user, ticket)">{{user.fullName}}</button>
+        <button mat-flat-button (click)="assignTicket(user, data)">{{user.fullName}}</button>
       </mat-list-item>
     </mat-action-list>
    </mat-dialog-content>
   <mat-dialog-actions>
-    <button mat-flat-button *ngIf="this.classroomService.isCurrentUserAuthorized() && !classroomService.isSelf(ticket.creator)"
-            color="accent" (click)="startCall([ticket.creator])">Zu Konferenz einladen</button>
-    <button mat-flat-button *ngIf="this.classroomService.isInConference(ticket.creator.userId)"
-            color="accent" (click)="this.joinConference(ticket.creator)">Konferenz beitreten</button>
-    <button mat-flat-button color="warn" (click)="closeTicket(ticket)">Ticket Schliessen</button>
+    <button mat-flat-button *ngIf="this.classroomService.isCurrentUserAuthorized() && !classroomService.isSelf(data.creator)"
+            color="accent" (click)="startCall([data.creator])">Zu Konferenz einladen</button>
+    <button mat-flat-button *ngIf="this.classroomService.isInConference(data.creator.userId)"
+            color="accent" (click)="this.joinConference(data.creator)">Konferenz beitreten</button>
+    <button mat-flat-button color="warn" (click)="closeTicket(data)">Ticket Schliessen</button>
   </mat-dialog-actions>
 </div>
 

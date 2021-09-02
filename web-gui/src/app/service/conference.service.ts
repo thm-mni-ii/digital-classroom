@@ -122,9 +122,9 @@ export class ConferenceService {
     const invitationEvent = new InvitationEvent()
     invitationEvent.inviter = this.currentUser
     invitationEvent.invitee = invitee
-    this.currentConferenceObservable.subscribe(conferenceInfo => {
+    this.currentConferenceSubject.subscribe(conferenceInfo => {
       invitationEvent.conferenceInfo = conferenceInfo
-      this.rSocketService.fireAndForget("socket/conference/invite")
+      this.rSocketService.fireAndForget("socket/conference/invite", invitationEvent)
     })
   }
 }
