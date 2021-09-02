@@ -1,9 +1,8 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.event.ConferenceAction
-import de.thm.mni.ii.classroom.event.ConferenceEvent
-import de.thm.mni.ii.classroom.event.UserAction
-import de.thm.mni.ii.classroom.event.UserEvent
+import de.thm.mni.ii.classroom.event.*
+import de.thm.mni.ii.classroom.exception.classroom.ClassroomException
+import de.thm.mni.ii.classroom.exception.classroom.InvitationException
 import de.thm.mni.ii.classroom.model.classroom.*
 import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import org.slf4j.LoggerFactory
@@ -19,7 +18,7 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
                         private val upstreamBBBService: UpstreamBBBService,
                         private val eventSenderService: ClassroomEventSenderService) {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(ConferenceService::class.java)
 
     fun createConference(user: User, conferenceInfo: ConferenceInfo): Mono<ConferenceInfo> {
         return classroomInstanceService.getClassroomInstance(user.classroomId)
@@ -82,6 +81,15 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
 
     fun publishConference(user: User, conferenceInfo: ConferenceInfo) {
         TODO("Not yet implemented")
+    }
+
+    fun forwardInvitation(user: User, invitationEvent: InvitationEvent): Mono<Void> {
+        if (invitationEvent.inviter != user) return Mono.error(InvitationException(user, invitationEvent))
+        return classroomInstanceService.getClassroomInstance(user.classroomId)
+            .switchIfEmpty(Mono.error(ClassroomException("Classroom ${user.classroomId} not found!")))
+            .doOnNext { classroom ->
+                eventSenderService.sendInvitation(classroom, invitationEvent).subscribe()
+            }.then()
     }
 
 }

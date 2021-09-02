@@ -22,9 +22,17 @@ export class MessageEvent extends ClassroomEvent {
   }
 }
 
+export enum ConferenceAction {
+  CREATE = "CREATE",
+  CLOSE = "CLOSE",
+  PUBLISH = "PUBLISH",
+  HIDE = "HIDE"
+}
+
 export class ConferenceEvent extends ClassroomEvent {
   conferenceInfo: ConferenceInfo
   inProgress: Boolean
+  conferenceAction: ConferenceAction
 
   constructor() {
     super("ConferenceEvent");
@@ -35,7 +43,6 @@ export class InvitationEvent extends ClassroomEvent {
   inviter: User
   invitee: User
   conferenceInfo: ConferenceInfo
-  joinLink: string
 
   constructor() {
     super("InvitationEvent");

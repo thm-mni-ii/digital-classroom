@@ -3,11 +3,11 @@ import {BehaviorSubject, Observable, ReplaySubject, Subject} from 'rxjs';
 import {finalize, tap} from "rxjs/operators";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {EventListenerService} from "../rsocket/event-listener.service";
-import {ConferenceEvent} from "../rsocket/event/ClassroomEvent";
+import {ConferenceAction, ConferenceEvent, InvitationEvent} from "../rsocket/event/ClassroomEvent";
 import {User, UserDisplay} from "../model/User";
 import {ConferenceInfo, JoinLink} from "../model/ConferenceInfo";
-import {ClassroomService} from "./classroom.service";
 import {UserService} from "./user.service";
+import {Ticket} from "../model/Ticket";
 
 /**
  * Handles the creation and retrivement of conference links.
@@ -22,11 +22,12 @@ export class ConferenceService {
   private conferenceSubject: Subject<ConferenceInfo[]> = new BehaviorSubject([])
   conferencesObservable: Observable<ConferenceInfo[]> = this.conferenceSubject.asObservable()
 
+  invitationEvents: Observable<InvitationEvent> = this.eventListenerService.invitationEvents;
+
   private currentConferenceSubject: Subject<ConferenceInfo> = new ReplaySubject(1)
   currentConferenceObservable: Observable<ConferenceInfo> = this.currentConferenceSubject.asObservable()
 
   private conferenceWindowHandle: Window;
-
 
   conferenceWindowOpen: boolean = false
   private conferenceInfo: ConferenceInfo;
@@ -55,16 +56,23 @@ export class ConferenceService {
   }
 
   private handleConferenceEvent(conferenceEvent: ConferenceEvent) {
+    switch (conferenceEvent.conferenceAction) {
+      case ConferenceAction.CREATE:  { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
+      case ConferenceAction.CLOSE:   { this.conferences.delete(conferenceEvent.conferenceInfo.conferenceId); break; }
+      case ConferenceAction.PUBLISH: { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
+      case ConferenceAction.HIDE:    { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
+    }
   }
 
   private publish() {
   }
 
-  public createConference(visible: boolean = true) {
+  public createConference(conferenceName: string = 'Konferenz von ' + this.currentUser.fullName,
+                          visible: boolean = true) {
     const conferenceInfo = new ConferenceInfo()
     conferenceInfo.classroomId = this.currentUser.classroomId
     conferenceInfo.creator = this.currentUser
-    conferenceInfo.conferenceName = "Test Konferenz!"
+    conferenceInfo.conferenceName = conferenceName
     conferenceInfo.visible = visible
     this.rSocketService.requestResponse<ConferenceInfo>("socket/conference/create", conferenceInfo).subscribe(conference => {
       this.currentConferenceSubject.next(conference)
@@ -101,4 +109,22 @@ export class ConferenceService {
     this.rSocketService.fireAndForget("socket/conference/end", conference)
   }
 
+  public inviteToConference(invitee: User, ticket: Ticket) {
+    if (ticket === null) {
+      this.createConference()
+    } else {
+      this.createConference(ticket.description)
+    }
+    this.sendInvitation(invitee)
+  }
+
+  private sendInvitation(invitee: User) {
+    const invitationEvent = new InvitationEvent()
+    invitationEvent.inviter = this.currentUser
+    invitationEvent.invitee = invitee
+    this.currentConferenceObservable.subscribe(conferenceInfo => {
+      invitationEvent.conferenceInfo = conferenceInfo
+      this.rSocketService.fireAndForget("socket/conference/invite")
+    })
+  }
 }

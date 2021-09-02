@@ -9,7 +9,7 @@ data class ConferenceEvent(
 
 enum class ConferenceAction {
     CREATE,
-    END,
+    CLOSE,
     PUBLISH,
     HIDE
 }

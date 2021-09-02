@@ -12,7 +12,7 @@ class ClassroomEventReceiverService(
     private val userService: ClassroomUserService,
     private val conferenceService: ConferenceService) {
 
-    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(ClassroomEventReceiverService::class.java)
 
     fun classroomEventReceived(user: User, event: ClassroomEvent) {
         when (event) {
@@ -41,7 +41,7 @@ class ClassroomEventReceiverService(
     private fun conferenceEventReceived(user: User, conferenceEvent: ConferenceEvent) {
         when (conferenceEvent.conferenceAction) {
             ConferenceAction.CREATE -> conferenceService.createConference(user, conferenceEvent.conferenceInfo)
-            ConferenceAction.END -> conferenceService.endConference(user, conferenceEvent.conferenceInfo)
+            ConferenceAction.CLOSE -> conferenceService.endConference(user, conferenceEvent.conferenceInfo)
             ConferenceAction.HIDE -> conferenceService.hideConference(user, conferenceEvent.conferenceInfo)
             ConferenceAction.PUBLISH -> conferenceService.publishConference(user, conferenceEvent.conferenceInfo)
         }

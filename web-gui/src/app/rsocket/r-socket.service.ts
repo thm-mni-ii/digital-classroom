@@ -20,6 +20,7 @@ import {
 } from "../util/socket-utils";
 import {first, map, switchMap, mergeMap} from "rxjs/operators";
 import {EventListenerService} from "./event-listener.service";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +33,7 @@ export class RSocketService implements OnDestroy {
   auth: AuthService = undefined
 
   transport = new RSocketWebSocketClient({
-    url: "wss:localhost:8085/rsocket", //window.origin.replace(/^http(s)?/, 'ws$1') + '/rsocket',
+    url: environment.wsUrl,
     debug: true
   }, BufferEncoders)
 

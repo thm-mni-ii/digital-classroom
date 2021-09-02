@@ -7,7 +7,6 @@ export class ConferenceInfo implements ClassroomDependent {
   conferenceName: string
   creator: User
   visible: boolean
-  attendees: User[]
 }
 
 export class JoinLink {

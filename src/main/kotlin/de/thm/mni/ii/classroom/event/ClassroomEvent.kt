@@ -3,8 +3,6 @@ package de.thm.mni.ii.classroom.event
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
-import de.thm.mni.ii.classroom.model.classroom.User
 import java.io.Serializable
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -16,17 +14,6 @@ import java.io.Serializable
     JsonSubTypes.Type(value = ConferenceEvent::class, name = "ConferenceEvent"),
     JsonSubTypes.Type(value = InvitationEvent::class, name = "InvitationEvent"),
     )
-abstract class ClassroomEvent(
-    private val eventName: String,
-    ): Serializable
+abstract class ClassroomEvent(@field:SuppressWarnings("unused") private val eventName: String): Serializable
 
-data class MessageEvent(
-    val message: String
-): ClassroomEvent(MessageEvent::class.simpleName!!)
-
-data class InvitationEvent(
-    val inviter: User,
-    val invitee: User,
-    val conferenceInfo: ConferenceInfo,
-    val joinLink: String
-): ClassroomEvent(InvitationEvent::class.simpleName!!)
+data class MessageEvent(val message: String): ClassroomEvent(MessageEvent::class.simpleName!!)

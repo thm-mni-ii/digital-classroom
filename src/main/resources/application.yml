@@ -8,7 +8,6 @@ classroom:
   host: ${CLASSROOM_HOST:https://localhost:8085}
   prefix-path: ${CLASSROOM_PREFIX_PATH:}
 
-
 server:
   ssl:
     enabled: true
