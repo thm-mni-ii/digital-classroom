@@ -9,3 +9,7 @@ export class ConferenceInfo implements ClassroomDependent {
   visible: boolean
   attendees: User[]
 }
+
+export class JoinLink {
+  url: string
+}
