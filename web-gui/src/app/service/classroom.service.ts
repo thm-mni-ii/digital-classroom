@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable, Subject, BehaviorSubject, Subscription} from 'rxjs';
+import {Observable, Subject, BehaviorSubject} from 'rxjs';
 import {AuthService} from './auth.service';
 import {MatDialog} from '@angular/material/dialog';
 import {IncomingCallDialogComponent} from '../dialogs/incoming-call-dialog/incoming-call-dialog.component';
@@ -14,6 +14,7 @@ import {Roles} from "../model/Roles";
 import {NewTicketDialogComponent} from "../dialogs/newticket-dialog/new-ticket-dialog.component";
 import {ConferenceInfo} from "../model/ConferenceInfo";
 import {ClassroomInfo} from "../model/ClassroomInfo";
+import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and privide Conferences to take
@@ -34,27 +35,23 @@ export class ClassroomService {
 
   currentUser: UserDisplay
 
-  private inviteUsers: Subject<boolean>;
-
   public constructor(private authService: AuthService,
                      private conferenceService: ConferenceService,
                      private dialog: MatDialog,
                      private rSocketService: RSocketService,
                      private ticketService: TicketService,
                      private userService: UserService) {
-    this.inviteUsers = new Subject<boolean>();
     this.userService.currentUserObservable.subscribe(
       currentUser => this.currentUser = currentUser
     )
     this.userObservable.subscribe(users => this.users = users)
+    this.conferenceService.invitationEvents.subscribe(invitation => {
+      this.handleInviteMsg(invitation)
+    })
   }
 
   public isCurrentUserAuthorized(): boolean {
     return Roles.isPrivileged(this.currentUser.userRole)
-  }
-
-  public userInviter(): Observable<boolean> {
-    return this.inviteUsers.asObservable();
   }
 
   /**
@@ -78,23 +75,12 @@ export class ClassroomService {
   }
 
   /**
-   * Invites user to a conference by following the link provided as href.
-   * @param users The users to invite
+   * Invites user to a conference.
+   * @param user The user to invite
+   * @param ticket The ticket for reference (or null)
    */
-  public inviteToConference(users: User[]) {
-  }
-
-  private handleInviteMsg() {
-    const body = JSON.parse("");
-    this.dialog.open(IncomingCallDialogComponent, {
-      height: 'auto',
-      width: 'auto',
-      data: {inviter: body.user, cid: body.cid}
-    });
-  }
-
-  public openConference() {
-    this.conferenceService.createConference()
+  public inviteToConference(user: User, ticket: Ticket = null) {
+    this.conferenceService.inviteToConference(user, ticket)
   }
 
   public joinConferenceOfUser(conferencingUser: User) {
@@ -117,6 +103,14 @@ export class ClassroomService {
   public hideUser() {
   }
 
+  private handleInviteMsg(invitationEvent: InvitationEvent) {
+    this.dialog.open(IncomingCallDialogComponent, {
+        height: 'auto',
+        width: 'auto',
+        data: invitationEvent
+      });
+  }
+
   public createTicket() {
     this.dialog.open(NewTicketDialogComponent, {
       height: 'auto',
@@ -133,8 +127,8 @@ export class ClassroomService {
     });
   }
 
-  public isInClassroom(userId: string) {
-    return this.users.filter(u => u.userId === userId).length !== 0;
+  public isInConference(userId: string) {
+    return this.users.find(userDisplay => userDisplay.userId === userId).inConference
   }
 
 }

@@ -1,13 +1,11 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import { first } from 'rxjs/operators';
 import {ClassroomService} from '../../service/classroom.service';
 import {AuthService} from '../../service/auth.service';
 import {Ticket} from '../../model/Ticket';
 import {User, UserDisplay} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
-import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
 
 @Component({
@@ -55,15 +53,9 @@ export class AssignTicketDialogComponent implements OnInit {
       return;
     }
     this.disabled = true;
-    this.classroomService.userInviter().pipe(first()).subscribe(() => {
-      this.classroomService.inviteToConference(invitee);
-    });
-    this.classroomService.openConference();
+    this.classroomService.inviteToConference(invitee);
     this.snackBar.open(`${invitee.prename} ${invitee.surname} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
     this.dialogRef.close();
-  }
-  public isInConference(user: User) {
-    return this.users.find(user => user.userId === user.userId).inConference
   }
 
   public joinConference(user: User) {

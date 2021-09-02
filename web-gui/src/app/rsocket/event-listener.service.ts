@@ -4,7 +4,7 @@ import {Injectable} from "@angular/core";
 import {Observable, ReplaySubject, Subject} from "rxjs";
 import {TicketEvent} from "./event/TicketEvent";
 import {decodeToString} from "../util/socket-utils";
-import {ClassroomEvent, ConferenceEvent} from "./event/ClassroomEvent";
+import {ClassroomEvent, ConferenceEvent, InvitationEvent} from "./event/ClassroomEvent";
 import {UserEvent} from "./event/UserEvent";
 
 @Injectable({
@@ -21,11 +21,16 @@ export class EventListenerService implements Responder<Buffer, Buffer> {
   private conferenceEventSubject: Subject<ConferenceEvent> = new ReplaySubject(1)
   conferenceEvents: Observable<ConferenceEvent> = this.conferenceEventSubject.asObservable();
 
+  private invitationEventSubject: Subject<InvitationEvent> = new ReplaySubject(1)
+  invitationEvents: Observable<InvitationEvent> = this.invitationEventSubject.asObservable();
+
   fireAndForget(payload: Payload<Buffer, Buffer>): void {
     const event = (JSON.parse(decodeToString(payload.data)))
     switch ((event as ClassroomEvent).eventName) {
       case "TicketEvent": { this.ticketEventSubject.next(event as TicketEvent); break; }
       case "UserEvent": { this.userEventSubject.next(event as UserEvent); break; }
+      case "ConferenceEvent": {this.conferenceEventSubject.next(event as ConferenceEvent); break; }
+      case "InvitationEvent": {this.invitationEventSubject.next(event as InvitationEvent); break; }
       default: {
         console.log("Unknown event!\n" + event)
         break;

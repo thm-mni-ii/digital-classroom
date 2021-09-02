@@ -67,11 +67,11 @@ export class ClassroomComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe())
   }
 
-  public inviteToConference(users) {
+  public inviteToConference(users: User[]) {
     this.dialog.open(InviteToConferenceDialogComponent, {
       height: 'auto',
       width: 'auto',
-      data: {users: users}
+      data: users
     });
   }
 

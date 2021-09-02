@@ -1,5 +1,6 @@
 package de.thm.mni.ii.classroom.controller
 
+import de.thm.mni.ii.classroom.event.InvitationEvent
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.JoinLink
 import de.thm.mni.ii.classroom.model.classroom.User
@@ -31,6 +32,12 @@ class ConferenceController(private val conferenceService: ConferenceService) {
     @MessageMapping("socket/conference/end")
     fun endConference(@AuthenticationPrincipal user: User, @Payload conferenceInfo: ConferenceInfo): Mono<Void> {
         TODO("NOT YET IMPLEMENTED")
+    }
+
+    @MessageMapping("socket/conference/invite")
+    fun inviteToConference(@AuthenticationPrincipal user: User, @Payload invitationEvent: InvitationEvent): Mono<Void> {
+        conferenceService.forwardInvitation(user, invitationEvent)
+        return Mono.empty()
     }
 
 }
