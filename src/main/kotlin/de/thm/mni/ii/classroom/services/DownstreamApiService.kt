@@ -1,20 +1,19 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.model.api.CreateRoomBBB
-import de.thm.mni.ii.classroom.model.api.IsMeetingRunningBBB
-import de.thm.mni.ii.classroom.model.api.ReturnCodeBBB
 import de.thm.mni.ii.classroom.exception.api.MissingMeetingIDException
+import de.thm.mni.ii.classroom.model.api.*
 import de.thm.mni.ii.classroom.security.exception.NoPasswordSpecifiedException
 import de.thm.mni.ii.classroom.security.exception.NoUsernameSpecifiedException
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.model.classroom.UserRole
+import de.thm.mni.ii.classroom.util.component1
+import de.thm.mni.ii.classroom.util.component2
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.util.MultiValueMap
 import reactor.core.publisher.Mono
 import java.util.*
 import de.thm.mni.ii.classroom.util.APIQueryParamTranslation.*
-import de.thm.mni.ii.classroom.model.api.JoinRoomBBBResponse
 import de.thm.mni.ii.classroom.properties.ClassroomProperties
 import de.thm.mni.ii.classroom.security.classroom.ClassroomUserDetailsRepository
 import org.apache.commons.lang3.RandomStringUtils
@@ -86,6 +85,16 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
 
     private fun getClassroomId(param: MultiValueMap<String, String>): String {
         return param.getFirst(ClassroomId.api) ?: throw MissingMeetingIDException()
+    }
+
+    fun getMeetingInfo(param: MultiValueMap<String, String>): Mono<MeetingInfoBBBResponse> {
+        val classroomId = param.getFirst(ClassroomId.api) ?: throw MissingMeetingIDException()
+        return classroomInstanceService
+            .getClassroomInstance(classroomId).flatMap { classroom ->
+                Mono.zip(Mono.just(classroom), classroom.getUsers().collectList())
+            }.map { (classroom, users) ->
+                MeetingInfoBBBResponse(classroom, users)
+            }
     }
 
 }
