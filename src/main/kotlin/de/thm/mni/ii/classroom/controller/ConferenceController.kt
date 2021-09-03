@@ -36,8 +36,7 @@ class ConferenceController(private val conferenceService: ConferenceService) {
 
     @MessageMapping("socket/conference/invite")
     fun inviteToConference(@AuthenticationPrincipal user: User, @Payload invitationEvent: InvitationEvent): Mono<Void> {
-        conferenceService.forwardInvitation(user, invitationEvent)
-        return Mono.empty()
+        return conferenceService.forwardInvitation(user, invitationEvent)
     }
 
 }
