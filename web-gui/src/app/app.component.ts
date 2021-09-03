@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
 import {AuthService} from './service/auth.service';
+import {environment} from "../environments/environment";
 
 /**
  * Component that routes from login to app
@@ -12,9 +12,9 @@ import {AuthService} from './service/auth.service';
 })
 export class AppComponent implements OnInit {
   constructor(
-    //private dialog: MatDialog
     private authService: AuthService
   ) {
+    console.log(environment.production)
   }
 
   ngOnInit(): void {

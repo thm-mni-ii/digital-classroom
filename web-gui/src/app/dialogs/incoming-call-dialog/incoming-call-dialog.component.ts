@@ -1,7 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {ClassroomService} from '../../service/classroom.service';
-import {User} from "../../model/User";
+import {InvitationEvent} from "../../rsocket/event/ClassroomEvent";
 
 @Component({
   selector: 'app-incoming-call-dialog',
@@ -9,25 +9,20 @@ import {User} from "../../model/User";
   styleUrls: ['./incoming-call-dialog.component.scss']
 })
 export class IncomingCallDialogComponent implements OnInit {
-  inviter: User;
-  cid: number;
   audio: HTMLAudioElement;
-  conferenceURL: string;
   constructor(public dialogRef: MatDialogRef<IncomingCallDialogComponent>, public classroomService: ClassroomService,
-              @Inject(MAT_DIALOG_DATA) public data: any) { }
+              @Inject(MAT_DIALOG_DATA) public invitation: InvitationEvent) { }
 
   ngOnInit(): void {
-    this.inviter = this.data.inviter;
-    this.cid = this.data.cid;
-    const notification = new Notification('Konferenzeinladung Feedbacksystem',
-      {body: 'Sie werden zu einem Konferenzanruf eingeladen.'});
+    const notification = new Notification('Konferenzeinladung',
+      {body: this.invitation.inviter.fullName + 'lädt Sie zur Konferenz ' + this.invitation.conferenceInfo.conferenceName + 'ein!'});
     notification.onclick = () => window.focus();
     notification.onclose = () => window.focus();
     this.audio = new Audio();
     this.audio.src = '../../../../assets/classic_phone.mp3';
     this.audio.load();
-    this.audio.play();
-    this.dialogRef.afterClosed().subscribe(next => {
+    this.audio.play().then();
+    this.dialogRef.afterClosed().subscribe(() => {
       this.audio.pause();
       this.audio.currentTime = 0;
     });
@@ -42,7 +37,7 @@ export class IncomingCallDialogComponent implements OnInit {
   }
   // todo: fix string constants ( enum didnt work)
   public acceptCall() {
-    this.classroomService.joinConference(this.inviter, this.cid);
+    this.classroomService.joinConferenceOfUser(this.invitation.inviter);
     this.dialogRef.close();
   }
 

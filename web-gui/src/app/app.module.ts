@@ -19,7 +19,11 @@ import {RouterModule} from "@angular/router";
 import {JoinComponent} from "./page-components/join-component/join.component";
 import { UnauthorizedComponent } from './page-components/unauthorized/unauthorized.component';
 import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
-import {IsPrivilegedPipe} from "./pipes/user-teacher-filter";
+import {IsNotSelfPipe } from './pipes/is-not-self.pipe';
+import {IsPrivilegedPipe} from "./pipes/is-privileged-pipe";
+import {ManageTicketDialogComponent} from "./dialogs/manage-ticket-dialog/manage-ticket-dialog.component";
+import {UserListComponent} from "./page-components/classroom/user-list/user-list.component";
+import {TicketListComponent} from "./page-components/classroom/ticket-list/ticket-list.component";
 
 @NgModule({
   declarations: [
@@ -33,6 +37,10 @@ import {IsPrivilegedPipe} from "./pipes/user-teacher-filter";
     IncomingCallDialogComponent,
     JoinComponent,
     UnauthorizedComponent,
+    IsNotSelfPipe,
+    ManageTicketDialogComponent,
+    UserListComponent,
+    TicketListComponent
   ],
   imports: [
     BrowserModule,
@@ -48,7 +56,7 @@ import {IsPrivilegedPipe} from "./pipes/user-teacher-filter";
       config: {
         tokenGetter: tokenGetter,
       }
-    }),
+    })
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]

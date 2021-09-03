@@ -1,10 +1,10 @@
 package de.thm.mni.ii.classroom.controller
 
-import de.thm.mni.ii.classroom.downstream.model.CreateRoomBBB
-import de.thm.mni.ii.classroom.downstream.model.JoinRoomBBBResponse
-import de.thm.mni.ii.classroom.downstream.model.MessageBBB
-import de.thm.mni.ii.classroom.downstream.model.ReturnCodeBBB
-import de.thm.mni.ii.classroom.exception.ApiException
+import de.thm.mni.ii.classroom.model.api.CreateRoomBBB
+import de.thm.mni.ii.classroom.model.api.JoinRoomBBBResponse
+import de.thm.mni.ii.classroom.model.api.MessageBBB
+import de.thm.mni.ii.classroom.model.api.ReturnCodeBBB
+import de.thm.mni.ii.classroom.exception.api.ApiException
 import de.thm.mni.ii.classroom.services.DownstreamApiService
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -33,7 +33,7 @@ class BBBApiController(private val downStreamApiService: DownstreamApiService) {
      * @return Mono producing a BBB-like answer in XML format containing an error or information about the classroom.
      * @see CreateRoomBBB
      */
-    @GetMapping("/create")
+    @GetMapping("/create", produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
     fun createClassroomInstance(@RequestParam params: MultiValueMap<String, String>): Mono<CreateRoomBBB>
         = downStreamApiService.createClassroom(params)
 
@@ -44,7 +44,7 @@ class BBBApiController(private val downStreamApiService: DownstreamApiService) {
      * @return Mono producing a BBB-like answer in XML format containing an error or the url to join the classroom.
      * @see JoinRoomBBBResponse
      */
-    @GetMapping("/join")
+    @GetMapping("/join", produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
     fun joinUserToClassroom(@RequestParam params: MultiValueMap<String, String>): Mono<JoinRoomBBBResponse>
         = downStreamApiService.joinClassroom(params)
 

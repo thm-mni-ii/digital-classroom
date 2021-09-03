@@ -18,19 +18,17 @@ repositories {
 }
 
 dependencies {
-    // implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.security:spring-security-rsocket")
-    implementation("io.jsonwebtoken:jjwt-impl:0.11.2")
-    implementation("io.jsonwebtoken:jjwt-jackson:0.11.2")
+    implementation("org.springframework.security:spring-security-messaging")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-rsocket")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.scala-lang:scala-library:2.13.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
     implementation("org.hibernate:hibernate-validator:6.0.16.Final")

@@ -33,6 +33,11 @@
             "styles": [
               "src/styles.scss"
             ],
+            "allowedCommonJsDependencies": [
+              "rsocket-core",
+              "rsocket-websocket-client",
+              "rsocket-flowable"
+            ],
             "scripts": []
           },
           "configurations": {

@@ -1,18 +1,12 @@
 {
   "/classroom-api/*": {
-    "target": "http://localhost:8085",
+    "target": "https://localhost:8085",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
   },
   "/api/*": {
-    "target": "http://localhost:8085",
-    "secure": false,
-    "logLevel": "debug",
-    "changeOrigin": true
-  },
-  "/websocket/**": {
-    "target": "http://localhost:8085",
+    "target": "https://localhost:8085",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true

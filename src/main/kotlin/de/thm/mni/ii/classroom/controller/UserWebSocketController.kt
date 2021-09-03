@@ -1,51 +1,58 @@
 package de.thm.mni.ii.classroom.controller
 
+import de.thm.mni.ii.classroom.event.ClassroomEvent
+import de.thm.mni.ii.classroom.model.classroom.*
+import de.thm.mni.ii.classroom.services.ClassroomEventReceiverService
+import de.thm.mni.ii.classroom.services.ClassroomUserService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.messaging.rsocket.RSocketRequester
 import org.springframework.messaging.rsocket.annotation.ConnectMapping
-import reactor.core.publisher.SignalType
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.stereotype.Controller
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
-class UserWebSocketController {
-
+@Controller
+class UserWebSocketController(
+    private val userService: ClassroomUserService,
+    private val classroomEventReceiverService: ClassroomEventReceiverService
+) {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
-    private val clients: MutableList<RSocketRequester> = ArrayList()
-
-
-    @ConnectMapping("/classroom")
-    fun connectClient(requester: RSocketRequester, @Payload client: String) {
-        requester.rsocket()!!
-            .onClose()
-            .doFirst {
-
-                // Add all new clients to a client list
-                logger.info("Client: {} CONNECTED.", client)
-                clients.add(requester)
-            }
-            .doOnError { error: Throwable? ->
-                // Warn when channels are closed by clients
-                logger.warn("Channel to client {} CLOSED", client)
-            }
-            .doFinally { consumer: SignalType? ->
-                // Remove disconnected clients from the client list
-                clients.remove(requester)
-                logger.info("Client {} DISCONNECTED", client)
-            }
-            .subscribe()
-
-        // Callback to client, confirming connection
-        requester.route("client-status")
-            .data("OPEN")
-            .retrieveFlux(String::class.java)
-            .doOnNext { s: String? ->
-                logger.info(
-                    "Client: {} Free Memory: {}.",
-                    client,
-                    s
-                )
-            }
-            .subscribe()
+    @ConnectMapping
+    fun connect(@AuthenticationPrincipal user: User, requester: RSocketRequester): Mono<Void> {
+        return userService.userConnected(user, requester)
     }
+
+    @MessageMapping("socket/classroom-event")
+    fun receiveEvent(@AuthenticationPrincipal user: User, @Payload event: ClassroomEvent) {
+        classroomEventReceiverService.classroomEventReceived(user, event)
+    }
+
+    @MessageMapping("socket/init-classroom")
+    fun initClassroom(@AuthenticationPrincipal user: User): Mono<ClassroomInfo> {
+        return userService.getClassroomInfo(user)
+    }
+
+    @MessageMapping("socket/init-tickets")
+    fun initTickets(@AuthenticationPrincipal user: User): Flux<Ticket> {
+        logger.info("Ticket init!")
+        return userService.getTickets(user)
+    }
+
+    @MessageMapping("socket/init-users")
+    fun initUsers(@AuthenticationPrincipal user: User): Flux<UserDisplay> {
+        return userService.getUserDisplays(user).doOnNext {
+            logger.info("${it.fullName}, ${it.userId}")
+        }
+    }
+
+    @MessageMapping("socket/init-conferences")
+    fun initConferences(@AuthenticationPrincipal user: User): Flux<ConferenceInfo> {
+        return Flux.empty()
+    }
+
 }

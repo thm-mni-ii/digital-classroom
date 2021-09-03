@@ -3,7 +3,6 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ClassroomService} from '../../service/classroom.service';
 import {FormBuilder, FormGroup} from '@angular/forms';
-import { first } from 'rxjs/operators';
 import {User} from "../../model/User";
 import {ConferenceService} from "../../service/conference.service";
 
@@ -13,31 +12,26 @@ import {ConferenceService} from "../../service/conference.service";
   styleUrls: ['./invite-to-conference-dialog.component.scss']
 })
 export class InviteToConferenceDialogComponent implements OnInit {
-  invitees: User[];
   form: FormGroup;
   disabled: Boolean = false;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any,
+  constructor(@Inject(MAT_DIALOG_DATA) public data: User,
               public dialogRef: MatDialogRef<InviteToConferenceDialogComponent>,
               private snackBar: MatSnackBar, private conferenceService: ConferenceService,
               private classroomService: ClassroomService, private _formBuilder: FormBuilder) {
   }
 
   ngOnInit(): void {
-    this.invitees = this.data.users;
     this.dialogRef.afterOpened().subscribe(() => this.disabled = false);
   }
 
-  public startCall(invitee) {
+  public startCall(invitee: User) {
       if (this.disabled) {
         return;
       }
       this.disabled = true;
-      this.classroomService.userInviter().pipe(first()).subscribe(() => {
-        this.classroomService.inviteToConference(invitee);
-      });
-      this.classroomService.openConference();
-      this.snackBar.open(`${invitee.prename} ${invitee.surname} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
+      this.classroomService.inviteToConference(invitee);
+      this.snackBar.open(`${invitee.fullName} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
       this.dialogRef.close();
   }
 
