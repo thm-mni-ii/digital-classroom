@@ -24,7 +24,7 @@ import reactor.kotlin.core.publisher.toMono
 @Component
 class DownstreamAPISecurity(private val classroomProperties: ClassroomProperties) {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(DownstreamAPISecurity::class.java)
 
     /**
      * Function constructing the main AuthenticationWebFilter.
@@ -97,7 +97,7 @@ class DownstreamAPISecurity(private val classroomProperties: ClassroomProperties
             return Mono.create {
                 val authentication = input.first
                 val exchange = input.second
-                val query = exchange.request.uri.rawQuery?.replace(Regex("&checksum=\\w+"), "") ?: ""
+                val query = exchange.request.uri.rawQuery?.replace(Regex("&?checksum=\\w+"), "") ?: ""
                 val apiCall = exchange.request.path.value().substringAfterLast("/")
                 val calculatedChecksum = DigestUtils.sha1Hex("$apiCall$query${classroomProperties.sharedSecret}")
                 authentication.calculatedChecksum = calculatedChecksum

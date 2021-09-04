@@ -6,7 +6,9 @@ import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.util.toPair
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toFlux
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -58,5 +60,9 @@ class ClassroomInstanceService {
     }
 
     fun isRunning(classroomId: String) = Mono.just(classrooms.containsKey(classroomId))
+
+    fun getAllClassrooms(): Flux<DigitalClassroom> {
+        return classrooms.values.toFlux()
+    }
 
 }

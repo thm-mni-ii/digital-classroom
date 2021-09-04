@@ -10,6 +10,18 @@ import javax.xml.bind.annotation.XmlType
 @XmlRootElement(name = "response")
 @XmlType(propOrder=[
     "returncode",
+    "meetings"
+])
+class GetMeetingsBBBResponse(digitalClassrooms: List<DigitalClassroom>,
+                             success: Boolean = true
+): ReturnCodeBBB(success) {
+    @XmlElement private val meetings = digitalClassrooms.map(::Meeting)
+
+    constructor(): this(listOf())
+}
+
+@XmlRootElement(name = "meeting")
+@XmlType(propOrder=[
     "meetingName",
     "meetingID",
     "internalMeetingID",
@@ -37,10 +49,9 @@ import javax.xml.bind.annotation.XmlType
     "metadata",
     "isBreakout"
 ])
-class MeetingInfoBBBResponse(
-    digitalClassroom: DigitalClassroom?,
-    success: Boolean = true,
-    ): ReturnCodeBBB(success) {
+class Meeting(
+    digitalClassroom: DigitalClassroom?
+) {
     @XmlElement private val meetingName: String? = digitalClassroom?.classroomName
     @XmlElement private val meetingID: String? = digitalClassroom?.classroomId
     @XmlElement private val internalMeetingID: String? = digitalClassroom?.classroomId
@@ -71,6 +82,6 @@ class MeetingInfoBBBResponse(
     /**
      * Dummy constructor for JAXB Serialization
      */
-    constructor(): this(null, false)
+    constructor(): this(null)
 
 }

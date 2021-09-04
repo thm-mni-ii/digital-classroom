@@ -6,8 +6,6 @@ import de.thm.mni.ii.classroom.security.exception.NoPasswordSpecifiedException
 import de.thm.mni.ii.classroom.security.exception.NoUsernameSpecifiedException
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.model.classroom.UserRole
-import de.thm.mni.ii.classroom.util.component1
-import de.thm.mni.ii.classroom.util.component2
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.util.MultiValueMap
@@ -25,7 +23,7 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
                            private val classroomProperties: ClassroomProperties,
 ) {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(DownstreamApiService::class.java)
 
     fun createClassroom(param: MultiValueMap<String, String>): Mono<CreateRoomBBB> {
         val classroomId = getClassroomId(param)
@@ -90,10 +88,18 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
     fun getMeetingInfo(param: MultiValueMap<String, String>): Mono<MeetingInfoBBBResponse> {
         val classroomId = param.getFirst(ClassroomId.api) ?: throw MissingMeetingIDException()
         return classroomInstanceService
-            .getClassroomInstance(classroomId).flatMap { classroom ->
-                Mono.zip(Mono.just(classroom), classroom.getUsers().collectList())
-            }.map { (classroom, users) ->
-                MeetingInfoBBBResponse(classroom, users)
+            .getClassroomInstance(classroomId)
+            .map { classroom ->
+                MeetingInfoBBBResponse(classroom)
+            }
+    }
+
+    fun getMeetings(param: MultiValueMap<String, String>): Mono<GetMeetingsBBBResponse> {
+        return classroomInstanceService
+            .getAllClassrooms()
+            .collectList()
+            .map { classroom ->
+                GetMeetingsBBBResponse(classroom)
             }
     }
 
