@@ -1,5 +1,6 @@
 package de.thm.mni.ii.classroom.services
 
+import de.thm.mni.ii.classroom.exception.api.ClassroomNotFoundException
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.util.toPair
@@ -53,7 +54,7 @@ class ClassroomInstanceService {
     fun joinUser(classroomId: String, password: String, user: User): Mono<Pair<User, DigitalClassroom>> {
         return getClassroomInstance(classroomId).flatMap { classroom ->
             Mono.zip(classroom.joinUser(password, user), Mono.just(classroom)).map { it.toPair() }
-        }
+        }.switchIfEmpty(Mono.error(ClassroomNotFoundException(classroomId)))
     }
 
     fun isRunning(classroomId: String) = Mono.just(classrooms.containsKey(classroomId))

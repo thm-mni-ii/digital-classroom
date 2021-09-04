@@ -28,6 +28,7 @@ logging:
     SQL: DEBUG
     org:
       springframework:
+        web: DEBUG
         security:
           rsocket:
             core: DEBUG
