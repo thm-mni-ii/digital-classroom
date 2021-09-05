@@ -23,7 +23,7 @@ class ClassroomUserService(
     private val senderService: ClassroomEventSenderService
     ) {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(ClassroomUserService::class.java)
 
     fun userConnected(user: User, socketRequester: RSocketRequester): Mono<Void> {
         return classroomInstanceService.getClassroomInstance(user.classroomId)
@@ -38,8 +38,8 @@ class ClassroomUserService(
             .doOnNext {
                 it.onClose().doOnSuccess {
                     userDisconnected(user)
-                }.doOnError {
-                    userDisconnected(user, it)
+                }.doOnError { exception ->
+                    userDisconnected(user, exception)
                 }.subscribe()
             }.thenEmpty(Mono.empty())
     }
@@ -117,7 +117,7 @@ class ClassroomUserService(
     fun getUsers(user: User): Flux<User> {
         return classroomInstanceService
             .getClassroomInstance(user.classroomId)
-            .flatMapMany { it.getUsers() }
+            .flatMapMany { it.getUsersFlux() }
     }
 
     fun getUserDisplays(user: User): Flux<UserDisplay> {

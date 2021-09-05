@@ -1,10 +1,7 @@
 package de.thm.mni.ii.classroom.controller
 
-import de.thm.mni.ii.classroom.model.api.CreateRoomBBB
-import de.thm.mni.ii.classroom.model.api.JoinRoomBBBResponse
-import de.thm.mni.ii.classroom.model.api.MessageBBB
-import de.thm.mni.ii.classroom.model.api.ReturnCodeBBB
 import de.thm.mni.ii.classroom.exception.api.ApiException
+import de.thm.mni.ii.classroom.model.api.*
 import de.thm.mni.ii.classroom.services.DownstreamApiService
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -25,7 +22,7 @@ import java.lang.Exception
 @CrossOrigin
 class BBBApiController(private val downStreamApiService: DownstreamApiService) {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(BBBApiController::class.java)
 
     /**
      * Route called to create a new classroom instance.
@@ -52,6 +49,19 @@ class BBBApiController(private val downStreamApiService: DownstreamApiService) {
     fun isMeetingRunning(@RequestParam param: MultiValueMap<String, String>): Mono<ReturnCodeBBB>
         = downStreamApiService.isMeetingRunning(param)
 
+    @RequestMapping("/getMeetingInfo", method = [RequestMethod.GET, RequestMethod.POST], produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
+    fun getMeetingInfo(@RequestParam param: MultiValueMap<String, String>): Mono<MeetingInfoBBBResponse>
+        = downStreamApiService.getMeetingInfo(param)
+
+    @RequestMapping("/getMeetings", method = [RequestMethod.GET, RequestMethod.POST], produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
+    fun getMeetings(@RequestParam param: MultiValueMap<String, String>): Mono<GetMeetingsBBBResponse>
+            = downStreamApiService.getMeetings(param)
+
+    @RequestMapping("/end", method = [RequestMethod.GET, RequestMethod.POST], produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
+    fun end(@RequestParam param: MultiValueMap<String, String>): Mono<MessageBBB>
+            = downStreamApiService.end(param).doOnNext {
+                logger.info(it.message)
+    }
     /**
      * Controller exception handler. Any exception thrown within the class hierarchy of this controller is handled here.
      * This method constructs a BBB-API conforming error message and returns it instead of the successful response.

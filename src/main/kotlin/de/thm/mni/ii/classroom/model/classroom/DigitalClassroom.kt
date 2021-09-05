@@ -2,17 +2,14 @@ package de.thm.mni.ii.classroom.model.classroom
 
 import de.thm.mni.ii.classroom.exception.classroom.TicketAlreadyExistsException
 import de.thm.mni.ii.classroom.exception.classroom.TicketNotFoundException
-import de.thm.mni.ii.classroom.security.exception.InvalidMeetingPasswordException
+import de.thm.mni.ii.classroom.exception.api.InvalidMeetingPasswordException
 import org.springframework.messaging.rsocket.RSocketRequester
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
-import reactor.kotlin.core.publisher.toMono
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicLong
-import de.thm.mni.ii.classroom.util.component1
-import de.thm.mni.ii.classroom.util.component2
 import org.slf4j.LoggerFactory
 
 /**
@@ -26,7 +23,7 @@ class DigitalClassroom(
     classroomName: String
 ): ClassroomInfo(classroomId, classroomName) {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(DigitalClassroom::class.java)
 
     private val users = HashMap<User, RSocketRequester?>()
     private val tickets = HashSet<Ticket>()
@@ -94,12 +91,16 @@ class DigitalClassroom(
             .map { Pair(it, this) }
     }
 
-    fun getUsers(): Flux<User> {
+    fun getUsers(): Set<User> {
+        return users.keys
+    }
+
+    fun getUsersFlux(): Flux<User> {
         return users.keys.toFlux()
     }
 
     fun getUserDisplays(): Flux<UserDisplay> {
-        return this.getUsers().map { user ->
+        return this.getUsersFlux().map { user ->
             UserDisplay(user, conferenceStorage.getConferenceOfUser(user))
         }
     }

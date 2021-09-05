@@ -1,11 +1,15 @@
 package de.thm.mni.ii.classroom.services
 
+import de.thm.mni.ii.classroom.exception.api.ClassroomNotFoundException
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.exception.api.NoPasswordSpecifiedException
 import de.thm.mni.ii.classroom.util.toPair
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toFlux
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -13,7 +17,7 @@ import kotlin.collections.HashMap
  * Central service for managing and creating all DigitalClassroomInstances.
  */
 @Service
-class ClassroomInstanceService {
+class ClassroomInstanceService(private val senderService: ClassroomEventSenderService) {
 
     private val classrooms = HashMap<String, DigitalClassroom>()
 
@@ -53,9 +57,24 @@ class ClassroomInstanceService {
     fun joinUser(classroomId: String, password: String, user: User): Mono<Pair<User, DigitalClassroom>> {
         return getClassroomInstance(classroomId).flatMap { classroom ->
             Mono.zip(classroom.joinUser(password, user), Mono.just(classroom)).map { it.toPair() }
-        }
+        }.switchIfEmpty(Mono.error(ClassroomNotFoundException(classroomId)))
     }
 
     fun isRunning(classroomId: String) = Mono.just(classrooms.containsKey(classroomId))
+
+    fun getAllClassrooms(): Flux<DigitalClassroom> {
+        return classrooms.values.toFlux()
+    }
+
+    fun endClassroom(classroomId: String, password: String): Mono<Void> {
+        val classroom = classrooms[classroomId] ?: return Mono.error(ClassroomNotFoundException(classroomId))
+        if (classroom.teacherPassword != password) return Mono.error(NoPasswordSpecifiedException())
+        return classroom.getSockets()
+                .doOnNext { (_, socket) ->
+                    socket?.rsocket()?.dispose()
+                }.doOnComplete {
+                    classrooms.remove(classroomId)
+                }.then()
+    }
 
 }
