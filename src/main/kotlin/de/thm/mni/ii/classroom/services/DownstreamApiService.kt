@@ -2,8 +2,8 @@ package de.thm.mni.ii.classroom.services
 
 import de.thm.mni.ii.classroom.exception.api.MissingMeetingIDException
 import de.thm.mni.ii.classroom.model.api.*
-import de.thm.mni.ii.classroom.security.exception.NoPasswordSpecifiedException
-import de.thm.mni.ii.classroom.security.exception.NoUsernameSpecifiedException
+import de.thm.mni.ii.classroom.exception.api.NoPasswordSpecifiedException
+import de.thm.mni.ii.classroom.exception.api.NoUsernameSpecifiedException
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.model.classroom.UserRole
 import org.slf4j.LoggerFactory
@@ -15,6 +15,7 @@ import de.thm.mni.ii.classroom.util.APIQueryParamTranslation.*
 import de.thm.mni.ii.classroom.properties.ClassroomProperties
 import de.thm.mni.ii.classroom.security.classroom.ClassroomUserDetailsRepository
 import org.apache.commons.lang3.RandomStringUtils
+import reactor.kotlin.core.publisher.onErrorResume
 import java.net.URL
 
 @Component
@@ -101,6 +102,14 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
             .map { classroom ->
                 GetMeetingsBBBResponse(classroom)
             }
+    }
+
+    fun end(param: MultiValueMap<String, String>): Mono<MessageBBB> {
+        val classroomId = param.getFirst(ClassroomId.api) ?: throw MissingMeetingIDException()
+        val password = param.getFirst(Password.api) ?: throw NoPasswordSpecifiedException()
+        return classroomInstanceService
+            .endClassroom(classroomId, password)
+            .thenReturn(MessageBBB(true, "sentEndMeetingRequest", "A request to end the meeting was sent. Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended"))
     }
 
 }

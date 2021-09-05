@@ -56,6 +56,12 @@ class BBBApiController(private val downStreamApiService: DownstreamApiService) {
     @RequestMapping("/getMeetings", method = [RequestMethod.GET, RequestMethod.POST], produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
     fun getMeetings(@RequestParam param: MultiValueMap<String, String>): Mono<GetMeetingsBBBResponse>
             = downStreamApiService.getMeetings(param)
+
+    @RequestMapping("/end", method = [RequestMethod.GET, RequestMethod.POST], produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
+    fun end(@RequestParam param: MultiValueMap<String, String>): Mono<MessageBBB>
+            = downStreamApiService.end(param).doOnNext {
+                logger.info(it.message)
+    }
     /**
      * Controller exception handler. Any exception thrown within the class hierarchy of this controller is handled here.
      * This method constructs a BBB-API conforming error message and returns it instead of the successful response.

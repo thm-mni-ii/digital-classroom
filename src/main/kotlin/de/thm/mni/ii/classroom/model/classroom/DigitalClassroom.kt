@@ -2,7 +2,7 @@ package de.thm.mni.ii.classroom.model.classroom
 
 import de.thm.mni.ii.classroom.exception.classroom.TicketAlreadyExistsException
 import de.thm.mni.ii.classroom.exception.classroom.TicketNotFoundException
-import de.thm.mni.ii.classroom.security.exception.InvalidMeetingPasswordException
+import de.thm.mni.ii.classroom.exception.api.InvalidMeetingPasswordException
 import org.springframework.messaging.rsocket.RSocketRequester
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono

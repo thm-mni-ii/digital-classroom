@@ -29,7 +29,7 @@ class ClassroomEventSenderService {
         }.then()
     }
 
-    fun fireAndForget(event: ClassroomEvent, requester: RSocketRequester) {
+    private fun fireAndForget(event: ClassroomEvent, requester: RSocketRequester) {
         requester.route("").data(event).send().subscribe().dispose()
     }
 }
