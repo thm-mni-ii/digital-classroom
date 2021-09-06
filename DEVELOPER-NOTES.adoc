@@ -28,4 +28,4 @@ RSocket Spring: https://docs.spring.io/spring-framework/docs/current/reference/p
 
 Micrometer: https://www.baeldung.com/micrometer
 
-Flowable -> RxJS: https://github.com/netifi/netifi-js-client/blob/3ec310824f643d61a8a6386458ff95524f3373a8/src/rx/FlowableAdapter.js#L35-L47
+Swagger: https://github.com/swagger-api/swagger-core/wiki/Swagger-2.X---Getting-started
