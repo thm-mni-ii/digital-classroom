@@ -51,13 +51,13 @@ class ClassroomInstanceService(private val senderService: ClassroomEventSenderSe
     }
 
     fun getClassroomInstance(classroomId: String): Mono<DigitalClassroom> {
-        return Mono.justOrEmpty(classrooms[classroomId])
+        return Mono.justOrEmpty(classrooms[classroomId]).switchIfEmpty(Mono.error(ClassroomNotFoundException(classroomId)))
     }
 
     fun joinUser(classroomId: String, password: String, user: User): Mono<Pair<User, DigitalClassroom>> {
         return getClassroomInstance(classroomId).flatMap { classroom ->
             Mono.zip(classroom.joinUser(password, user), Mono.just(classroom)).map { it.toPair() }
-        }.switchIfEmpty(Mono.error(ClassroomNotFoundException(classroomId)))
+        }
     }
 
     fun isRunning(classroomId: String) = Mono.just(classrooms.containsKey(classroomId))
