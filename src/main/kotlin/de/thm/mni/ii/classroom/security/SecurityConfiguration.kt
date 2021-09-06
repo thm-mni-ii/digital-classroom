@@ -60,7 +60,7 @@ class SecurityConfiguration(private val classroomHttpSessionTokenSecurity: Class
             .hasAnyAuthority("STUDENT", "TUTOR", "TEACHER")
             .and()
             .authorizeExchange()
-            .pathMatchers("/*", "/static/**", "/classroom/*", "/classroom", "/rsocket/**", "/rsocket")
+            .pathMatchers("/*", "/static/**", "/classroom/*", "/classroom", "/rsocket/**", "/rsocket", "/doc/**", "/v3/**")
             .permitAll()
             .and()
             .build()
