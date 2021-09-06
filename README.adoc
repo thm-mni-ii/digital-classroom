@@ -20,7 +20,8 @@ All relevant properties may be set via an environment variable.
                         | prefix-path   | CLASSROOM_PREFIX_PATH | URI Path added by a proxy or similar applications to contact the digital-classroom from the internet. Default: "" (empty string)
                         | shared-secret | CLASSROOM_SECRET      | Shared secret token a checksum of any request against the classrooms BBB-like API is computed with. Semantics as specified by BBB API linked above.
 1.1+^.^| _server_       | port          | CLASSROOM_PORT        | Server port at which this application will listen to HTTP requests Default: 8085
-1.3+^.^| _server.ssl_   | key-store     | CLASSROOM_KEYSTORE_PATH | Path to the key store that holds the SSL certificate Default: classpath:keystore.p12
+1.4+^.^| _server.ssl_   | enabled       | CLASSROOM_SSL_ENABLED | Whether to enable SSL encryption. Default: true
+                        | key-store     | CLASSROOM_KEYSTORE_PATH | Path to the key store that holds the SSL certificate Default: classpath:keystore.p12
                         | key-store-password | CLASSROOM_KEYSTORE_PASS |Password used to access the key store. Default: passwd
                         | key-store-type | CLASSROOM_KEYSTORE_TYPE | Type of the key store. Default: PKCS12
 1.2+^.^| _jwt_          | secret        | CLASSROOM_JWT_SECRET            | The key JSON Web Tokens issued by the digital classroom are signed with.
