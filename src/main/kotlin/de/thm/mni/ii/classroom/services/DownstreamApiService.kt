@@ -29,15 +29,15 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
     fun createClassroom(param: MultiValueMap<String, String>): Mono<CreateRoomBBB> {
         val classroomId = getClassroomId(param)
         return classroomInstanceService.getClassroomInstance(classroomId)
-            .switchIfEmpty(
+            .onErrorResume {
                 classroomInstanceService.createNewClassroomInstance(
                     classroomId = classroomId,
                     classroomName = param.getFirst(ClassroomName.api),
                     studentPassword = param.getFirst(StudentPassword.api),
                     tutorPassword = param.getFirst(TutorPassword.api),
-                    teacherPassword = param.getFirst(TeacherPassword.api),
+                    teacherPassword = param.getFirst(TeacherPassword.api)
                 )
-            ).doOnNext {
+            }.doOnNext {
                 logger.info("Classroom ${it.classroomName} created!")
             }.map(::CreateRoomBBB)
 

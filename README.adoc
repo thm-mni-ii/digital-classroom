@@ -1,7 +1,7 @@
 = THM Digital Classroom
 
 == Current functionality
-Create classrooms and join via BBB API. 
+Create classrooms and join via BBB API.
 It is possible to configure the feedback system (or any BBB Gateway, like Greenlight or PILOS) to connect to the digital classroom instead of a BBB cluster.
 Use the classrooms (default: http://localhost:8085) as BBB server address.
 
@@ -14,14 +14,18 @@ All relevant properties may be set via an environment variable.
 .Custom property values
 |===
        |Namespace       | Property      | Env. Variable         | Meaning
-1.2+^.^| _upstream.bbb_ | service-url   | BBB_UPSTREAM_URL      | The base URL of the BBB server to create conferences with.
-                        | shared-secret | BBB_UPSTREAM_SECRET   | Shared secret token to compute a checksum of requests against the BBB servers API with. See: https://docs.bigbluebutton.org/dev/api.html#api-security[BBB API Specification]
+1.2+^.^| _upstream.bbb_ | service-url   | CLASSROOM_BBB_UPSTREAM_URL      | The base URL of the BBB server to create conferences with.
+                        | shared-secret | CLASSROOM_BBB_UPSTREAM_SECRET   | Shared secret token to compute a checksum of requests against the BBB servers API with. See: https://docs.bigbluebutton.org/dev/api.html#api-security[BBB API Specification]
 1.3+^.^| _classroom_    | host          | CLASSROOM_HOST        | Base URL (including the port if not default protocol port), at which the Digital Classroom application is contacted by users. Default: http://localhost:8085
                         | prefix-path   | CLASSROOM_PREFIX_PATH | URI Path added by a proxy or similar applications to contact the digital-classroom from the internet. Default: "" (empty string)
                         | shared-secret | CLASSROOM_SECRET      | Shared secret token a checksum of any request against the classrooms BBB-like API is computed with. Semantics as specified by BBB API linked above.
 1.1+^.^| _server_       | port          | CLASSROOM_PORT        | Server port at which this application will listen to HTTP requests Default: 8085
-1.2+^.^| _jwt_          | secret        | JWT_SECRET            | The key JSON Web Tokens issued by the digital classroom are signed with.
-                        | expiration    | JWT_EXPIRATION        | Number of seconds after which JWTs should expire. Default: 900 (15 minutes)
+1.4+^.^| _server.ssl_   | enabled       | CLASSROOM_SSL_ENABLED | Whether to enable SSL encryption. Default: true
+                        | key-store     | CLASSROOM_KEYSTORE_PATH | Path to the key store that holds the SSL certificate Default: classpath:keystore.p12
+                        | key-store-password | CLASSROOM_KEYSTORE_PASS |Password used to access the key store. Default: passwd
+                        | key-store-type | CLASSROOM_KEYSTORE_TYPE | Type of the key store. Default: PKCS12
+1.2+^.^| _jwt_          | secret        | CLASSROOM_JWT_SECRET            | The key JSON Web Tokens issued by the digital classroom are signed with.
+                        | expiration    | CLASSROOM_JWT_EXPIRATION        | Number of seconds after which JWTs should expire. Default: 900 (15 minutes)
 |===
 === Jar Build & Deploy
 The only requirement is a JDK with version 11 or later.
