@@ -28,4 +28,4 @@ jobs:
         proxy_host: ${{ secrets.DEPLOY_PROXY_HOST }}
         proxy_username: ${{ secrets.DEPLOY_PROXY_USER }}
         proxy_key: ${{ secrets.DEPLOY_PROXY_KEY }}
-        script: ./test.sh
+        script: deployment/restart-classroom.sh
