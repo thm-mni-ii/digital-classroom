@@ -1,15 +1,17 @@
-version: '3'
+version: "3"
 
 services:
   digital-classroom:
     image: thmmniii/digital-classroom:latest
     restart: always
     environment:
-      - BBB_UPSTREAM_URL
-      - BBB_UPSTREAM_SECRET
+      - CLASSROOM_BBB_UPSTREAM_URL
+      - CLASSROOM_BBB_UPSTREAM_SECRET
       - CLASSROOM_SECRET
       - CLASSROOM_HOST
       - CLASSROOM_PREFIX_PATH
       - CLASSROOM_PORT
-      - JWT_SECRET
-      - JWT_EXPIRATION
+      - CLASSROOM_JWT_SECRET
+      - CLASSROOM_JWT_EXPIRATION
+      - CLASSROOM_KEYSTORE_PATH
+      - CLASSROOM_KEYSTORE_PASS
