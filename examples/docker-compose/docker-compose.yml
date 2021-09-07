@@ -2,7 +2,7 @@ version: "3"
 
 services:
   digital-classroom:
-    image: ghcr.io/thm-mni-ii/digital-classroom:latest
+    image: ghcr.io/thm-mni-ii/digital-classroom:master
     restart: always
     environment:
       - CLASSROOM_BBB_UPSTREAM_URL
