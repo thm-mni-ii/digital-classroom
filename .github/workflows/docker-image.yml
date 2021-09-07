@@ -55,6 +55,7 @@ jobs:
           cache-to: type=gha,mode=max
           
   deploy:
+    name: Redeploy testsystem
     runs-on: ubuntu-latest
     needs: build
 
