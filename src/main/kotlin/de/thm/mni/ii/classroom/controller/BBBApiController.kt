@@ -30,7 +30,7 @@ class BBBApiController(private val downStreamApiService: DownstreamApiService) {
      * @return Mono producing a BBB-like answer in XML format containing an error or information about the classroom.
      * @see CreateRoomBBB
      */
-    @GetMapping("/create", produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
+    @RequestMapping("/create", method = [RequestMethod.GET, RequestMethod.POST], produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
     fun createClassroomInstance(@RequestParam params: MultiValueMap<String, String>): Mono<CreateRoomBBB>
         = downStreamApiService.createClassroom(params)
 
@@ -41,11 +41,11 @@ class BBBApiController(private val downStreamApiService: DownstreamApiService) {
      * @return Mono producing a BBB-like answer in XML format containing an error or the url to join the classroom.
      * @see JoinRoomBBBResponse
      */
-    @GetMapping("/join", produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
+    @RequestMapping("/join", method = [RequestMethod.GET, RequestMethod.POST], produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
     fun joinUserToClassroom(@RequestParam params: MultiValueMap<String, String>): Mono<JoinRoomBBBResponse>
         = downStreamApiService.joinClassroom(params)
 
-    @GetMapping("/isMeetingRunning")
+    @RequestMapping("/isMeetingRunning", method = [RequestMethod.GET, RequestMethod.POST], produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
     fun isMeetingRunning(@RequestParam param: MultiValueMap<String, String>): Mono<ReturnCodeBBB>
         = downStreamApiService.isMeetingRunning(param)
 
