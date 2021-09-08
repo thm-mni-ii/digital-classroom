@@ -2,6 +2,7 @@ package de.thm.mni.ii.classroom.model.classroom
 
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.publisher.Mono.empty
 import reactor.kotlin.core.publisher.toMono
 
 class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
@@ -40,6 +41,34 @@ class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
 
     fun getConference(conferenceId: String): Mono<Conference> {
         return Mono.just(conferenceUsers.keys.first { it.conferenceId == conferenceId })
+    }
+
+    fun getConferencesOfUser(user: User): Flux<Conference> {
+        return Flux.fromIterable(conferenceUsers.filter { it.value.contains(user) }.keys)
+    }
+
+    fun getLatestConferenceOfUser(user: User): Mono<Conference> {
+        return getConferencesOfUser(user).reduce { conf1, conf2 ->
+            if (conf1.creation.isAfter(conf2.creation)) {
+                conf1
+            } else {
+                conf2
+            }
+        }
+    }
+
+    fun leaveConference(user: User, conferenceInfo: ConferenceInfo): Mono<Void> {
+        return this.getConference(conferenceInfo.conferenceId!!)
+            .doOnNext { conf ->
+                this.conferenceUsers[conf]!!.remove(user)
+                this.usersConference.remove(user, conf)
+            }.flatMap {
+                this.getLatestConferenceOfUser(user)
+            }.doOnSuccess {
+                if (it != null) {
+                    this.usersConference[user] = it
+                }
+            }.then()
     }
 
 }
