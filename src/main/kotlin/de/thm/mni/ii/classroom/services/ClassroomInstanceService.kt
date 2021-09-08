@@ -50,6 +50,10 @@ class ClassroomInstanceService(private val senderService: ClassroomEventSenderSe
         }
     }
 
+    fun getClassroomInstanceSync(classroomId: String): DigitalClassroom {
+        return classrooms[classroomId] ?: throw ClassroomNotFoundException(classroomId)
+    }
+
     fun getClassroomInstance(classroomId: String): Mono<DigitalClassroom> {
         return Mono.justOrEmpty(classrooms[classroomId]).switchIfEmpty(Mono.error(ClassroomNotFoundException(classroomId)))
     }

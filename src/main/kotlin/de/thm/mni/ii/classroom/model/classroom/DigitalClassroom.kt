@@ -105,7 +105,7 @@ class DigitalClassroom(
         }
     }
 
-    fun getConferenceOfUser(user: User): Mono<Conference> {
+    fun getConferenceOfUser(user: User): Mono<Conference?> {
         return Mono.justOrEmpty(conferenceStorage.getConferenceOfUser(user))
     }
 
@@ -135,6 +135,10 @@ class DigitalClassroom(
 
     fun getConference(conferenceId: String): Mono<Conference> {
         return conferenceStorage.getConference(conferenceId)
+    }
+
+    fun leaveConference(user: User, conferenceInfo: ConferenceInfo): Mono<Void> {
+        return this.conferenceStorage.leaveConference(user, conferenceInfo)
     }
 
 

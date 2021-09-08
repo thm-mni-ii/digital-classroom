@@ -30,8 +30,8 @@ export class ConferenceService {
   private conferenceWindowHandle: Window;
 
   conferenceWindowOpen: boolean = false
-  private conferenceInfo: ConferenceInfo;
-  private currentUser: UserDisplay = undefined;
+  private currentConference: ConferenceInfo;
+  private currentUser: UserDisplay;
 
   constructor(
     private rSocketService: RSocketService,
@@ -39,6 +39,9 @@ export class ConferenceService {
     private userService: UserService
   ) {
     this.initConferences()
+    this.currentConferenceObservable.subscribe(currentConference => {
+      this.currentConference = currentConference
+    })
     this.userService.currentUserObservable.subscribe(currentUser => {
       this.currentUser = currentUser
     })
@@ -50,7 +53,10 @@ export class ConferenceService {
 
   private initConferences() {
     this.rSocketService.requestStream<ConferenceInfo>("socket/init-conferences", "Init Conferences").pipe(
-      tap(conf => this.conferences.set(conf.conferenceId, conf)),
+      tap(conf => {
+        this.conferences.set(conf.conferenceId, conf)
+        if (conf.creator.userId === this.currentUser.userId) this.currentConferenceSubject.next(conf)
+      }),
       finalize(() => this.publish())
     ).subscribe()
   }
@@ -67,8 +73,7 @@ export class ConferenceService {
   private publish() {
   }
 
-  public createConference(conferenceName: string = 'Konferenz von ' + this.currentUser.fullName,
-                          visible: boolean = true) {
+  public createConference(conferenceName: string = 'Konferenz von ' + this.currentUser.fullName, visible: boolean = true) {
     const conferenceInfo = new ConferenceInfo()
     conferenceInfo.classroomId = this.currentUser.classroomId
     conferenceInfo.creator = this.currentUser
@@ -100,13 +105,16 @@ export class ConferenceService {
 
   private openConferenceWindow(joinLink: JoinLink) {
     this.conferenceWindowHandle = open(joinLink.url)
-    this.conferenceWindowHandle.addEventListener("close", () => this.closeConference())
+    this.conferenceWindowHandle.onclose = function () {
+      leaveConference()
+    }
     this.conferenceWindowOpen = true
   }
 
-  public closeConference(conference: ConferenceInfo = this.conferenceInfo) {
-    console.log("conference closed!")
-    this.rSocketService.fireAndForget("socket/conference/end", conference)
+  public leaveConference(conference: ConferenceInfo = this.currentConference) {
+    console.log("conference left!")
+    this.conferenceWindowOpen = false
+    this.rSocketService.fireAndForget("socket/conference/leave", conference)
   }
 
   public inviteToConference(invitee: User, ticket: Ticket) {
@@ -128,3 +136,7 @@ export class ConferenceService {
     })
   }
 }
+function leaveConference() {
+    throw new Error('Function not implemented.');
+}
+

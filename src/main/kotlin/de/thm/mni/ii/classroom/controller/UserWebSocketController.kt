@@ -20,7 +20,7 @@ class UserWebSocketController(
     private val userService: ClassroomUserService,
     private val classroomEventReceiverService: ClassroomEventReceiverService
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(UserWebSocketController::class.java)
 
     @ConnectMapping
     fun connect(@AuthenticationPrincipal user: User, requester: RSocketRequester): Mono<Void> {

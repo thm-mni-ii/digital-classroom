@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono
 
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
+import reactor.kotlin.core.publisher.switchIfEmpty
 
 @Component
 class ConferenceService(private val classroomInstanceService: ClassroomInstanceService,
@@ -49,7 +50,7 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
             .flatMap { classroom ->
                 Mono.zip(Mono.just(classroom), classroom.getConferenceOfUser(conferencingUser))
             }.flatMap { (classroom, conference) ->
-                joinUser(joiningUser, conference, classroom)
+                joinUser(joiningUser, conference!!, classroom)
             }
     }
 
@@ -86,9 +87,20 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
     fun forwardInvitation(user: User, invitationEvent: InvitationEvent): Mono<Void> {
         if (invitationEvent.inviter != user) return Mono.error(InvitationException(user, invitationEvent))
         return classroomInstanceService.getClassroomInstance(user.classroomId)
-            .switchIfEmpty(Mono.error(ClassroomException("Classroom ${user.classroomId} not found!")))
             .doOnNext { classroom ->
                 eventSenderService.sendInvitation(classroom, invitationEvent).subscribe()
+            }.then()
+    }
+
+    fun leaveConference(user: User, conferenceInfo: ConferenceInfo): Mono<Void> {
+        val classroom = classroomInstanceService.getClassroomInstanceSync(user.classroomId)
+        return classroom.leaveConference(user, conferenceInfo)
+            .flatMap {
+                classroom.getConferenceOfUser(user)
+            }.doOnSuccess { otherConference ->
+                val inConference = otherConference != null
+                val newConferenceId = if (inConference) otherConference!!.conferenceId else null
+                eventSenderService.sendToAll(classroom, UserEvent(user, inConference, newConferenceId, UserAction.LEAVE_CONFERENCE)).subscribe()
             }.then()
     }
 
