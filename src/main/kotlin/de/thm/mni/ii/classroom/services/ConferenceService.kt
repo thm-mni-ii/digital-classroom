@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import reactor.kotlin.core.publisher.switchIfEmpty
+import java.time.Duration
 
 @Component
 class ConferenceService(private val classroomInstanceService: ClassroomInstanceService,
@@ -94,8 +95,10 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
 
     fun leaveConference(user: User, conferenceInfo: ConferenceInfo): Mono<Void> {
         val classroom = classroomInstanceService.getClassroomInstanceSync(user.classroomId)
-        return classroom.leaveConference(user, conferenceInfo)
-            .flatMap {
+        return classroom.getConference(conferenceInfo.conferenceId!!)
+            .flatMap { conference ->
+                classroom.leaveConference(user, conference)
+            }.flatMap {
                 classroom.getConferenceOfUser(user)
             }.doOnSuccess { otherConference ->
                 val inConference = otherConference != null
