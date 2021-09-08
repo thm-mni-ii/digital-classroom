@@ -39,7 +39,6 @@ class UserWebSocketController(
 
     @MessageMapping("socket/init-tickets")
     fun initTickets(@AuthenticationPrincipal user: User): Flux<Ticket> {
-        logger.info("Ticket init!")
         return userService.getTickets(user)
     }
 

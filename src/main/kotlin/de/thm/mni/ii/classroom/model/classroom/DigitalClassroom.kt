@@ -137,8 +137,8 @@ class DigitalClassroom(
         return conferenceStorage.getConference(conferenceId)
     }
 
-    fun leaveConference(user: User, conferenceInfo: ConferenceInfo): Mono<Void> {
-        return this.conferenceStorage.leaveConference(user, conferenceInfo)
+    fun leaveConference(user: User, conference: Conference): Mono<Void> {
+        return this.conferenceStorage.leaveConference(user, conference)
     }
 
 

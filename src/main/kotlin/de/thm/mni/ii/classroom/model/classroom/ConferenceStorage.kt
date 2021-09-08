@@ -4,6 +4,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Mono.empty
 import reactor.kotlin.core.publisher.toMono
+import java.time.Duration
 
 class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
 
@@ -57,18 +58,26 @@ class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
         }
     }
 
-    fun leaveConference(user: User, conferenceInfo: ConferenceInfo): Mono<Void> {
-        return this.getConference(conferenceInfo.conferenceId!!)
-            .doOnNext { conf ->
-                this.conferenceUsers[conf]!!.remove(user)
-                this.usersConference.remove(user, conf)
-            }.flatMap {
-                this.getLatestConferenceOfUser(user)
-            }.doOnSuccess {
+    fun leaveConference(user: User, conference: Conference): Mono<Void> {
+        this.conferenceUsers[conference]!!.remove(user)
+        this.usersConference.remove(user, conference)
+        if (conferenceUsers[conference]!!.isEmpty()) {
+            scheduleDeletion(conference)
+        }
+        return this.getLatestConferenceOfUser(user)
+            .doOnSuccess {
                 if (it != null) {
                     this.usersConference[user] = it
                 }
             }.then()
+    }
+
+    fun scheduleDeletion(conference: Conference) {
+        Mono.delay(Duration.ofSeconds(60)).doOnNext {
+            if (this.conferenceUsers[conference]!!.isEmpty()) {
+                this.conferenceUsers.remove(conference)
+            }
+        }.subscribe()
     }
 
 }

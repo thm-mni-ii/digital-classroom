@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, ReplaySubject, Subject} from 'rxjs';
-import {finalize, tap} from "rxjs/operators";
+import {distinctUntilChanged, finalize, tap} from "rxjs/operators";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {EventListenerService} from "../rsocket/event-listener.service";
 import {ConferenceAction, ConferenceEvent, InvitationEvent} from "../rsocket/event/ClassroomEvent";
@@ -28,6 +28,7 @@ export class ConferenceService {
   currentConferenceObservable: Observable<ConferenceInfo> = this.currentConferenceSubject.asObservable()
 
   private conferenceWindowHandle: Window;
+  private isWindowHandleOpen: Subject<boolean>
 
   conferenceWindowOpen: boolean = false
   private currentConference: ConferenceInfo;
@@ -39,6 +40,7 @@ export class ConferenceService {
     private userService: UserService
   ) {
     this.initConferences()
+    this.initWindowHandle()
     this.currentConferenceObservable.subscribe(currentConference => {
       this.currentConference = currentConference
     })
@@ -105,9 +107,6 @@ export class ConferenceService {
 
   private openConferenceWindow(joinLink: JoinLink) {
     this.conferenceWindowHandle = open(joinLink.url)
-    this.conferenceWindowHandle.onclose = function () {
-      leaveConference()
-    }
     this.conferenceWindowOpen = true
   }
 
@@ -135,8 +134,23 @@ export class ConferenceService {
       this.rSocketService.fireAndForget("socket/conference/invite", invitationEvent)
     })
   }
-}
-function leaveConference() {
-    throw new Error('Function not implemented.');
+
+  private initWindowHandle() {
+    this.isWindowHandleOpen = new ReplaySubject<boolean>();
+    this.isWindowHandleOpen.asObservable().pipe(
+      distinctUntilChanged(),
+      tap(isOpen => { if (!isOpen) this.leaveConference() })
+    ).subscribe()
+
+    setInterval(() => {
+      if (this.conferenceWindowHandle) {
+        if (this.conferenceWindowHandle.closed) {
+          this.isWindowHandleOpen.next(false);
+        } else {
+          this.isWindowHandleOpen.next(true);
+        }
+      }
+    }, 1000);
+  }
 }
 
