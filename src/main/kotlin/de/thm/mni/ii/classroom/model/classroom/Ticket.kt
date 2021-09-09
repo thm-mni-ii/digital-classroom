@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import de.thm.mni.ii.classroom.config.ZonedDateTimeMillisDeserializer
 import de.thm.mni.ii.classroom.config.ZonedDateTimeMillisSerializer
 import de.thm.mni.ii.classroom.model.ClassroomDependent
-import de.thm.mni.ii.classroom.util.setOnce
 import java.time.ZonedDateTime
 
 class Ticket(
