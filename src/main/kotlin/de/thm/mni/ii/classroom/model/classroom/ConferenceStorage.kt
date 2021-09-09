@@ -1,10 +1,11 @@
 package de.thm.mni.ii.classroom.model.classroom
 
+import de.thm.mni.ii.classroom.exception.classroom.ConferenceNotFoundException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Mono.empty
+import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
-import java.time.Duration
 
 class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
 
@@ -13,7 +14,8 @@ class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
 
     fun getConferenceOfUser(user: User) = usersConference[user]
 
-    fun getUsersOfConference(conference: Conference) = Mono.justOrEmpty(conferenceUsers[conference])
+    fun getUsersOfConference(conference: Conference): Flux<User> = conferenceUsers[conference]?.toFlux()
+        ?: Flux.error(ConferenceNotFoundException(conference.conferenceId))
 
     fun joinUser(conference: Conference, user: User): Mono<User> {
         return Mono.just(user).doOnNext {
@@ -44,12 +46,12 @@ class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
         return Mono.just(conferenceUsers.keys.first { it.conferenceId == conferenceId })
     }
 
-    fun getConferencesOfUser(user: User): Flux<Conference> {
-        return Flux.fromIterable(conferenceUsers.filter { it.value.contains(user) }.keys)
+    private fun getConferencesOfUser(user: User): Set<Conference> {
+        return conferenceUsers.filter { it.value.contains(user) }.keys
     }
 
-    fun getLatestConferenceOfUser(user: User): Mono<Conference> {
-        return getConferencesOfUser(user).reduce { conf1, conf2 ->
+    private fun getLatestConferenceOfUser(user: User): Conference? {
+        return getConferencesOfUser(user).reduceOrNull { conf1, conf2 ->
             if (conf1.creation.isAfter(conf2.creation)) {
                 conf1
             } else {
@@ -58,26 +60,19 @@ class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
         }
     }
 
-    fun leaveConference(user: User, conference: Conference): Mono<Void> {
+    fun leaveConference(user: User, conference: Conference) {
         this.conferenceUsers[conference]!!.remove(user)
         this.usersConference.remove(user, conference)
-        if (conferenceUsers[conference]!!.isEmpty()) {
-            scheduleDeletion(conference)
+        val otherConference = this.getLatestConferenceOfUser(user)
+        if (otherConference != null) {
+            this.usersConference[user] = otherConference
         }
-        return this.getLatestConferenceOfUser(user)
-            .doOnSuccess {
-                if (it != null) {
-                    this.usersConference[user] = it
-                }
-            }.then()
     }
 
-    fun scheduleDeletion(conference: Conference) {
-        Mono.delay(Duration.ofSeconds(60)).doOnNext {
-            if (this.conferenceUsers[conference]!!.isEmpty()) {
-                this.conferenceUsers.remove(conference)
-            }
-        }.subscribe()
+    fun deleteConference(conference: Conference): Mono<Void> {
+        this.conferenceUsers.remove(conference)
+        this.usersConference.values.remove(conference)
+        return empty()
     }
 
 }

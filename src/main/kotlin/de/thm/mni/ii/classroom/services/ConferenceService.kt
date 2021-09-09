@@ -1,7 +1,6 @@
 package de.thm.mni.ii.classroom.services
 
 import de.thm.mni.ii.classroom.event.*
-import de.thm.mni.ii.classroom.exception.classroom.ClassroomException
 import de.thm.mni.ii.classroom.exception.classroom.InvitationException
 import de.thm.mni.ii.classroom.model.classroom.*
 import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
@@ -96,15 +95,44 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
     fun leaveConference(user: User, conferenceInfo: ConferenceInfo): Mono<Void> {
         val classroom = classroomInstanceService.getClassroomInstanceSync(user.classroomId)
         return classroom.getConference(conferenceInfo.conferenceId!!)
-            .flatMap { conference ->
+            .doOnNext { conference ->
                 classroom.leaveConference(user, conference)
+                this.scheduleConferenceDeletionIfEmpty(classroom, conference, 20)
             }.flatMap {
                 classroom.getConferenceOfUser(user)
-            }.doOnSuccess { otherConference ->
-                val inConference = otherConference != null
-                val newConferenceId = if (inConference) otherConference!!.conferenceId else null
-                eventSenderService.sendToAll(classroom, UserEvent(user, inConference, newConferenceId, UserAction.LEAVE_CONFERENCE)).subscribe()
-            }.then()
+            }.flatMap { conference ->
+                eventSenderService.sendToAll(classroom, UserEvent(user, true, conference.conferenceId, UserAction.LEAVE_CONFERENCE))
+            }.switchIfEmpty {
+                eventSenderService.sendToAll(classroom, UserEvent(user, false, null, UserAction.LEAVE_CONFERENCE))
+            }
+    }
+
+    fun scheduleConferenceDeletionIfEmpty(classroom: DigitalClassroom, conference: Conference, delaySeconds: Long) {
+        classroom.getUsersOfConference(conference)
+            .hasElements()
+            .flatMap { usersJoined ->
+                if (!usersJoined) {
+                    logger.debug("Conference ${conference.conferenceId} scheduled for deletion if still empty in $delaySeconds seconds!")
+                    Mono.just(usersJoined)
+                } else {
+                    logger.debug("Conference ${conference.conferenceId} still has users!")
+                    Mono.empty()
+                }
+            }.delayElement(Duration.ofSeconds(delaySeconds))
+            .flatMap { classroom.getUsersOfConference(conference).hasElements() }
+            .flatMap { usersJoined ->
+                if (!usersJoined) {
+                    logger.debug("Conference ${conference.conferenceId} is still empty. Deleting...")
+                    Mono.just(usersJoined)
+                } else {
+                    logger.debug("Users rejoined to conference ${conference.conferenceId}. Abort deletion.")
+                    Mono.empty()
+                }
+            }.flatMap {
+                upstreamBBBService.endConference(conference)
+            }.flatMap {
+                classroom.deleteConference(conference)
+            }.subscribe()
     }
 
 }
