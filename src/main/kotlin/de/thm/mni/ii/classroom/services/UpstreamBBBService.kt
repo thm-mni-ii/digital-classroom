@@ -1,5 +1,6 @@
 package de.thm.mni.ii.classroom.services
 
+import de.thm.mni.ii.classroom.exception.classroom.ClassroomException
 import de.thm.mni.ii.classroom.model.api.MessageBBB
 import de.thm.mni.ii.classroom.model.classroom.Conference
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
@@ -62,6 +63,23 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                     } else sink.error(Exception(it.body!!.message))
                 }
         }*/
+    }
+
+    fun endConference(conference: Conference): Mono<MessageBBB> {
+        val queryParams = mapOf(
+            Pair("meetingID", conference.conferenceId),
+            Pair("password", conference.moderatorPassword)
+        )
+        val request = buildApiRequest("end", queryParams)
+        return WebClient.create(request).get().retrieve().toEntity(MessageBBB::class.java)
+            .map { it.body!! }
+            .map {
+                if (it.returncode == "SUCCESS") {
+                    it
+                } else {
+                    error(ClassroomException("Error from upstream BBB: ${it.message}"))
+                }
+            }
     }
 
     private fun buildApiRequest(method: String, queryParams: Map<String, String>): String {
