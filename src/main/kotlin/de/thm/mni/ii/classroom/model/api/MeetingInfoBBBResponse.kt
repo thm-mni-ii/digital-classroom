@@ -39,7 +39,7 @@ import javax.xml.bind.annotation.XmlType
     "isBreakout"
 ])
 class MeetingInfoBBBResponse(
-    digitalClassroom: DigitalClassroom?,
+    digitalClassroom: DigitalClassroom? = null,
     success: Boolean = true,
     ): ReturnCodeBBB(success) {
     @XmlElement private val meetingName: String? = digitalClassroom?.classroomName
@@ -65,13 +65,7 @@ class MeetingInfoBBBResponse(
     @XmlElement private val videoCount = digitalClassroom?.getUsers()?.size
     @XmlElement private val maxUsers = 100
     @XmlElement private val moderatorCount = digitalClassroom?.getUsers()?.filter { it.isPrivileged() }?.size
-    @XmlElement private val attendees = digitalClassroom?.getUsers()?.map(::Attendee) ?: listOf()
+    @XmlElement private val attendees = Attendees(digitalClassroom?.getUsers())
     @XmlElement private val metadata = listOf<String>()
     @XmlElement private val isBreakout = false
-
-    /**
-     * Dummy constructor for JAXB Serialization
-     */
-    constructor(): this(null, false)
-
 }
