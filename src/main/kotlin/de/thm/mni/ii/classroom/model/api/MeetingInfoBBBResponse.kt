@@ -5,6 +5,7 @@ import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import java.time.ZonedDateTime
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
+import javax.xml.bind.annotation.XmlTransient
 import javax.xml.bind.annotation.XmlType
 
 @XmlRootElement(name = "response")
@@ -64,7 +65,7 @@ class MeetingInfoBBBResponse(
     @XmlElement private val videoCount = digitalClassroom?.getUsers()?.size
     @XmlElement private val maxUsers = 100
     @XmlElement private val moderatorCount = digitalClassroom?.getUsers()?.filter { it.isPrivileged() }?.size
-    @XmlElement private val attendees = digitalClassroom?.getUsers()?.map(::Attendee)
+    @XmlElement private val attendees = digitalClassroom?.getUsers()?.map(::Attendee) ?: listOf()
     @XmlElement private val metadata = listOf<String>()
     @XmlElement private val isBreakout = false
 

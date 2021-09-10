@@ -99,8 +99,8 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
         return classroomInstanceService
             .getAllClassrooms()
             .collectList()
-            .map { classroom ->
-                GetMeetingsBBBResponse(classroom)
+            .map { classroomList ->
+                GetMeetingsBBBResponse(classroomList)
             }
     }
 
