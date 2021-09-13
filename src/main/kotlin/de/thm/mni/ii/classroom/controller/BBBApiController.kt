@@ -4,12 +4,22 @@ import de.thm.mni.ii.classroom.exception.api.ApiException
 import de.thm.mni.ii.classroom.model.api.*
 import de.thm.mni.ii.classroom.services.DownstreamApiService
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Bean
+import org.springframework.core.io.Resource
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.util.MimeTypeUtils
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.method.support.ModelAndViewContainer
+import org.springframework.web.reactive.function.server.*
+import org.springframework.web.reactive.function.server.RouterFunctions.route
+import org.springframework.web.reactive.result.view.RedirectView
+import org.springframework.web.reactive.result.view.View
 import reactor.core.publisher.Mono
 import java.lang.Exception
+import java.net.URI
 
 /**
  * Spring Controller for downstream / BBB-like API traffic.
@@ -34,16 +44,35 @@ class BBBApiController(private val downStreamApiService: DownstreamApiService) {
     fun createClassroomInstance(@RequestParam params: MultiValueMap<String, String>): Mono<CreateRoomBBB>
         = downStreamApiService.createClassroom(params)
 
+
     /**
-     * Route called to join an existing classroom instance.
-     * @param params Request query parameters as MultiValueMap containing information about the classroom, the user and
-     * a password.
+     * Route called to join an existing classroom instance. If query param "redirect" is set to true: redirects to joinURL.
      * @return Mono producing a BBB-like answer in XML format containing an error or the url to join the classroom.
      * @see JoinRoomBBBResponse
      */
-    @RequestMapping("/join", method = [RequestMethod.GET, RequestMethod.POST], produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
-    fun joinUserToClassroom(@RequestParam params: MultiValueMap<String, String>): Mono<JoinRoomBBBResponse>
-        = downStreamApiService.joinClassroom(params)
+    @Bean
+    fun joinUserToClassroom(): RouterFunction<ServerResponse?> {
+        return route(RequestPredicates.GET("/api/join")) { req ->
+            downStreamApiService.joinClassroom(req.queryParams()).flatMap { joinRoom ->
+                if (req.queryParamOrNull("redirect").toBoolean()) {
+                    ServerResponse.temporaryRedirect(URI(joinRoom.url)).bodyValue(joinRoom)
+                } else {
+                    ServerResponse.ok().contentType(MediaType.APPLICATION_XML).bodyValue(joinRoom)
+                }
+            }
+        }
+    }
+
+
+    //@RequestMapping("/join", method = [RequestMethod.GET, RequestMethod.POST], produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
+    fun joinUserToClassroom(@RequestParam params: MultiValueMap<String, String>): Mono<Any>
+        = downStreamApiService.joinClassroom(params).map {
+            if (params.getFirst("redirect").toBoolean()) {
+                RedirectView(it.url)
+            } else {
+                it
+            }
+        }
 
     @RequestMapping("/isMeetingRunning", method = [RequestMethod.GET, RequestMethod.POST], produces = [MimeTypeUtils.APPLICATION_XML_VALUE])
     fun isMeetingRunning(@RequestParam param: MultiValueMap<String, String>): Mono<ReturnCodeBBB>
