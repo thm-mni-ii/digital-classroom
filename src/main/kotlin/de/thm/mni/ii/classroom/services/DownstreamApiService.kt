@@ -77,7 +77,7 @@ class DownstreamApiService(private val classroomInstanceService: ClassroomInstan
             }
     }
 
-    fun isMeetingRunning(param: MultiValueMap<String, String>): Mono<ReturnCodeBBB> {
+    fun isMeetingRunning(param: MultiValueMap<String, String>): Mono<IsMeetingRunningBBB> {
         return classroomInstanceService.isRunning(getClassroomId(param))
             .map(::IsMeetingRunningBBB)
     }
