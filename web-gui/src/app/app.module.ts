@@ -25,6 +25,7 @@ import {ManageTicketDialogComponent} from "./dialogs/manage-ticket-dialog/manage
 import {UserListComponent} from "./page-components/classroom/user-list/user-list.component";
 import {TicketListComponent} from "./page-components/classroom/ticket-list/ticket-list.component";
 import {GlobalErrorHandler} from "./util/GlobalErrorHandler";
+import { ConferencesComponent } from './page-components/classroom/conferences/conferences.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import {GlobalErrorHandler} from "./util/GlobalErrorHandler";
     IsNotSelfPipe,
     ManageTicketDialogComponent,
     UserListComponent,
-    TicketListComponent
+    TicketListComponent,
+    ConferencesComponent
   ],
   imports: [
     BrowserModule,

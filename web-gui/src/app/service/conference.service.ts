@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, ReplaySubject, Subject} from 'rxjs';
-import {distinctUntilChanged, finalize, tap} from "rxjs/operators";
+import {distinctUntilChanged, finalize, first, tap} from "rxjs/operators";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {EventListenerService} from "../rsocket/event-listener.service";
 import {ConferenceAction, ConferenceEvent, InvitationEvent} from "../rsocket/event/ClassroomEvent";
@@ -24,14 +24,14 @@ export class ConferenceService {
 
   invitationEvents: Observable<InvitationEvent> = this.eventListenerService.invitationEvents;
 
-  private currentConferenceSubject: Subject<ConferenceInfo> = new ReplaySubject(1)
-  currentConferenceObservable: Observable<ConferenceInfo> = this.currentConferenceSubject.asObservable()
+  private currentConferences: Map<string, ConferenceInfo> = new Map<string, ConferenceInfo>()
+  private currentConferenceSubject: Subject<ConferenceInfo[]> = new ReplaySubject(1)
+  currentConferenceObservable: Observable<ConferenceInfo[]> = this.currentConferenceSubject.asObservable()
 
-  private conferenceWindowHandle: Window;
-  private isWindowHandleOpen: Subject<boolean>
-
+  private conferenceWindowHandle: Map<string, Window> = new Map<string, Window>()
+  private isConferenceWindowOpen: Subject<ConferenceOpenInfo[]>
   conferenceWindowOpen: boolean = false
-  private currentConference: ConferenceInfo;
+
   private currentUser: UserDisplay;
 
   constructor(
@@ -41,8 +41,8 @@ export class ConferenceService {
   ) {
     this.initConferences()
     this.initWindowHandle()
-    this.currentConferenceObservable.subscribe(currentConference => {
-      this.currentConference = currentConference
+    this.currentConferenceObservable.subscribe(currentConferences => {
+      currentConferences.forEach(conference => { this.currentConferences.set(conference.conferenceId, conference) })
     })
     this.userService.currentUserObservable.subscribe(currentUser => {
       this.currentUser = currentUser
@@ -55,10 +55,7 @@ export class ConferenceService {
 
   private initConferences() {
     this.rSocketService.requestStream<ConferenceInfo>("socket/init-conferences", "Init Conferences").pipe(
-      tap(conf => {
-        this.conferences.set(conf.conferenceId, conf)
-        if (conf.creator.userId === this.currentUser.userId) this.currentConferenceSubject.next(conf)
-      }),
+      tap(conf => { this.conferences.set(conf.conferenceId, conf) }),
       finalize(() => this.publish())
     ).subscribe()
   }
@@ -81,38 +78,44 @@ export class ConferenceService {
     conferenceInfo.creator = this.currentUser
     conferenceInfo.conferenceName = conferenceName
     conferenceInfo.visible = visible
-    this.rSocketService.requestResponse<ConferenceInfo>("socket/conference/create", conferenceInfo).subscribe(conference => {
-      this.currentConferenceSubject.next(conference)
-    })
-    this.currentConferenceObservable.subscribe(conf => {
-      this.joinConference(conf)
-    })
+    this.rSocketService.requestResponse<ConferenceInfo>("socket/conference/create", conferenceInfo).pipe(
+      tap(conference => this.conferences.set(conference.conferenceId, conference)),
+      tap(conference => this.joinConference(conference)),
+      tap(_ => this.publish()),
+    ).subscribe()
   }
 
   public joinConference(conference: ConferenceInfo) {
-    if (this.conferenceWindowHandle == undefined || this.conferenceWindowHandle.closed) {
-      this.rSocketService.requestResponse<JoinLink>("socket/conference/join", conference).subscribe( joinLink => {
+    if (this.conferenceWindowHandle.size === 0 || !this.conferenceWindowHandle.has(conference.conferenceId)) {
+      this.rSocketService.requestResponse<JoinLink>("socket/conference/join", conference).subscribe(joinLink => {
         this.openConferenceWindow(joinLink)
       })
-  } else {
-      this.conferenceWindowHandle.focus()
+    } else {
+      this.conferenceWindowHandle.get(conference.conferenceId).focus()
     }
   }
 
   public joinConferenceOfUser(conferencingUser: User) {
-      this.rSocketService.requestResponse<JoinLink>("socket/conference/join-user", conferencingUser).subscribe( joinLink => {
-      this.openConferenceWindow(joinLink)
-    })
+      this.rSocketService.requestResponse<JoinLink>("socket/conference/join-user", conferencingUser).pipe(
+        tap(joinLink => this.currentConferences.set(joinLink.conference.conferenceId, joinLink.conference)),
+        tap(joinLink => this.openConferenceWindow(joinLink))
+      ).subscribe()
   }
 
   private openConferenceWindow(joinLink: JoinLink) {
-    this.conferenceWindowHandle = open(joinLink.url)
+    const conference = joinLink.conference
+    if (this.conferenceWindowHandle.has(conference.conferenceId)) {
+      this.conferenceWindowHandle.get(conference.conferenceId).focus()
+    } else {
+      this.conferenceWindowHandle.set(conference.conferenceId, open(joinLink.url))
+    }
     this.conferenceWindowOpen = true
   }
 
-  public leaveConference(conference: ConferenceInfo = this.currentConference) {
+  public leaveConference(conference: ConferenceInfo = this.currentConferences[0]) {
     console.log("conference left!")
     this.conferenceWindowOpen = false
+    this.conferenceWindowHandle.delete(conference.conferenceId)
     this.rSocketService.fireAndForget("socket/conference/leave", conference)
   }
 
@@ -130,27 +133,47 @@ export class ConferenceService {
     invitationEvent.inviter = this.currentUser
     invitationEvent.invitee = invitee
     this.currentConferenceSubject.subscribe(conferenceInfo => {
-      invitationEvent.conferenceInfo = conferenceInfo
+      invitationEvent.conferenceInfo = conferenceInfo[0]
       this.rSocketService.fireAndForget("socket/conference/invite", invitationEvent)
     })
   }
 
   private initWindowHandle() {
-    this.isWindowHandleOpen = new ReplaySubject<boolean>();
-    this.isWindowHandleOpen.asObservable().pipe(
+    this.isConferenceWindowOpen = new ReplaySubject<ConferenceOpenInfo[]>();
+    this.isConferenceWindowOpen.asObservable().pipe(
       distinctUntilChanged(),
-      tap(isOpen => { if (!isOpen) this.leaveConference() })
+      tap(conferenceOpenInfos => {
+        conferenceOpenInfos.forEach(conference => {
+          if (conference.isClosed) {
+            const conferenceInfo = this.currentConferences.get(conference.conferenceId)
+            this.leaveConference(conferenceInfo)
+            this.currentConferences.delete(conference.conferenceId)
+            this.conferenceWindowHandle.delete(conference.conferenceId)
+          }
+        })
+      })
     ).subscribe()
 
     setInterval(() => {
-      if (this.conferenceWindowHandle) {
-        if (this.conferenceWindowHandle.closed) {
-          this.isWindowHandleOpen.next(false);
-        } else {
-          this.isWindowHandleOpen.next(true);
-        }
+      const conferenceOpenInfos: ConferenceOpenInfo[] = []
+      if (this.conferenceWindowHandle.size > 0) {
+        this.conferenceWindowHandle.forEach((window, conferenceId) => {
+            conferenceOpenInfos.push(new ConferenceOpenInfo(conferenceId, window.closed))
+        })
+        this.isConferenceWindowOpen.next(conferenceOpenInfos)
       }
     }, 1000);
   }
+}
+
+class ConferenceOpenInfo {
+  conferenceId: string
+  isClosed: boolean
+
+  constructor(conferenceId: string, isClosed: boolean) {
+    this.conferenceId = conferenceId
+    this.isClosed = isClosed
+  }
+
 }
 

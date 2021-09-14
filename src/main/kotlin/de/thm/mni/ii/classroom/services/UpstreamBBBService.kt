@@ -54,7 +54,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
             Pair("userID", user.userId),
             Pair("password", if (asModerator) conference.moderatorPassword else conference.attendeePassword)
         )
-        return Mono.just(buildApiRequest("join", queryParams)).map(::JoinLink)
+        return Mono.just(buildApiRequest("join", queryParams)).map { JoinLink(ConferenceInfo(conference), it) }
         /*return Mono.create { sink ->
             WebClient.create(request).get().retrieve().toEntity(JoinRoomBBBResponse::class.java)
                 .subscribe {

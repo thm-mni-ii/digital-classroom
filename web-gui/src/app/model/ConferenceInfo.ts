@@ -11,5 +11,6 @@ export class ConferenceInfo implements ClassroomDependent {
 }
 
 export class JoinLink {
+  conference: ConferenceInfo
   url: string
 }
