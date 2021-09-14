@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  wsUrl: "wss://localhost:8085/rsocket",
+  wsUrl: "ws://localhost:8085/rsocket",
 };
 
 /*
