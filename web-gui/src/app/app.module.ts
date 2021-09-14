@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import {ErrorHandler, NgModule} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -24,6 +24,7 @@ import {IsPrivilegedPipe} from "./pipes/is-privileged-pipe";
 import {ManageTicketDialogComponent} from "./dialogs/manage-ticket-dialog/manage-ticket-dialog.component";
 import {UserListComponent} from "./page-components/classroom/user-list/user-list.component";
 import {TicketListComponent} from "./page-components/classroom/ticket-list/ticket-list.component";
+import {GlobalErrorHandler} from "./util/GlobalErrorHandler";
 
 @NgModule({
   declarations: [
@@ -58,7 +59,7 @@ import {TicketListComponent} from "./page-components/classroom/ticket-list/ticke
       }
     })
   ],
-  providers: [httpInterceptorProviders],
+  providers: [httpInterceptorProviders, {provide: ErrorHandler, useClass: GlobalErrorHandler}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
