@@ -1,0 +1,27 @@
+.conference-mat-card {
+  padding: 5px;
+}
+
+.joined-conference {
+  background-color: #43A047;
+}
+
+.conference-creator {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.conference-creation-time {
+  grid-column: 2;
+  grid-row: 2;
+  text-align: right;
+}
+
+.conference-name {
+  grid-column: 1/3;
+  grid-row: 1;
+  font-size: medium;
+  border-bottom: solid 1px black;
+  word-wrap: break-word;
+  word-break: break-all;
+}

@@ -9,6 +9,7 @@ export class GlobalErrorHandler implements ErrorHandler {
 
   handleError(error) {
     this.notification.showError(error.message)
+    console.error(error)
   }
 
 }

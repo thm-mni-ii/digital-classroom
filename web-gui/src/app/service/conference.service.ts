@@ -24,9 +24,9 @@ export class ConferenceService {
 
   invitationEvents: Observable<InvitationEvent> = this.eventListenerService.invitationEvents;
 
-  private currentConferences: Map<string, ConferenceInfo> = new Map<string, ConferenceInfo>()
-  private currentConferenceSubject: Subject<ConferenceInfo[]> = new ReplaySubject(1)
-  currentConferenceObservable: Observable<ConferenceInfo[]> = this.currentConferenceSubject.asObservable()
+  private attendedConferences: Map<string, ConferenceInfo> = new Map<string, ConferenceInfo>()
+  private attendedConferencesSubject: Subject<ConferenceInfo[]> = new ReplaySubject(1)
+  attendedConferencesObservable: Observable<ConferenceInfo[]> = this.attendedConferencesSubject.asObservable()
 
   private conferenceWindowHandle: Map<string, Window> = new Map<string, Window>()
   private isConferenceWindowOpen: Subject<ConferenceOpenInfo[]>
@@ -41,8 +41,8 @@ export class ConferenceService {
   ) {
     this.initConferences()
     this.initWindowHandle()
-    this.currentConferenceObservable.subscribe(currentConferences => {
-      currentConferences.forEach(conference => { this.currentConferences.set(conference.conferenceId, conference) })
+    this.attendedConferencesObservable.subscribe(currentConferences => {
+      currentConferences.forEach(conference => { this.attendedConferences.set(conference.conferenceId, conference) })
     })
     this.userService.currentUserObservable.subscribe(currentUser => {
       this.currentUser = currentUser
@@ -70,6 +70,8 @@ export class ConferenceService {
   }
 
   private publish() {
+    this.conferenceSubject.next(Array.from(this.conferences.values()))
+    this.attendedConferencesSubject.next(Array.from(this.attendedConferences.values()))
   }
 
   public createConference(conferenceName: string = 'Konferenz von ' + this.currentUser.fullName, visible: boolean = true) {
@@ -97,7 +99,7 @@ export class ConferenceService {
 
   public joinConferenceOfUser(conferencingUser: User) {
       this.rSocketService.requestResponse<JoinLink>("socket/conference/join-user", conferencingUser).pipe(
-        tap(joinLink => this.currentConferences.set(joinLink.conference.conferenceId, joinLink.conference)),
+        tap(joinLink => this.attendedConferences.set(joinLink.conference.conferenceId, joinLink.conference)),
         tap(joinLink => this.openConferenceWindow(joinLink))
       ).subscribe()
   }
@@ -112,7 +114,7 @@ export class ConferenceService {
     this.conferenceWindowOpen = true
   }
 
-  public leaveConference(conference: ConferenceInfo = this.currentConferences[0]) {
+  public leaveConference(conference: ConferenceInfo = this.attendedConferences[0]) {
     console.log("conference left!")
     this.conferenceWindowOpen = false
     this.conferenceWindowHandle.delete(conference.conferenceId)
@@ -132,7 +134,7 @@ export class ConferenceService {
     const invitationEvent = new InvitationEvent()
     invitationEvent.inviter = this.currentUser
     invitationEvent.invitee = invitee
-    this.currentConferenceSubject.subscribe(conferenceInfo => {
+    this.attendedConferencesObservable.subscribe(conferenceInfo => {
       invitationEvent.conferenceInfo = conferenceInfo[0]
       this.rSocketService.fireAndForget("socket/conference/invite", invitationEvent)
     })
@@ -145,10 +147,11 @@ export class ConferenceService {
       tap(conferenceOpenInfos => {
         conferenceOpenInfos.forEach(conference => {
           if (conference.isClosed) {
-            const conferenceInfo = this.currentConferences.get(conference.conferenceId)
+            const conferenceInfo = this.attendedConferences.get(conference.conferenceId)
             this.leaveConference(conferenceInfo)
-            this.currentConferences.delete(conference.conferenceId)
+            this.attendedConferences.delete(conference.conferenceId)
             this.conferenceWindowHandle.delete(conference.conferenceId)
+            this.publish()
           }
         })
       })

@@ -1,0 +1,13 @@
+<mat-list>
+  Konferenzen:
+  <mat-card class="conference-mat-card" *ngFor="let conference of conferences; index as i"
+            [ngClass]="{ 'joined-conference': attendedConferences.includes(conference) }">
+    <mat-card-content>
+      <div class="grid-container">
+        <div class="grid-item conference-name"><p>{{conference.conferenceName}}</p></div>
+        <div class="grid-item conference-creator"><p>{{conference.creator.fullName}}</p></div>
+        <div class="grid-item conference-creation-time"><p>Seit: {{conference.creation | date:"dd/MM/yyyy 'um' hh:mm"}}}}</p></div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</mat-list>

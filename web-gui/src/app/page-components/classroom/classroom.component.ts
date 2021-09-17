@@ -18,7 +18,7 @@ import {ConferenceInfo} from "../../model/ConferenceInfo";
 import {ClassroomInfo} from "../../model/ClassroomInfo";
 
 @Component({
-  selector: 'app-conference',
+  selector: 'app-classroom',
   templateUrl: './classroom.component.html',
   styleUrls: ['./classroom.component.scss']
 })
@@ -29,6 +29,7 @@ export class ClassroomComponent implements OnInit, OnDestroy {
   users: UserDisplay[] = [];
   tickets: Ticket[] = [];
   conferences: ConferenceInfo[] = [];
+  attendedConferences: ConferenceInfo[] = [];
   subscriptions: Subscription[] = [];
   parseCourseRole: Function = parseCourseRole
 
@@ -59,6 +60,12 @@ export class ClassroomComponent implements OnInit, OnDestroy {
       ),
       this.classroomService.userObservable.subscribe(
       users => this.users = users
+      ),
+      this.classroomService.conferencesObservable.subscribe(
+        conferences => this.conferences = conferences
+      ),
+      this.classroomService.attendedConferencesObservable.subscribe(
+        attendedConferences => this.attendedConferences = attendedConferences
       )
     )
   }

@@ -28,6 +28,8 @@ export class ClassroomService {
   public tickets = this.ticketService.ticketObservable
   public userObservable = this.userService.userObservable
   public currentUserObservable = this.userService.currentUserObservable
+  public conferencesObservable = this.conferenceService.conferencesObservable
+  public attendedConferencesObservable = this.conferenceService.attendedConferencesObservable
   private users: UserDisplay[] = []
 
   private classroomInfoSubject: Subject<ClassroomInfo> = new BehaviorSubject(new ClassroomInfo())
