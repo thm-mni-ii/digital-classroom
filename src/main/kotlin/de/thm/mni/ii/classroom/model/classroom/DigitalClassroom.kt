@@ -28,7 +28,7 @@ class DigitalClassroom(
     private val users = HashMap<User, RSocketRequester?>()
     private val tickets = HashSet<Ticket>()
     private val nextTicketId = AtomicLong(10000L)
-    private val conferenceStorage = ConferenceStorage(this)
+    private val conferenceStorage = ConferenceStorage()
 
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
 
@@ -101,12 +101,12 @@ class DigitalClassroom(
 
     fun getUserDisplays(): Flux<UserDisplay> {
         return this.getUsersFlux().map { user ->
-            UserDisplay(user, conferenceStorage.getConferenceOfUser(user))
+            UserDisplay(user, conferenceStorage.getConferencesOfUser(user).last())
         }
     }
 
-    fun getConferenceOfUser(user: User): Mono<Conference> {
-        return Mono.justOrEmpty(conferenceStorage.getConferenceOfUser(user))
+    fun getConferencesOfUser(user: User): Flux<Conference> {
+        return Flux.fromIterable(conferenceStorage.getConferencesOfUser(user))
     }
 
     fun getConferences(): Flux<Conference> {
@@ -142,7 +142,7 @@ class DigitalClassroom(
     }
 
     fun getUsersOfConference(conference: Conference): Flux<User> {
-        return conferenceStorage.getUsersOfConference(conference)
+        return Flux.fromIterable(conferenceStorage.getUsersOfConference(conference))
     }
 
     fun deleteConference(conference: Conference): Mono<Void> {

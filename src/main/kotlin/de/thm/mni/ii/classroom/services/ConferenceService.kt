@@ -48,7 +48,7 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
     fun joinConferenceOfUser(joiningUser: User, conferencingUser: User): Mono<JoinLink> {
         return classroomInstanceService.getClassroomInstance(joiningUser.classroomId)
             .flatMap { classroom ->
-                Mono.zip(Mono.just(classroom), classroom.getConferenceOfUser(conferencingUser))
+                Mono.zip(Mono.just(classroom), classroom.getConferencesOfUser(conferencingUser).last())
             }.flatMap { (classroom, conference) ->
                 joinUser(joiningUser, conference!!, classroom)
             }
@@ -99,7 +99,7 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
                 classroom.leaveConference(user, conference)
                 this.scheduleConferenceDeletionIfEmpty(classroom, conference, 20)
             }.flatMap {
-                classroom.getConferenceOfUser(user)
+                classroom.getConferencesOfUser(user).last()
             }.flatMap { conference ->
                 eventSenderService.sendToAll(classroom, UserEvent(user, true, conference.conferenceId, UserAction.LEAVE_CONFERENCE))
             }.switchIfEmpty {
