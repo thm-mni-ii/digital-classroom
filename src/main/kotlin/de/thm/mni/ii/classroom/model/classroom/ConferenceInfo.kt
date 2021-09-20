@@ -45,5 +45,3 @@ class ConferenceInfo(
     }
 
 }
-
-data class JoinLink(val conference: ConferenceInfo, val url: String)

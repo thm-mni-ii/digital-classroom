@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono
 
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
-import reactor.kotlin.core.publisher.onErrorResume
 import reactor.kotlin.core.publisher.switchIfEmpty
 import java.time.Duration
 
@@ -133,6 +132,9 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
                 upstreamBBBService.endConference(conference)
             }.flatMap {
                 classroom.deleteConference(conference)
+            }.flatMap {
+                val conferenceEvent = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.CLOSE)
+                eventSenderService.sendToAll(classroom, conferenceEvent)
             }.subscribe()
     }
 

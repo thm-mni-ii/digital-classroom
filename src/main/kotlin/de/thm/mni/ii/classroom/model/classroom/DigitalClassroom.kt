@@ -147,7 +147,7 @@ class DigitalClassroom(
 
     fun getLatestConferenceOfUser(user: User) = conferenceStorage.getLatestConferenceOfUser(user).toMono()
 
-    fun deleteConference(conference: Conference): Mono<Void> {
+    fun deleteConference(conference: Conference): Mono<Conference> {
         return conferenceStorage.deleteConference(conference)
     }
 

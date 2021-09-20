@@ -3,7 +3,6 @@ package de.thm.mni.ii.classroom.model.classroom
 import de.thm.mni.ii.classroom.exception.classroom.ConferenceNotFoundException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.publisher.Mono.empty
 import reactor.kotlin.core.publisher.toMono
 
 class ConferenceStorage {
@@ -55,12 +54,13 @@ class ConferenceStorage {
         this.usersConference[user]?.remove(conference)
     }
 
-    fun deleteConference(conference: Conference): Mono<Void> {
-        this.conferenceUsers.remove(conference)
-        this.usersConference.values.forEach {
-            it.remove(conference)
+    fun deleteConference(conference: Conference): Mono<Conference> {
+        return Mono.justOrEmpty(conference).doOnNext {
+            this.conferenceUsers.remove(conference)
+            this.usersConference.values.forEach {
+                it.remove(conference)
+            }
         }
-        return empty()
     }
 
 }

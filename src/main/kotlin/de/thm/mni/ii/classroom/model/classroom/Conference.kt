@@ -29,4 +29,6 @@ class Conference(
         result = 31 * result + conferenceId.hashCode()
         return result
     }
+
+    fun toConferenceInfo() = ConferenceInfo(this)
 }
