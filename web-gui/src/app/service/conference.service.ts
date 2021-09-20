@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, ReplaySubject, Subject} from 'rxjs';
-import {distinctUntilChanged, finalize, first, tap} from "rxjs/operators";
+import {distinctUntilChanged, filter, finalize, first, isEmpty, tap} from "rxjs/operators";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {EventListenerService} from "../rsocket/event-listener.service";
 import {ConferenceAction, ConferenceEvent, InvitationEvent} from "../rsocket/event/ClassroomEvent";
@@ -137,10 +137,13 @@ export class ConferenceService {
     const invitationEvent = new InvitationEvent()
     invitationEvent.inviter = this.currentUser
     invitationEvent.invitee = invitee
-    this.attendedConferencesObservable.subscribe(conferenceInfo => {
-      invitationEvent.conferenceInfo = conferenceInfo[0]
-      this.rSocketService.fireAndForget("socket/conference/invite", invitationEvent)
-    })
+    this.attendedConferencesObservable.pipe(
+      filter(attendedConferences => attendedConferences.length != 0),
+      first(),
+      tap(conferenceInfo => {
+        invitationEvent.conferenceInfo = conferenceInfo[0] // TODO: Make user choose conference to invite to.
+        this.rSocketService.fireAndForget("socket/conference/invite", invitationEvent)
+      })).subscribe()
   }
 
   private initWindowHandle() {
