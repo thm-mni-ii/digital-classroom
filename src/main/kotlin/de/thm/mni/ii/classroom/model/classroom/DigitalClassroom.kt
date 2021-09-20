@@ -101,7 +101,7 @@ class DigitalClassroom(
 
     fun getUserDisplays(): Flux<UserDisplay> {
         return this.getUsersFlux().map { user ->
-            UserDisplay(user, conferenceStorage.getConferencesOfUser(user).last())
+            UserDisplay(user, conferenceStorage.getConferencesOfUser(user).lastOrNull())
         }
     }
 

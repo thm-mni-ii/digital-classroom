@@ -89,9 +89,11 @@ export class ConferenceService {
 
   public joinConference(conference: ConferenceInfo) {
     if (this.conferenceWindowHandle.size === 0 || !this.conferenceWindowHandle.has(conference.conferenceId)) {
-      this.rSocketService.requestResponse<JoinLink>("socket/conference/join", conference).subscribe(joinLink => {
-        this.openConferenceWindow(joinLink)
-      })
+      this.rSocketService.requestResponse<JoinLink>("socket/conference/join", conference).pipe(
+        tap(joinLink => this.attendedConferences.set(joinLink.conference.conferenceId, joinLink.conference)),
+        tap(joinLink => this.openConferenceWindow(joinLink)),
+        tap(_ => this.publish())
+      ).subscribe()
     } else {
       this.conferenceWindowHandle.get(conference.conferenceId).focus()
     }
@@ -100,7 +102,8 @@ export class ConferenceService {
   public joinConferenceOfUser(conferencingUser: User) {
       this.rSocketService.requestResponse<JoinLink>("socket/conference/join-user", conferencingUser).pipe(
         tap(joinLink => this.attendedConferences.set(joinLink.conference.conferenceId, joinLink.conference)),
-        tap(joinLink => this.openConferenceWindow(joinLink))
+        tap(joinLink => this.openConferenceWindow(joinLink)),
+        tap(_ => this.publish())
       ).subscribe()
   }
 
