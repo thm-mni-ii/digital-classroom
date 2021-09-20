@@ -38,7 +38,7 @@ class DigitalClassroom(
 
     fun doesUserExist(user: User): Boolean = users.contains(user)
 
-    fun joinUser(password: String, user: User): Mono<User> {
+    fun authenticateAssignRole(password: String, user: User): Mono<User> {
         return Mono.defer {
             when (password) {
                 studentPassword -> user.userRole = UserRole.STUDENT
@@ -46,7 +46,6 @@ class DigitalClassroom(
                 tutorPassword -> user.userRole = UserRole.TUTOR
                 else -> throw InvalidMeetingPasswordException(classroomId)
             }
-            users[user] = null
             Mono.just(user)
         }
     }
@@ -96,7 +95,7 @@ class DigitalClassroom(
     }
 
     fun getUsersFlux(): Flux<User> {
-        return users.keys.toFlux()
+        return getUsers().toFlux()
     }
 
     fun getUserDisplays(): Flux<UserDisplay> {

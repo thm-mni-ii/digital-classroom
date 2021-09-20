@@ -60,7 +60,7 @@ class ClassroomInstanceService(private val senderService: ClassroomEventSenderSe
 
     fun joinUser(classroomId: String, password: String, user: User): Mono<Pair<User, DigitalClassroom>> {
         return getClassroomInstance(classroomId).flatMap { classroom ->
-            Mono.zip(classroom.joinUser(password, user), Mono.just(classroom)).map { it.toPair() }
+            Mono.zip(classroom.authenticateAssignRole(password, user), Mono.just(classroom)).map { it.toPair() }
         }
     }
 
