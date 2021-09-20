@@ -15,7 +15,7 @@ class ClassroomEventSenderService {
 
     fun sendInvitation(classroom: DigitalClassroom, invitationEvent: InvitationEvent): Mono<Void> {
         return classroom.getSocketOfUser(invitationEvent.invitee).doOnNext { requester ->
-            logger.debug("${invitationEvent.inviter.fullName} invites ${invitationEvent.invitee.fullName} to conference!")
+            logger.trace("${invitationEvent.inviter.fullName} invites ${invitationEvent.invitee.fullName} to conference!")
             fireAndForget(invitationEvent, requester)
         }.then()
     }
@@ -23,7 +23,7 @@ class ClassroomEventSenderService {
     fun sendToAll(classroom: DigitalClassroom, event: ClassroomEvent): Mono<Void> {
         return classroom.getSockets().doOnNext { (user, requester) ->
             if (requester != null) {
-                logger.debug("sending to ${user.fullName}")
+                logger.trace("sending to ${user.fullName}")
                 fireAndForget(event, requester)
             }
         }.then()

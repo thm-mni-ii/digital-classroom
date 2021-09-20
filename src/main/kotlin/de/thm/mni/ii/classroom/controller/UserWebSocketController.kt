@@ -44,9 +44,7 @@ class UserWebSocketController(
 
     @MessageMapping("socket/init-users")
     fun initUsers(@AuthenticationPrincipal user: User): Flux<UserDisplay> {
-        return userService.getUserDisplays(user).doOnNext {
-            logger.info("${it.fullName}, ${it.userId}")
-        }
+        return userService.getUserDisplays(user)
     }
 
     @MessageMapping("socket/init-conferences")

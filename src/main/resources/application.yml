@@ -25,15 +25,14 @@ jwt:
 logging:
   level:
     de.thm: DEBUG
-    SQL: DEBUG
     org:
       springframework:
-        web: DEBUG
+        web: INFO
         security:
           rsocket:
-            core: DEBUG
+            core: INFO
         messaging:
-          rsocket: DEBUG
+          rsocket: INFO
 
 spring:
   autoconfigure.exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration, org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration, org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration
