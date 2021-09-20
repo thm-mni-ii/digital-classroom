@@ -4,10 +4,7 @@ import de.thm.mni.ii.classroom.event.TicketAction
 import de.thm.mni.ii.classroom.event.TicketEvent
 import de.thm.mni.ii.classroom.event.UserAction
 import de.thm.mni.ii.classroom.event.UserEvent
-import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
-import de.thm.mni.ii.classroom.model.classroom.Ticket
-import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.model.classroom.UserDisplay
+import de.thm.mni.ii.classroom.model.classroom.*
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
 import org.slf4j.LoggerFactory
 import org.springframework.messaging.rsocket.RSocketRequester
@@ -130,6 +127,14 @@ class ClassroomUserService(
         return classroomInstanceService
             .getClassroomInstance(user.classroomId)
             .map { ClassroomInfo(it.classroomId, it.classroomName) }
+    }
+
+    fun getConferences(user: User): Flux<ConferenceInfo> {
+        return classroomInstanceService
+            .getClassroomInstance(user.classroomId)
+            .flatMapMany { classroom ->
+                classroom.getConferences()
+            }.map(::ConferenceInfo)
     }
 
 }

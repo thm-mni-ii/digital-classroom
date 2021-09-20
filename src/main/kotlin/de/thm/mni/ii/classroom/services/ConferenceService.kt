@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono
 
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
+import reactor.kotlin.core.publisher.onErrorResume
 import reactor.kotlin.core.publisher.switchIfEmpty
 import java.time.Duration
 
@@ -99,7 +100,7 @@ class ConferenceService(private val classroomInstanceService: ClassroomInstanceS
                 classroom.leaveConference(user, conference)
                 this.scheduleConferenceDeletionIfEmpty(classroom, conference, 20)
             }.flatMap {
-                classroom.getConferencesOfUser(user).last()
+                classroom.getLatestConferenceOfUser(user)
             }.flatMap { conference ->
                 eventSenderService.sendToAll(classroom, UserEvent(user, true, conference.conferenceId, UserAction.LEAVE_CONFERENCE))
             }.switchIfEmpty {

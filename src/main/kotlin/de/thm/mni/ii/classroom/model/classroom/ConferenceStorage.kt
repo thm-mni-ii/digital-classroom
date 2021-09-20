@@ -46,8 +46,8 @@ class ConferenceStorage {
         return Mono.just(conferenceUsers.keys.first { it.conferenceId == conferenceId })
     }
 
-    private fun getLatestConferenceOfUser(user: User): Conference {
-        return getConferencesOfUser(user).last()
+    fun getLatestConferenceOfUser(user: User): Conference? {
+        return getConferencesOfUser(user).lastOrNull()
     }
 
     fun leaveConference(user: User, conference: Conference) {

@@ -49,7 +49,7 @@ class UserWebSocketController(
 
     @MessageMapping("socket/init-conferences")
     fun initConferences(@AuthenticationPrincipal user: User): Flux<ConferenceInfo> {
-        return Flux.empty()
+        return userService.getConferences(user)
     }
 
 }

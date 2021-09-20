@@ -11,6 +11,7 @@ import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicLong
 import org.slf4j.LoggerFactory
+import reactor.kotlin.core.publisher.toMono
 
 /**
  * Class representing a digital classroom instance.
@@ -143,6 +144,8 @@ class DigitalClassroom(
     fun getUsersOfConference(conference: Conference): Flux<User> {
         return Flux.fromIterable(conferenceStorage.getUsersOfConference(conference))
     }
+
+    fun getLatestConferenceOfUser(user: User) = conferenceStorage.getLatestConferenceOfUser(user).toMono()
 
     fun deleteConference(conference: Conference): Mono<Void> {
         return conferenceStorage.deleteConference(conference)
