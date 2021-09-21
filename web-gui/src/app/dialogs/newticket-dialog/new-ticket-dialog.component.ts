@@ -20,8 +20,7 @@ export class NewTicketDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this._formBuilder.group({
-      desc: '',
-      priority: 1,
+      desc: ''
     });
   }
 
