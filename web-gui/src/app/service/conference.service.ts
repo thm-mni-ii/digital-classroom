@@ -74,17 +74,17 @@ export class ConferenceService {
     this.attendedConferencesSubject.next(Array.from(this.attendedConferences.values()))
   }
 
-  public createConference(conferenceName: string = 'Konferenz von ' + this.currentUser.fullName, visible: boolean = true) {
-    const conferenceInfo = new ConferenceInfo()
-    conferenceInfo.classroomId = this.currentUser.classroomId
-    conferenceInfo.creator = this.currentUser
-    conferenceInfo.conferenceName = conferenceName
-    conferenceInfo.visible = visible
+  public createConference(conferenceInfo: ConferenceInfo): Observable<ConferenceInfo> {
+    const subject = new Subject<ConferenceInfo>()
     this.rSocketService.requestResponse<ConferenceInfo>("socket/conference/create", conferenceInfo).pipe(
       tap(conference => this.conferences.set(conference.conferenceId, conference)),
       tap(conference => this.joinConference(conference)),
       tap(_ => this.publish()),
-    ).subscribe()
+      tap(conference => {
+        subject.next(conference)
+        subject.complete()
+      })).subscribe()
+    return subject
   }
 
   public joinConference(conference: ConferenceInfo) {
@@ -124,26 +124,25 @@ export class ConferenceService {
     this.rSocketService.fireAndForget("socket/conference/leave", conference)
   }
 
-  public inviteToConference(invitee: User, ticket: Ticket) {
-    if (ticket === null) {
-      this.createConference()
-    } else {
-      this.createConference(ticket.description)
-    }
-    this.sendInvitation(invitee)
-  }
-
-  private sendInvitation(invitee: User) {
+  public inviteToConference(invitee: User, conferenceInfo: ConferenceInfo) {
     const invitationEvent = new InvitationEvent()
     invitationEvent.inviter = this.currentUser
     invitationEvent.invitee = invitee
-    this.attendedConferencesObservable.pipe(
-      filter(attendedConferences => attendedConferences.length != 0),
-      first(),
-      tap(conferenceInfo => {
-        invitationEvent.conferenceInfo = conferenceInfo[0] // TODO: Make user choose conference to invite to.
-        this.rSocketService.fireAndForget("socket/conference/invite", invitationEvent)
-      })).subscribe()
+
+    if (conferenceInfo.conferenceId == null) {
+      // Conference needs to be created
+      this.createConference(conferenceInfo).subscribe(conference => {
+        invitationEvent.conferenceInfo = conferenceInfo
+        this.sendInvitation(invitationEvent)
+      })
+    } else {
+      // Conference already exists
+      this.sendInvitation(invitationEvent)
+    }
+  }
+
+  private sendInvitation(invitationEvent: InvitationEvent) {
+    this.rSocketService.fireAndForget("socket/conference/invite", invitationEvent)
   }
 
   private initWindowHandle() {

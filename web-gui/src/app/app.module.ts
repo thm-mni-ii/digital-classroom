@@ -7,7 +7,7 @@ import {ClassroomComponent} from "./page-components/classroom/classroom.componen
 import {MenuBarComponent} from "./page-components/menu-bar/menu-bar.component";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {NewTicketDialogComponent} from "./dialogs/new-ticket-dialog/new-ticket-dialog.component";
-import {InviteToConferenceDialogComponent} from "./dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component";
+import {InviteToConferenceDialogComponent} from "./dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component";
 import {AssignTicketDialogComponent} from "./dialogs/assign-ticket-dialog/assign-ticket-dialog.component";
 import {MaterialComponentsModule} from "./modules/material-components/material-components.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -27,6 +27,8 @@ import {TicketListComponent} from "./page-components/classroom/ticket-list/ticke
 import {GlobalErrorHandler} from "./util/GlobalErrorHandler";
 import { ConferencesComponent } from './page-components/classroom/conferences/conferences.component';
 import {CreateConferenceDialogComponent} from "./dialogs/create-conference-dialog/create-conference-dialog.component";
+import {MatInputModule} from "@angular/material/input";
+import {MatFormFieldModule} from "@angular/material/form-field";
 
 @NgModule({
   declarations: [
@@ -57,6 +59,8 @@ import {CreateConferenceDialogComponent} from "./dialogs/create-conference-dialo
     MatSliderModule,
     HttpClientModule,
     RouterModule,
+    MatFormFieldModule,
+    MatInputModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,

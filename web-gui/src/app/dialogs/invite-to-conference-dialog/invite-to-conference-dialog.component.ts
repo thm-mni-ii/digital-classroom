@@ -7,7 +7,7 @@ import {User} from "../../model/User";
 import {ConferenceService} from "../../service/conference.service";
 
 @Component({
-  selector: 'app-inviteto-conference-dialog',
+  selector: 'app-invite-to-conference-dialog',
   templateUrl: './invite-to-conference-dialog.component.html',
   styleUrls: ['./invite-to-conference-dialog.component.scss']
 })
