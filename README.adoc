@@ -1,5 +1,7 @@
 = THM Digital Classroom
 
+An application allowing student groups to arbitrarily create and join to Big Blue Button conferences. Students are able to create tickets to ask instructors for help, which may then join at the click of a button. Implements parts of the link:https://docs.bigbluebutton.org/dev/api.html[BBB-API] to allow for easy deployment in an existing BBB environment.
+
 == Current functionality
 Create classrooms and join via BBB API.
 It is possible to configure the feedback system (or any BBB Gateway, like Greenlight or PILOS) to connect to the digital classroom instead of a BBB cluster.
