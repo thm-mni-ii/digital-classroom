@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import {ClassroomComponent} from "./page-components/classroom/classroom.component";
 import {MenuBarComponent} from "./page-components/menu-bar/menu-bar.component";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {NewTicketDialogComponent} from "./dialogs/newticket-dialog/new-ticket-dialog.component";
+import {NewTicketDialogComponent} from "./dialogs/new-ticket-dialog/new-ticket-dialog.component";
 import {InviteToConferenceDialogComponent} from "./dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component";
 import {AssignTicketDialogComponent} from "./dialogs/assign-ticket-dialog/assign-ticket-dialog.component";
 import {MaterialComponentsModule} from "./modules/material-components/material-components.module";
@@ -26,6 +26,7 @@ import {UserListComponent} from "./page-components/classroom/user-list/user-list
 import {TicketListComponent} from "./page-components/classroom/ticket-list/ticket-list.component";
 import {GlobalErrorHandler} from "./util/GlobalErrorHandler";
 import { ConferencesComponent } from './page-components/classroom/conferences/conferences.component';
+import {CreateConferenceDialogComponent} from "./dialogs/create-conference-dialog/create-conference-dialog.component";
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { ConferencesComponent } from './page-components/classroom/conferences/co
     ManageTicketDialogComponent,
     UserListComponent,
     TicketListComponent,
-    ConferencesComponent
+    ConferencesComponent,
+    CreateConferenceDialogComponent
   ],
   imports: [
     BrowserModule,

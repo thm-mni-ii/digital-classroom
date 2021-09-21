@@ -11,7 +11,7 @@ import {TicketService} from "./ticket.service";
 import {filter, map} from "rxjs/operators";
 import {UserService} from "./user.service";
 import {Roles} from "../model/Roles";
-import {NewTicketDialogComponent} from "../dialogs/newticket-dialog/new-ticket-dialog.component";
+import {NewTicketDialogComponent} from "../dialogs/new-ticket-dialog/new-ticket-dialog.component";
 import {ConferenceInfo} from "../model/ConferenceInfo";
 import {ClassroomInfo} from "../model/ClassroomInfo";
 import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
