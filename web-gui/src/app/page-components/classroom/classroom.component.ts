@@ -106,20 +106,4 @@ export class ClassroomComponent implements OnInit, OnDestroy {
     });
   }
 
-  public sortUsers(users) {
-    return users.sort((a, b) => {
-      if (a.courseRole > b.courseRole) {
-        return 1;
-      } else if ( a.courseRole < b.courseRole) {
-        return -1;
-      } else {
-        if (a.courseRole > b.courseRole) {
-          return 1;
-        } else {
-          return -1;
-        }
-      }
-    });
-  }
-
 }
