@@ -53,7 +53,7 @@ export class ManageTicketDialogComponent implements OnInit {
       return;
     }
     this.disabled = true;
-    this.classroomService.inviteToConference(invitee);
+    this.classroomService.inviteToConference(invitee, null, this.ticket);
     this.snackBar.open(`${invitee.prename} ${invitee.surname} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
     this.dialogRef.close();
   }

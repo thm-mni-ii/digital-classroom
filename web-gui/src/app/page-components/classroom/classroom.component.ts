@@ -7,7 +7,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {DOCUMENT} from '@angular/common';
 import {Subscription} from 'rxjs';
 import {ClassroomService} from '../../service/classroom.service';
-import {InviteToConferenceDialogComponent} from '../../dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component';
+import {InviteToConferenceDialogComponent} from '../../dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component';
 import {AssignTicketDialogComponent} from '../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component';
 import {Ticket} from '../../model/Ticket';
 import {parseCourseRole, User, UserDisplay} from "../../model/User";
@@ -15,7 +15,6 @@ import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
-import {ClassroomInfo} from "../../model/ClassroomInfo";
 
 @Component({
   selector: 'app-classroom',
@@ -24,7 +23,6 @@ import {ClassroomInfo} from "../../model/ClassroomInfo";
 })
 export class ClassroomComponent implements OnInit, OnDestroy {
 
-  classroomInfo: ClassroomInfo = undefined
   currentUser: User = undefined
   users: UserDisplay[] = [];
   tickets: Ticket[] = [];
@@ -51,9 +49,6 @@ export class ClassroomComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.classroomService.currentUserObservable.subscribe(
       currentUser => this.currentUser = currentUser
-      ),
-      this.classroomService.classroomInfo.subscribe(
-      classroomInfo => this.classroomInfo = classroomInfo
       ),
       this.classroomService.tickets.subscribe(
       tickets => this.tickets = tickets

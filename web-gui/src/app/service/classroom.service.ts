@@ -8,10 +8,10 @@ import {ConferenceService} from "./conference.service";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {Ticket} from "../model/Ticket";
 import {TicketService} from "./ticket.service";
-import {filter, map} from "rxjs/operators";
+import {filter, map, tap} from "rxjs/operators";
 import {UserService} from "./user.service";
 import {Roles} from "../model/Roles";
-import {NewTicketDialogComponent} from "../dialogs/newticket-dialog/new-ticket-dialog.component";
+import {NewTicketDialogComponent} from "../dialogs/new-ticket-dialog/new-ticket-dialog.component";
 import {ConferenceInfo} from "../model/ConferenceInfo";
 import {ClassroomInfo} from "../model/ClassroomInfo";
 import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
@@ -33,9 +33,10 @@ export class ClassroomService {
   private users: UserDisplay[] = []
 
   private classroomInfoSubject: Subject<ClassroomInfo> = new BehaviorSubject(new ClassroomInfo())
-  classroomInfo: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
+  classroomInfoObservable: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
 
-  currentUser: UserDisplay
+  public classroomInfo: ClassroomInfo
+  public currentUser: UserDisplay
 
   public constructor(private authService: AuthService,
                      private conferenceService: ConferenceService,
@@ -46,10 +47,12 @@ export class ClassroomService {
     this.userService.currentUserObservable.subscribe(
       currentUser => this.currentUser = currentUser
     )
+    this.classroomInfoObservable.subscribe(info => this.classroomInfo = info)
     this.userObservable.subscribe(users => this.users = users)
     this.conferenceService.invitationEvents.subscribe(invitation => {
       this.handleInviteMsg(invitation)
     })
+    this.join()
   }
 
   public isCurrentUserAuthorized(): boolean {
@@ -72,17 +75,35 @@ export class ClassroomService {
    * @return Observable that completes if connected.
    */
   public join() {
-    return this.rSocketService
-      .requestResponse<ClassroomInfo>("socket/init-classroom", "")
+    return this.rSocketService.requestResponse<ClassroomInfo>("socket/init-classroom", "").pipe(
+        tap(info => this.classroomInfoSubject.next(info))
+      ).subscribe()
+  }
+
+  public createConference(conferenceInfo: ConferenceInfo) {
+    this.conferenceService.createConference(conferenceInfo)
   }
 
   /**
    * Invites user to a conference.
    * @param user The user to invite
-   * @param ticket The ticket for reference (or null)
+   * @param conferenceInfo
+   * @param ticket
    */
-  public inviteToConference(user: User, ticket: Ticket = null) {
-    this.conferenceService.inviteToConference(user, ticket)
+  public inviteToConference(user: User, conferenceInfo: ConferenceInfo = null, ticket: Ticket = null) {
+    if (conferenceInfo !== null) {
+      this.conferenceService.inviteToConference(user, conferenceInfo)
+    } else if (ticket !== null) {
+      const conferenceInfo = new ConferenceInfo()
+      conferenceInfo.classroomId = this.classroomInfo.classroomId
+      conferenceInfo.creator = this.currentUser
+      conferenceInfo.visible = true
+      conferenceInfo.creation = Date.now()
+      conferenceInfo.conferenceName = ticket.description
+      this.conferenceService.inviteToConference(user, conferenceInfo)
+    } else {
+      throw new Error("No ticket or conference provided for invitation!")
+    }
   }
 
   public joinConferenceOfUser(conferencingUser: User) {
