@@ -7,10 +7,8 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {DOCUMENT} from '@angular/common';
 import {Subscription} from 'rxjs';
 import {ClassroomService} from '../../service/classroom.service';
-import {InviteToConferenceDialogComponent} from '../../dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component';
-import {AssignTicketDialogComponent} from '../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component';
 import {Ticket} from '../../model/Ticket';
-import {parseCourseRole, User, UserDisplay} from "../../model/User";
+import {User, UserDisplay} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
@@ -29,7 +27,6 @@ export class ClassroomComponent implements OnInit, OnDestroy {
   conferences: ConferenceInfo[] = [];
   attendedConferences: ConferenceInfo[] = [];
   subscriptions: Subscription[] = [];
-  parseCourseRole: Function = parseCourseRole
 
   constructor(private route: ActivatedRoute,
               private titlebarService: TitlebarService,
@@ -67,38 +64,6 @@ export class ClassroomComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe())
-  }
-
-  public inviteToConference(user: User) {
-    this.dialog.open(InviteToConferenceDialogComponent, {
-      height: 'auto',
-      width: 'auto',
-      data: user
-    });
-  }
-
-  public assignTeacher(ticket) {
-    if (this.classroomService.isCurrentUserAuthorized()) {
-      this.dialog.open(AssignTicketDialogComponent, {
-        height: 'auto',
-        width: 'auto',
-        data: ticket
-      });
-    }
-  }
-
-  public sortTickets(tickets: Ticket[]) {
-    if (tickets.length <= 0) return null
-    return tickets.sort( (a, b) => {
-      if (a.assignee?.userId === this.currentUser.userId && b.assignee?.userId === this.currentUser.userId) {
-        return a.createTime > b.createTime ? 1 : -1;
-      } else if (a.assignee?.userId === this.currentUser.userId) {
-        return -1;
-      } else if (b.assignee?.userId === this.currentUser.userId) {
-        return 1;
-      }
-      return a.createTime > b.createTime ? 1 : -1;
-    });
   }
 
 }
