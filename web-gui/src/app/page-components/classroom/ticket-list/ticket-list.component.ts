@@ -21,13 +21,11 @@ export class TicketListComponent {
   ) { }
 
   public assignTeacher(ticket: Ticket) {
-    if (this.classroomService.isCurrentUserAuthorized()) {
-      this.dialog.open(AssignTicketDialogComponent, {
-        height: 'auto',
-        width: 'auto',
-        data: ticket
-      });
-    }
+    this.dialog.open(AssignTicketDialogComponent, {
+      height: 'auto',
+      width: 'auto',
+      data: ticket
+    });
   }
 
   public sortTickets(tickets: Ticket[]) {
