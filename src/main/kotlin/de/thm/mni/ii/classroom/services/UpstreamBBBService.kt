@@ -30,8 +30,9 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                                     conferenceInfo.conferenceName,
                                     UUID.randomUUID().toString(),
                                     UUID.randomUUID().toString(),
-                                    user,
-                                    conferenceInfo.visible
+                                    creator = user,
+                                    visible = conferenceInfo.visible,
+                                    attendees = mutableSetOf()
             )).flatMap { conference ->
                 val queryParams = mapOf(
                     Pair("meetingID", conference.conferenceId),

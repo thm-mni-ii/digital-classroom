@@ -10,7 +10,8 @@ class Conference(
     val moderatorPassword: String,
     val creator: User,
     val visible: Boolean,
-    val creation: ZonedDateTime = ZonedDateTime.now()
+    val attendees: MutableSet<User>,
+    val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

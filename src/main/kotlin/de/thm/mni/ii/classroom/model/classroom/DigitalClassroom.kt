@@ -3,6 +3,7 @@ package de.thm.mni.ii.classroom.model.classroom
 import de.thm.mni.ii.classroom.exception.classroom.TicketAlreadyExistsException
 import de.thm.mni.ii.classroom.exception.classroom.TicketNotFoundException
 import de.thm.mni.ii.classroom.exception.api.InvalidMeetingPasswordException
+import de.thm.mni.ii.classroom.exception.classroom.ConferenceNotFoundException
 import org.springframework.messaging.rsocket.RSocketRequester
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -134,7 +135,8 @@ class DigitalClassroom(
     }
 
     fun getConference(conferenceId: String): Mono<Conference> {
-        return conferenceStorage.getConference(conferenceId)
+        return conferenceStorage.getConference(conferenceId).toMono()
+            .switchIfEmpty(Mono.error(ConferenceNotFoundException(conferenceId)))
     }
 
     fun leaveConference(user: User, conference: Conference) {
@@ -148,7 +150,7 @@ class DigitalClassroom(
     fun getLatestConferenceOfUser(user: User) = conferenceStorage.getLatestConferenceOfUser(user).toMono()
 
     fun deleteConference(conference: Conference): Mono<Conference> {
-        return conferenceStorage.deleteConference(conference)
+        return this.conferenceStorage.deleteConference(conference)
     }
 
 
