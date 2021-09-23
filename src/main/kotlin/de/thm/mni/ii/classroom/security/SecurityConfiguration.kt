@@ -16,9 +16,11 @@ import kotlin.text.Charsets.UTF_8
  * Main security configuration of the digital classroom.
  */
 @EnableWebFluxSecurity
-class SecurityConfiguration(private val classroomHttpSessionTokenSecurity: ClassroomHttpSessionTokenSecurity,
-                            private val downstreamAPISecurity: DownstreamAPISecurity,
-                            private val classroomHttpJwtSecurity: ClassroomHttpJwtSecurity) {
+class SecurityConfiguration(
+    private val classroomHttpSessionTokenSecurity: ClassroomHttpSessionTokenSecurity,
+    private val downstreamAPISecurity: DownstreamAPISecurity,
+    private val classroomHttpJwtSecurity: ClassroomHttpJwtSecurity
+) {
 
     /**
      * Security filter chain for digital classroom.
@@ -65,7 +67,4 @@ class SecurityConfiguration(private val classroomHttpSessionTokenSecurity: Class
             .and()
             .build()
     }
-
 }
-
-

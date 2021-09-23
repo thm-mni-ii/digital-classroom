@@ -2,7 +2,10 @@ package de.thm.mni.ii.classroom.controller
 
 import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import org.slf4j.LoggerFactory
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 
 @RestController
@@ -21,5 +24,4 @@ class ClassroomApiController {
     fun joinClassroom(auth: ClassroomAuthentication) = Mono.empty<String>().doOnNext {
         logger.info("${auth.principal.fullName} joined classroom ${auth.principal.classroomId}.")
     }
-
 }

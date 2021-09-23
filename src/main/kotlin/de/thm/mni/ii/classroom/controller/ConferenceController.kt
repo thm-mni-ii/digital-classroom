@@ -43,5 +43,4 @@ class ConferenceController(private val conferenceService: ConferenceService) {
     fun inviteToConference(@AuthenticationPrincipal user: User, @Payload invitationEvent: InvitationEvent): Mono<Void> {
         return conferenceService.forwardInvitation(user, invitationEvent)
     }
-
 }

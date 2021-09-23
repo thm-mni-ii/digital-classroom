@@ -1,18 +1,18 @@
 package de.thm.mni.ii.classroom.model.classroom
 
-import de.thm.mni.ii.classroom.exception.classroom.TicketAlreadyExistsException
-import de.thm.mni.ii.classroom.exception.classroom.TicketNotFoundException
 import de.thm.mni.ii.classroom.exception.api.InvalidMeetingPasswordException
 import de.thm.mni.ii.classroom.exception.classroom.ConferenceNotFoundException
+import de.thm.mni.ii.classroom.exception.classroom.TicketAlreadyExistsException
+import de.thm.mni.ii.classroom.exception.classroom.TicketNotFoundException
+import org.slf4j.LoggerFactory
 import org.springframework.messaging.rsocket.RSocketRequester
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
+import reactor.kotlin.core.publisher.toMono
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicLong
-import org.slf4j.LoggerFactory
-import reactor.kotlin.core.publisher.toMono
 
 /**
  * Class representing a digital classroom instance.
@@ -23,7 +23,7 @@ class DigitalClassroom(
     val tutorPassword: String,
     val teacherPassword: String,
     classroomName: String
-): ClassroomInfo(classroomId, classroomName) {
+) : ClassroomInfo(classroomId, classroomName) {
 
     private val logger = LoggerFactory.getLogger(DigitalClassroom::class.java)
 
@@ -152,6 +152,4 @@ class DigitalClassroom(
     fun deleteConference(conference: Conference): Mono<Conference> {
         return this.conferenceStorage.deleteConference(conference)
     }
-
-
 }

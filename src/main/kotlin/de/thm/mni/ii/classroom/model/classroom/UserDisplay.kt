@@ -9,8 +9,8 @@ data class UserDisplay(
     val userRole: UserRole,
     var inConference: Boolean = false,
     var conferenceId: String?
-): ClassroomDependent {
-    constructor(user: User, conference: Conference?): this(
+) : ClassroomDependent {
+    constructor(user: User, conference: Conference?) : this(
         user.classroomId,
         user.userId,
         user.fullName,

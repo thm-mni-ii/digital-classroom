@@ -14,7 +14,7 @@ class ConferenceStorage {
 
     fun getUsersOfConference(conference: Conference): Set<User> {
         return conferences[conference.conferenceId]?.attendees
-                ?: throw ConferenceNotFoundException(conference.conferenceId)
+            ?: throw ConferenceNotFoundException(conference.conferenceId)
     }
 
     fun joinUser(conference: Conference, user: User): Mono<User> {
@@ -63,5 +63,4 @@ class ConferenceStorage {
             }
         }
     }
-
 }

@@ -18,7 +18,7 @@ import java.lang.IllegalArgumentException
 class ClassroomUserService(
     private val classroomInstanceService: ClassroomInstanceService,
     private val senderService: ClassroomEventSenderService
-    ) {
+) {
 
     private val logger = LoggerFactory.getLogger(ClassroomUserService::class.java)
 
@@ -31,7 +31,8 @@ class ClassroomUserService(
             }.doOnSuccess {
                 logger.info("${user.userId}/${user.fullName} connected to ${user.classroomId}!")
             }.flatMap {
-                socketRequester.rsocketClient().source()}
+                socketRequester.rsocketClient().source()
+            }
             .doOnNext {
                 it.onClose().doOnSuccess {
                     userDisconnected(user)
@@ -99,7 +100,7 @@ class ClassroomUserService(
             .getClassroomInstance(user.classroomId)
             .filter {
                 ticket.classroomId == user.classroomId &&
-                        (user.isPrivileged() || ticket.creator == user)
+                    (user.isPrivileged() || ticket.creator == user)
             }.switchIfEmpty {
                 Mono.error(UnauthorizedException("User not authorized to delete ticket!"))
             }.flatMap {
@@ -136,5 +137,4 @@ class ClassroomUserService(
                 classroom.getConferences()
             }.map(::ConferenceInfo)
     }
-
 }

@@ -7,17 +7,15 @@ import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.JoinLink
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.properties.UpstreamBBBProperties
+import de.thm.mni.ii.classroom.util.component1
+import de.thm.mni.ii.classroom.util.component2
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Mono
-import java.util.*
-
-import de.thm.mni.ii.classroom.util.component1
-import de.thm.mni.ii.classroom.util.component2
-
+import java.util.UUID
 
 @Component
 class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBProperties) {
@@ -25,28 +23,31 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     fun createConference(user: User, conferenceInfo: ConferenceInfo): Mono<Conference> {
-        return Mono.just(Conference(conferenceInfo.classroomId,
-                                    UUID.randomUUID().toString(),
-                                    conferenceInfo.conferenceName,
-                                    UUID.randomUUID().toString(),
-                                    UUID.randomUUID().toString(),
-                                    creator = user,
-                                    visible = conferenceInfo.visible,
-                                    attendees = mutableSetOf()
-            )).flatMap { conference ->
-                val queryParams = mapOf(
-                    Pair("meetingID", conference.conferenceId),
-                    Pair("name", conference.conferenceName),
-                    Pair("attendeePW", conference.attendeePassword),
-                    Pair("moderatorPW", conference.moderatorPassword)
-                )
-                val request = buildApiRequest("create", queryParams)
-                Mono.zip(Mono.just(conference), WebClient.create(request).get().retrieve().toEntity(MessageBBB::class.java))
-            }.map { (conference, responseEntity) ->
-                if (responseEntity.body!!.returncode == "SUCCESS") conference
-                else error(Exception(responseEntity.body?.message))
-            }
+        return Mono.just(
+            Conference(
+                conferenceInfo.classroomId,
+                UUID.randomUUID().toString(),
+                conferenceInfo.conferenceName,
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                creator = user,
+                visible = conferenceInfo.visible,
+                attendees = mutableSetOf()
+            )
+        ).flatMap { conference ->
+            val queryParams = mapOf(
+                Pair("meetingID", conference.conferenceId),
+                Pair("name", conference.conferenceName),
+                Pair("attendeePW", conference.attendeePassword),
+                Pair("moderatorPW", conference.moderatorPassword)
+            )
+            val request = buildApiRequest("create", queryParams)
+            Mono.zip(Mono.just(conference), WebClient.create(request).get().retrieve().toEntity(MessageBBB::class.java))
+        }.map { (conference, responseEntity) ->
+            if (responseEntity.body!!.returncode == "SUCCESS") conference
+            else error(Exception(responseEntity.body?.message))
         }
+    }
 
     fun joinConference(conference: Conference, user: User, asModerator: Boolean): Mono<JoinLink> {
         val queryParams = mapOf(
@@ -100,5 +101,4 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
         logger.debug("Checksum: ${DigestUtils.sha1Hex("$method$query$secret")}")
         return DigestUtils.sha1Hex("$method$query$secret")
     }
-
 }

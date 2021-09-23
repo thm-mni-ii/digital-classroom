@@ -10,7 +10,8 @@ import reactor.core.publisher.Mono
 @Service
 class ClassroomEventReceiverService(
     private val userService: ClassroomUserService,
-    private val conferenceService: ConferenceService) {
+    private val conferenceService: ConferenceService
+) {
 
     private val logger: Logger = LoggerFactory.getLogger(ClassroomEventReceiverService::class.java)
 
@@ -34,7 +35,7 @@ class ClassroomEventReceiverService(
         when (ticketEvent.ticketAction) {
             TicketAction.CREATE -> userService.createTicket(user, ticketEvent.ticket)
             TicketAction.ASSIGN -> userService.assignTicket(user, ticketEvent.ticket)
-            TicketAction.CLOSE  -> userService.closeTicket(user, ticketEvent.ticket)
+            TicketAction.CLOSE -> userService.closeTicket(user, ticketEvent.ticket)
         }
     }
 
@@ -46,5 +47,4 @@ class ClassroomEventReceiverService(
             ConferenceAction.PUBLISH -> conferenceService.publishConference(user, conferenceEvent.conferenceInfo)
         }
     }
-
 }

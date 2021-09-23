@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class ClassroomUserDetailsRepository: ReactiveUserDetailsService {
+class ClassroomUserDetailsRepository : ReactiveUserDetailsService {
 
     private val validTokens = HashMap<String, User>()
 
@@ -21,5 +21,4 @@ class ClassroomUserDetailsRepository: ReactiveUserDetailsService {
     override fun findByUsername(username: String): Mono<UserDetails> {
         return findBySessionToken(username).cast(UserDetails::class.java)
     }
-
 }

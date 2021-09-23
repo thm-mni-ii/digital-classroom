@@ -7,7 +7,7 @@ data class UserEvent(
     val inConference: Boolean = false,
     val conferenceId: String? = null,
     val userAction: UserAction
-): ClassroomEvent(UserEvent::class.simpleName!!)
+) : ClassroomEvent(UserEvent::class.simpleName!!)
 
 enum class UserAction {
     JOIN,

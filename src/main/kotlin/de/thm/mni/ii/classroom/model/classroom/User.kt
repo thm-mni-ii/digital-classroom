@@ -12,7 +12,7 @@ open class User(
     val userId: String,
     val fullName: String,
     var userRole: UserRole
-): Principal, UserDetails, ClassroomDependent {
+) : Principal, UserDetails, ClassroomDependent {
 
     fun isPrivileged(): Boolean = userRole == UserRole.TEACHER || userRole == UserRole.TUTOR
 
@@ -75,5 +75,4 @@ open class User(
         result = 31 * result + userId.hashCode()
         return result
     }
-
 }

@@ -12,7 +12,7 @@ class Ticket(
     var description: String,
     val creator: User,
     var assignee: User? = null
-): Comparable<Ticket>, ClassroomDependent {
+) : Comparable<Ticket>, ClassroomDependent {
 
     var ticketId: Long? = null
 
@@ -45,6 +45,4 @@ class Ticket(
         result = 31 * result + classroomId.hashCode()
         return result
     }
-
-
 }

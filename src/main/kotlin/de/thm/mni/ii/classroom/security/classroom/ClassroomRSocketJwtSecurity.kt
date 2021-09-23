@@ -18,9 +18,10 @@ class ClassroomRSocketJwtSecurity {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Bean
-    fun rSocketInterceptor(rSocket: RSocketSecurity,
-                           decoder: ReactiveJwtDecoder,
-                           converter: JwtClassroomAuthenticationConverterAdapter
+    fun rSocketInterceptor(
+        rSocket: RSocketSecurity,
+        decoder: ReactiveJwtDecoder,
+        converter: JwtClassroomAuthenticationConverterAdapter
     ): PayloadSocketAcceptorInterceptor {
         rSocket.authorizePayload {
             it.route("stream/users").authenticated()
@@ -54,5 +55,4 @@ class ClassroomRSocketJwtSecurity {
         mh.rSocketStrategies = strategies!!
         return mh
     }
-
 }

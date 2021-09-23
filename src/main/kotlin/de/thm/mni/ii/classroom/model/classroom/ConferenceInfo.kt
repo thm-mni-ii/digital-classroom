@@ -17,8 +17,8 @@ class ConferenceInfo(
     @field:JsonDeserialize(using = ZonedDateTimeMillisDeserializer::class)
     val creationTimestamp: ZonedDateTime?,
     val attendees: List<String>
-): ClassroomDependent {
-    constructor(conference: Conference): this(
+) : ClassroomDependent {
+    constructor(conference: Conference) : this(
         conference.classroomId,
         conference.conferenceId,
         conference.conferenceName,
@@ -45,5 +45,4 @@ class ConferenceInfo(
         result = 31 * result + (conferenceId?.hashCode() ?: 0)
         return result
     }
-
 }

@@ -18,23 +18,26 @@ import reactor.kotlin.core.publisher.toMono
 import java.util.function.Predicate
 
 @Component
-class ClassroomHttpJwtSecurity(private val userDetailsRepository: ClassroomUserDetailsRepository,
-                               private val jwtService: ClassroomJwtService
+class ClassroomHttpJwtSecurity(
+    private val userDetailsRepository: ClassroomUserDetailsRepository,
+    private val jwtService: ClassroomJwtService
 ) {
 
     fun jwtFilter(): AuthenticationWebFilter {
         val authManager = jwtAuthenticationManager()
         val jwtFilter = AuthenticationWebFilter(authManager)
-        jwtFilter.setRequiresAuthenticationMatcher(AndServerWebExchangeMatcher(
-            ServerWebExchangeMatchers.pathMatchers(
-                "/classroom-api", "/classroom-api/**", "/websocket/**", "/websocket"
-            ),
-            ServerWebExchangeMatcher{
-                if (it.request.path.value().endsWith("/classroom-api/join"))
-                    ServerWebExchangeMatcher.MatchResult.notMatch()
-                else ServerWebExchangeMatcher.MatchResult.match()
-            }
-        ))
+        jwtFilter.setRequiresAuthenticationMatcher(
+            AndServerWebExchangeMatcher(
+                ServerWebExchangeMatchers.pathMatchers(
+                    "/classroom-api", "/classroom-api/**", "/websocket/**", "/websocket"
+                ),
+                ServerWebExchangeMatcher {
+                    if (it.request.path.value().endsWith("/classroom-api/join"))
+                        ServerWebExchangeMatcher.MatchResult.notMatch()
+                    else ServerWebExchangeMatcher.MatchResult.match()
+                }
+            )
+        )
 
         jwtFilter.setServerAuthenticationConverter(ClassroomHttpJwtAuthenticationConverter())
         return jwtFilter
@@ -48,7 +51,7 @@ class ClassroomHttpJwtSecurity(private val userDetailsRepository: ClassroomUserD
     }
 }
 
-class ClassroomHttpJwtAuthenticationConverter: ServerAuthenticationConverter {
+class ClassroomHttpJwtAuthenticationConverter : ServerAuthenticationConverter {
     private val bearer = "Bearer "
     private val matchBearerLength = Predicate { authValue: String -> authValue.length > bearer.length }
     private fun isolateBearerValue(authValue: String) = Mono.just(
@@ -79,4 +82,3 @@ class ClassroomHttpJwtAuthenticationConverter: ServerAuthenticationConverter {
             .flatMap(this::createAuthenticationObject)
     }
 }
-

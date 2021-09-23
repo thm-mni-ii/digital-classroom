@@ -10,5 +10,4 @@ enum class APIQueryParamTranslation(val api: String) {
     UserId("userID"),
     userName("fullName"),
     ClassroomId("meetingID")
-
 }

@@ -7,4 +7,4 @@ data class InvitationEvent(
     val inviter: User,
     val invitee: User,
     val conferenceInfo: ConferenceInfo
-): ClassroomEvent(InvitationEvent::class.simpleName!!)
+) : ClassroomEvent(InvitationEvent::class.simpleName!!)
