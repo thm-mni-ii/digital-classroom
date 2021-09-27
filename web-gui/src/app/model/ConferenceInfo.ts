@@ -7,7 +7,8 @@ export class ConferenceInfo implements ClassroomDependent {
   conferenceName: string
   creator: User
   visible: boolean
-  creation: number = Date.now()
+  creationTimestamp: number = Date.now()
+  attendees: string[] = []
 }
 
 export class JoinLink {

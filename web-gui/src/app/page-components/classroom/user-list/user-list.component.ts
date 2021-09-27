@@ -15,10 +15,13 @@ export class UserListComponent {
 
   constructor(
     public classroomService: ClassroomService
-  ) { }
+  ) {
+  }
 
   public sortUsers(users: UserDisplay[]) {
-    return users.sort((a, b) => {
+    return users
+      .filter(user => user.visible)
+      .sort((a, b) => {
       if (a.userRole > b.userRole) {
         return 1;
       } else if ( a.userRole < b.userRole) {

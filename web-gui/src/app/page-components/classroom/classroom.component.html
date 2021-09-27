@@ -1,5 +1,5 @@
 <div class="container">
-  <app-menu-bar></app-menu-bar>
+  <app-menu-bar [currentUser]="currentUser"></app-menu-bar>
 </div>
 
 <div class="classroom-content">
@@ -14,6 +14,5 @@
 
 <app-conferences [conferences]="this.conferences"
                  [currentUser]="this.currentUser"
-                 [attendedConferences]="this.attendedConferences"
                  class="conferences classroom-bottom">
 </app-conferences>

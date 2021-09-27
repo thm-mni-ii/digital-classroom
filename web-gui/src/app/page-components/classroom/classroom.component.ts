@@ -8,7 +8,7 @@ import {DOCUMENT} from '@angular/common';
 import {Subscription} from 'rxjs';
 import {ClassroomService} from '../../service/classroom.service';
 import {Ticket} from '../../model/Ticket';
-import {User, UserDisplay} from "../../model/User";
+import {UserDisplay} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
@@ -21,11 +21,10 @@ import {ConferenceInfo} from "../../model/ConferenceInfo";
 })
 export class ClassroomComponent implements OnInit, OnDestroy {
 
-  currentUser: User = undefined
+  currentUser: UserDisplay
   users: UserDisplay[] = [];
   tickets: Ticket[] = [];
   conferences: ConferenceInfo[] = [];
-  attendedConferences: ConferenceInfo[] = [];
   subscriptions: Subscription[] = [];
 
   constructor(private route: ActivatedRoute,
@@ -50,14 +49,11 @@ export class ClassroomComponent implements OnInit, OnDestroy {
       this.classroomService.tickets.subscribe(
       tickets => this.tickets = tickets
       ),
-      this.classroomService.userObservable.subscribe(
+      this.classroomService.userDisplayObservable.subscribe(
       users => this.users = users
       ),
       this.classroomService.conferencesObservable.subscribe(
         conferences => this.conferences = conferences
-      ),
-      this.classroomService.attendedConferencesObservable.subscribe(
-        attendedConferences => this.attendedConferences = attendedConferences
       )
     )
   }

@@ -7,7 +7,7 @@
     <span class="meta">
         <mat-icon *ngIf="this.classroomService.isCurrentUserAuthorized() && !classroomService.isSelf(user)"
                   class="material-icons call" color="accent" (click)="this.classroomService.inviteToConference(user)">call</mat-icon>
-        <mat-icon *ngIf="user.inConference" class="material-icons call" color="accent" (click)="this.classroomService.joinConferenceOfUser(user)">phone_callback</mat-icon>
+        <mat-icon *ngIf="user.conferences.length !== 0" class="material-icons call" color="accent" (click)="this.classroomService.joinConferenceOfUser(user)">phone_callback</mat-icon>
       <!-- <mat-icon *ngIf="classroomService.isInConference(user) && !classroomService.hasOpenConference(user)" class="material-icons call" color="accent" (click)="joinConference(classroomService.isInConference(user).creator)">meeting_room</mat-icon> -->
       </span>
   </mat-card>

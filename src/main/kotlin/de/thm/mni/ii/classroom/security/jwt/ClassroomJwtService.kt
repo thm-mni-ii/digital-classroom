@@ -5,10 +5,10 @@ import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.JWSObject
 import com.nimbusds.jose.Payload
 import com.nimbusds.jose.crypto.MACSigner
-import com.nimbusds.jose.shaded.json.JSONObject
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.properties.JwtProperties
 import de.thm.mni.ii.classroom.util.repeatLength
+import net.minidev.json.JSONObject
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder

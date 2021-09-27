@@ -50,9 +50,10 @@ class ConferenceStorage {
         return getConferencesOfUser(user).lastOrNull()
     }
 
-    fun leaveConference(user: User, conference: Conference) {
+    fun leaveConference(user: User, conference: Conference): Conference {
         this.conferences[conference.conferenceId]!!.attendees.remove(user)
         this.usersConference[user]?.remove(conference)
+        return this.conferences[conference.conferenceId]!!
     }
 
     fun deleteConference(conference: Conference): Mono<Conference> {

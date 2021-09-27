@@ -12,12 +12,6 @@ h3 {
 .ticket {
   padding: 5px;
   margin: 5px;
-  .self-assigned {
-    background-color: #43A047;
-  }
-  .other-assigned {
-    background-color: #F4511E;
-  }
   mat-card-content {
     margin: 2px;
     .grid-container {
@@ -53,6 +47,13 @@ h3 {
       }
     }
   }
+}
+
+.self-assigned {
+  background-color: #43A047;
+}
+.other-assigned {
+  background-color: #F4511E;
 }
 
 

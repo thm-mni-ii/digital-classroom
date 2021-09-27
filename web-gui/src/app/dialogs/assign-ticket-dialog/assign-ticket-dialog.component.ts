@@ -27,7 +27,7 @@ export class AssignTicketDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.classroomService.userObservable.subscribe((users) => {
+    this.classroomService.userDisplayObservable.subscribe((users) => {
       this.users = users
     });
     this.dialogRef.afterOpened().subscribe(() => this.disabled = false);

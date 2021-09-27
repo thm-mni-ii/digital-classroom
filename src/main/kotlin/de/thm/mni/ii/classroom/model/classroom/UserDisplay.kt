@@ -1,21 +1,23 @@
 package de.thm.mni.ii.classroom.model.classroom
 
-import de.thm.mni.ii.classroom.model.ClassroomDependent
+import com.fasterxml.jackson.annotation.JsonIgnore
 
-data class UserDisplay(
-    override val classroomId: String,
-    val userId: String,
-    val fullName: String,
-    val userRole: UserRole,
-    var inConference: Boolean = false,
-    var conferenceId: String?
-) : ClassroomDependent {
-    constructor(user: User, conference: Conference?) : this(
+class UserDisplay(
+    classroomId: String,
+    userId: String,
+    fullName: String,
+    userRole: UserRole,
+    var visible: Boolean,
+    val conferences: List<ConferenceInfo> = listOf()
+) : User(classroomId, userId, fullName, userRole) {
+    constructor(user: User, visible: Boolean) : this(
         user.classroomId,
         user.userId,
         user.fullName,
         user.userRole,
-        conference?.visible ?: false,
-        if (conference?.visible == true) conference.conferenceId else null
+        visible
     )
+
+    @JsonIgnore
+    fun getUser(): User = this
 }

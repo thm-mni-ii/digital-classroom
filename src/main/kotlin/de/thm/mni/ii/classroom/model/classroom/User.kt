@@ -11,9 +11,10 @@ open class User(
     override val classroomId: String,
     val userId: String,
     val fullName: String,
-    var userRole: UserRole
+    var userRole: UserRole,
 ) : Principal, UserDetails, ClassroomDependent {
 
+    @JsonIgnore
     fun isPrivileged(): Boolean = userRole == UserRole.TEACHER || userRole == UserRole.TUTOR
 
     @JsonIgnore

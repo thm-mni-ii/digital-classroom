@@ -21,7 +21,6 @@ import { UnauthorizedComponent } from './page-components/unauthorized/unauthoriz
 import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
 import {IsNotSelfPipe } from './pipes/is-not-self.pipe';
 import {IsPrivilegedPipe} from "./pipes/is-privileged-pipe";
-import {ManageTicketDialogComponent} from "./dialogs/manage-ticket-dialog/manage-ticket-dialog.component";
 import {UserListComponent} from "./page-components/classroom/user-list/user-list.component";
 import {TicketListComponent} from "./page-components/classroom/ticket-list/ticket-list.component";
 import {GlobalErrorHandler} from "./util/GlobalErrorHandler";
@@ -43,7 +42,6 @@ import {MatFormFieldModule} from "@angular/material/form-field";
     JoinComponent,
     UnauthorizedComponent,
     IsNotSelfPipe,
-    ManageTicketDialogComponent,
     UserListComponent,
     TicketListComponent,
     ConferencesComponent,

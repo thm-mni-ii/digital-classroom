@@ -3,8 +3,6 @@ package de.thm.mni.ii.classroom.services
 import de.thm.mni.ii.classroom.event.ConferenceAction
 import de.thm.mni.ii.classroom.event.ConferenceEvent
 import de.thm.mni.ii.classroom.event.InvitationEvent
-import de.thm.mni.ii.classroom.event.UserAction
-import de.thm.mni.ii.classroom.event.UserEvent
 import de.thm.mni.ii.classroom.exception.classroom.InvitationException
 import de.thm.mni.ii.classroom.model.classroom.Conference
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
@@ -18,7 +16,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.switchIfEmpty
 import java.time.Duration
 
 @Component
@@ -70,7 +67,7 @@ class ConferenceService(
                 classroom.joinUserToConference(conference, user).subscribe()
                 eventSenderService.sendToAll(
                     classroom,
-                    UserEvent(user, true, conference.conferenceId, UserAction.JOIN_CONFERENCE)
+                    ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.USER_CHANGE)
                 ).subscribe()
             }
     }
@@ -104,31 +101,25 @@ class ConferenceService(
     fun leaveConference(user: User, conferenceInfo: ConferenceInfo): Mono<Void> {
         val classroom = classroomInstanceService.getClassroomInstanceSync(user.classroomId)
         return classroom.getConference(conferenceInfo.conferenceId!!)
-            .doOnNext { conference ->
+            .flatMap { conference ->
                 classroom.leaveConference(user, conference)
-                this.scheduleConferenceDeletionIfEmpty(classroom, conference, 20)
-            }.flatMap {
-                classroom.getLatestConferenceOfUser(user)
+            }.doOnNext { conference ->
+                if (conference.attendees.isEmpty()) {
+                    this.scheduleConferenceDeletion(classroom, conference, 20)
+                }
             }.flatMap { conference ->
-                eventSenderService.sendToAll(classroom, UserEvent(user, true, conference.conferenceId, UserAction.LEAVE_CONFERENCE))
-            }.switchIfEmpty {
-                eventSenderService.sendToAll(classroom, UserEvent(user, false, null, UserAction.LEAVE_CONFERENCE))
+                eventSenderService.sendToAll(
+                    classroom,
+                    ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.USER_CHANGE)
+                )
             }
     }
 
-    fun scheduleConferenceDeletionIfEmpty(classroom: DigitalClassroom, conference: Conference, delaySeconds: Long) {
-        classroom.getUsersOfConference(conference)
-            .hasElements()
-            .flatMap { usersJoined ->
-                if (!usersJoined) {
-                    logger.debug("Conference ${conference.conferenceId} scheduled for deletion if still empty in $delaySeconds seconds!")
-                    Mono.just(usersJoined)
-                } else {
-                    logger.debug("Conference ${conference.conferenceId} still has users!")
-                    Mono.empty()
-                }
-            }.delayElement(Duration.ofSeconds(delaySeconds))
-            .flatMap { classroom.getUsersOfConference(conference).hasElements() }
+    fun scheduleConferenceDeletion(classroom: DigitalClassroom, conference: Conference, delaySeconds: Long) {
+        logger.debug("Conference ${conference.conferenceId} scheduled for deletion if still empty in $delaySeconds seconds!")
+        Mono.just(conference)
+            .delayElement(Duration.ofSeconds(delaySeconds))
+            .flatMap { classroom.getUsersOfConference(it).hasElements() }
             .flatMap { usersJoined ->
                 if (!usersJoined) {
                     logger.debug("Conference ${conference.conferenceId} is still empty. Deleting...")

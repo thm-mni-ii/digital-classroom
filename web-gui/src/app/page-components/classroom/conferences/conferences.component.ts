@@ -1,6 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {ConferenceInfo} from "../../../model/ConferenceInfo";
-import {User} from "../../../model/User";
+import {UserDisplay} from "../../../model/User";
 
 @Component({
   selector: 'app-conferences',
@@ -10,10 +10,14 @@ import {User} from "../../../model/User";
 export class ConferencesComponent {
 
   @Input() conferences: ConferenceInfo[]
-  @Input() attendedConferences: ConferenceInfo[]
-  @Input() currentUser: User
+  @Input() currentUser: UserDisplay
 
   constructor() {
+    console.log("conferences")
+  }
+
+  isUserAttending(conference: ConferenceInfo): boolean {
+    return conference.attendees.includes(this.currentUser.userId)
   }
 
 

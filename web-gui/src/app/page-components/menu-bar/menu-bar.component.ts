@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
-import {defaultUserDisplay, parseCourseRole, UserDisplay} from 'src/app/model/User';
+import {Component, Input} from '@angular/core';
+import {parseCourseRole, UserDisplay} from 'src/app/model/User';
 import {ClassroomService} from "../../service/classroom.service";
 import {ConferenceService} from "../../service/conference.service";
 import {AuthService} from "../../service/auth.service";
 import {MatDialog} from "@angular/material/dialog";
-import {filter, map, tap} from "rxjs/operators";
+import {filter, tap} from "rxjs/operators";
 import {
   CreateConferenceDialogComponent,
   CreateConferenceInputData
@@ -20,7 +20,7 @@ import {ConferenceInfo} from "../../model/ConferenceInfo";
 export class MenuBarComponent {
 
   public parseCourseRole: Function = parseCourseRole
-  public currentUser: UserDisplay = defaultUserDisplay(this.authService.getToken())
+  @Input() public currentUser: UserDisplay
 
   constructor(
     public classroomService: ClassroomService,
@@ -28,9 +28,7 @@ export class MenuBarComponent {
     private authService: AuthService,
     private dialog: MatDialog
   ) {
-    classroomService.currentUserObservable.subscribe( userDisplay => {
-      this.currentUser = userDisplay
-    })
+
   }
 
   public createConference() {

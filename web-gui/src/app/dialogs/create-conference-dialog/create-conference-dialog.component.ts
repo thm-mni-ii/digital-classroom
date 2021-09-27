@@ -34,7 +34,7 @@ export class CreateConferenceDialogComponent implements OnInit {
   createConference() {
     const newConferenceInfo = new ConferenceInfo()
     newConferenceInfo.creator = this.data.currentUser
-    newConferenceInfo.creation = Date.now()
+    newConferenceInfo.creationTimestamp = Date.now()
     newConferenceInfo.classroomId = this.data.classroom.classroomId
     newConferenceInfo.conferenceName = this.conferenceSubject.value
     newConferenceInfo.visible = this.conferenceVisible.value

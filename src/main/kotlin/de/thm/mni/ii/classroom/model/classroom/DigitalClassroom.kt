@@ -27,14 +27,14 @@ class DigitalClassroom(
 
     private val logger = LoggerFactory.getLogger(DigitalClassroom::class.java)
 
-    private val users = HashMap<User, RSocketRequester?>()
+    private val users = HashMap<UserDisplay, RSocketRequester?>()
     private val tickets = HashSet<Ticket>()
     private val nextTicketId = AtomicLong(10000L)
     private val conferenceStorage = ConferenceStorage()
 
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
 
-    fun hasUserJoined() = users.filterValues { it != null }.isNotEmpty()
+    fun hasUserJoined() = users.isNotEmpty()
     fun hasBeenForciblyEnded() = false
     fun getDuration() = ChronoUnit.MINUTES.between(creationTimestamp, ZonedDateTime.now())
 
@@ -52,8 +52,10 @@ class DigitalClassroom(
         }
     }
 
-    fun connectSocket(user: User, socketRequester: RSocketRequester) {
-        users[user] = socketRequester
+    fun connectSocket(user: User, socketRequester: RSocketRequester): Mono<UserDisplay> {
+        val userDisplay = UserDisplay(user, true)
+        users[userDisplay] = socketRequester
+        return Mono.just(userDisplay)
     }
 
     fun disconnectSocket(user: User) {
@@ -92,18 +94,12 @@ class DigitalClassroom(
             .map { Pair(it, this) }
     }
 
-    fun getUsers(): Set<User> {
+    fun getUsers(): Set<UserDisplay> {
         return users.keys
     }
 
-    fun getUsersFlux(): Flux<User> {
+    fun getUsersFlux(): Flux<UserDisplay> {
         return getUsers().toFlux()
-    }
-
-    fun getUserDisplays(): Flux<UserDisplay> {
-        return this.getUsersFlux().map { user ->
-            UserDisplay(user, conferenceStorage.getConferencesOfUser(user).lastOrNull())
-        }
     }
 
     fun getConferencesOfUser(user: User): Flux<Conference> {
@@ -139,17 +135,22 @@ class DigitalClassroom(
             .switchIfEmpty(Mono.error(ConferenceNotFoundException(conferenceId)))
     }
 
-    fun leaveConference(user: User, conference: Conference) {
-        this.conferenceStorage.leaveConference(user, conference)
+    fun leaveConference(user: User, conference: Conference): Mono<Conference> {
+        return this.conferenceStorage.leaveConference(user, conference).toMono()
     }
 
     fun getUsersOfConference(conference: Conference): Flux<User> {
         return Flux.fromIterable(conferenceStorage.getUsersOfConference(conference))
     }
 
-    fun getLatestConferenceOfUser(user: User) = conferenceStorage.getLatestConferenceOfUser(user).toMono()
-
     fun deleteConference(conference: Conference): Mono<Conference> {
         return this.conferenceStorage.deleteConference(conference)
+    }
+
+    fun changeVisibility(user: UserDisplay): Mono<UserDisplay> {
+        return this.users.keys
+            .find { it == user }
+            .also { it?.visible = user.visible }
+            .toMono()
     }
 }

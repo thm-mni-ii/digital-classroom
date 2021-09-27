@@ -8,7 +8,11 @@ import {ConferenceService} from "./conference.service";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {Ticket} from "../model/Ticket";
 import {TicketService} from "./ticket.service";
-import {filter, map, tap} from "rxjs/operators";
+import {
+  filter,
+  map,
+  tap
+} from "rxjs/operators";
 import {UserService} from "./user.service";
 import {Roles} from "../model/Roles";
 import {NewTicketDialogComponent} from "../dialogs/new-ticket-dialog/new-ticket-dialog.component";
@@ -26,10 +30,11 @@ import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
 export class ClassroomService {
 
   public tickets = this.ticketService.ticketObservable
-  public userObservable = this.userService.userObservable
+  public userDisplayObservable = this.userService.userObservable
   public currentUserObservable = this.userService.currentUserObservable
   public conferencesObservable = this.conferenceService.conferencesObservable
-  public attendedConferencesObservable = this.conferenceService.attendedConferencesObservable
+  private conferences: ConferenceInfo[] = []
+
   private users: UserDisplay[] = []
 
   private classroomInfoSubject: Subject<ClassroomInfo> = new BehaviorSubject(new ClassroomInfo())
@@ -44,11 +49,10 @@ export class ClassroomService {
                      private rSocketService: RSocketService,
                      private ticketService: TicketService,
                      private userService: UserService) {
-    this.userService.currentUserObservable.subscribe(
-      currentUser => this.currentUser = currentUser
-    )
+    this.currentUserObservable.subscribe(currentUser => this.currentUser = currentUser)
     this.classroomInfoObservable.subscribe(info => this.classroomInfo = info)
-    this.userObservable.subscribe(users => this.users = users)
+    this.userDisplayObservable.subscribe(users => this.users = users)
+    this.conferencesObservable.subscribe(conferences => this.conferences = conferences)
     this.conferenceService.invitationEvents.subscribe(invitation => {
       this.handleInviteMsg(invitation)
     })
@@ -92,15 +96,15 @@ export class ClassroomService {
    */
   public inviteToConference(user: User, conferenceInfo: ConferenceInfo = null, ticket: Ticket = null) {
     if (conferenceInfo !== null) {
-      this.conferenceService.inviteToConference(user, conferenceInfo)
+      this.conferenceService.inviteToConference(user, this.currentUser, conferenceInfo)
     } else if (ticket !== null) {
       const conferenceInfo = new ConferenceInfo()
       conferenceInfo.classroomId = this.classroomInfo.classroomId
       conferenceInfo.creator = this.currentUser
       conferenceInfo.visible = true
-      conferenceInfo.creation = Date.now()
+      conferenceInfo.creationTimestamp = Date.now()
       conferenceInfo.conferenceName = ticket.description
-      this.conferenceService.inviteToConference(user, conferenceInfo)
+      this.conferenceService.inviteToConference(user, this.currentUser, conferenceInfo)
     } else {
       throw new Error("No ticket or conference provided for invitation!")
     }
@@ -114,16 +118,12 @@ export class ClassroomService {
     this.conferenceService.joinConference(conferenceInfo)
   }
 
-  public showConference() {
-  }
-
-  public hideConference() {
-  }
-
   public showUser() {
+    this.userService.changeVisibility(true)
   }
 
   public hideUser() {
+    this.userService.changeVisibility(false)
   }
 
   private handleInviteMsg(invitationEvent: InvitationEvent) {
@@ -150,13 +150,14 @@ export class ClassroomService {
     });
   }
 
-  public isInConference(userId: string): boolean {
-    const userDisplay = this.users.find(userDisplay => userDisplay.userId === userId)
-    if (userDisplay !== undefined) {
-      return userDisplay.inConference
-    } else {
-      return false
+  public isInConference(user: User): boolean {
+    let userDisplay: UserDisplay
+    if (user instanceof UserDisplay)
+      userDisplay = user
+    else {
+      userDisplay = this.users.find(userDisplay => userDisplay.userId === user.userId)
+      if (userDisplay === undefined) return false
     }
+    return userDisplay.conferences.length !== 0
   }
-
 }
