@@ -4,7 +4,7 @@ import {ClassroomService} from "../../service/classroom.service";
 import {ConferenceService} from "../../service/conference.service";
 import {AuthService} from "../../service/auth.service";
 import {MatDialog} from "@angular/material/dialog";
-import {filter, tap} from "rxjs/operators";
+import {filter} from "rxjs/operators";
 import {
   CreateConferenceDialogComponent,
   CreateConferenceInputData
@@ -37,7 +37,6 @@ export class MenuBarComponent {
         width: 'auto',
         data: new CreateConferenceInputData(this.classroomService.classroomInfo, this.classroomService.currentUser)
       }).beforeClosed().pipe(
-        tap(_ => console.log('kek')),
         filter(conferenceInfo => conferenceInfo instanceof ConferenceInfo),
       ).subscribe((conferenceInfo: ConferenceInfo) => {
         this.classroomService.createConference(conferenceInfo)

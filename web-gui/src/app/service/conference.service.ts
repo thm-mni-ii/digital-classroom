@@ -114,7 +114,7 @@ export class ConferenceService {
   public inviteToConference(invitee: User, inviter: User, conferenceInfo: ConferenceInfo) {
     const invitationEvent = new InvitationEvent()
     invitationEvent.invitee = invitee
-
+    invitationEvent.inviter = inviter
     if (conferenceInfo.conferenceId == null) {
       // Conference needs to be created
       this.createConference(conferenceInfo).subscribe(conferenceInfo => {

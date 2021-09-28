@@ -90,13 +90,13 @@ export class ClassroomService {
 
   /**
    * Invites user to a conference.
-   * @param user The user to invite
+   * @param invitee The user to invite
    * @param conferenceInfo
    * @param ticket
    */
-  public inviteToConference(user: User, conferenceInfo: ConferenceInfo = null, ticket: Ticket = null) {
+  public inviteToConference(invitee: User, conferenceInfo: ConferenceInfo = null, ticket: Ticket = null) {
     if (conferenceInfo !== null) {
-      this.conferenceService.inviteToConference(user, this.currentUser, conferenceInfo)
+      this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else if (ticket !== null) {
       const conferenceInfo = new ConferenceInfo()
       conferenceInfo.classroomId = this.classroomInfo.classroomId
@@ -104,7 +104,7 @@ export class ClassroomService {
       conferenceInfo.visible = true
       conferenceInfo.creationTimestamp = Date.now()
       conferenceInfo.conferenceName = ticket.description
-      this.conferenceService.inviteToConference(user, this.currentUser, conferenceInfo)
+      this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else {
       throw new Error("No ticket or conference provided for invitation!")
     }

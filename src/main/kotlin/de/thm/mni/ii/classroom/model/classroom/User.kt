@@ -60,7 +60,7 @@ open class User(
     @JsonIgnore
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (javaClass != other?.javaClass && other?.javaClass != UserDisplay::class.java) return false
 
         other as User
 

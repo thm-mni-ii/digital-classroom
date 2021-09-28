@@ -124,7 +124,7 @@ class DigitalClassroom(
 
     fun getSockets(): Flux<Pair<User, RSocketRequester?>> = Flux.fromIterable(users.toList())
 
-    fun getSocketOfUser(user: User): Mono<RSocketRequester> = Mono.justOrEmpty(users[user])
+    fun getSocketOfUser(user: User): Mono<RSocketRequester> = Mono.just(users[user]!!)
 
     fun isUserInConference(user: User): Mono<Boolean> {
         return conferenceStorage.isUserInConference(user)

@@ -20,4 +20,5 @@ class UserDisplay(
 
     @JsonIgnore
     fun getUser(): User = this
+
 }
