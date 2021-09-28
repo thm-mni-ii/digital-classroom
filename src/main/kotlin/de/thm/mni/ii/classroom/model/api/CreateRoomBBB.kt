@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlType
 @XmlRootElement(name = "response")
 @XmlType(
     propOrder = [
-        "returncode", "meetingID", "internalMeetingID", "parentMeetingID", "attendeePW", "moderatorPW",
+        "returncode", "meetingID", "internalMeetingID", "parentMeetingID", "attendeePW", "tutorPW", "moderatorPW",
         "createTime", "voiceBridge", "dialNumber", "createDate", "hasUserJoined", "duration", "hasBeenForciblyEnded", "messageKey", "message"
     ]
 )
@@ -18,6 +18,7 @@ class CreateRoomBBB(
     @field:XmlElement private val meetingID: String,
     @field:XmlElement private val internalMeetingID: String,
     @field:XmlElement private val attendeePW: String,
+    @field:XmlElement private val tutorPW: String,
     @field:XmlElement private val moderatorPW: String,
     creationTimestamp: ZonedDateTime,
     success: Boolean = true,
@@ -36,12 +37,13 @@ class CreateRoomBBB(
     /**
      * Dummy constructor for JAXB Serialization
      */
-    constructor() : this("", "", "", "", ZonedDateTime.now(), false)
+    constructor() : this("", "", "", "", "", ZonedDateTime.now(), false)
 
     constructor(instance: DigitalClassroom, messageKey: String = "", message: String = "") : this(
         instance.classroomId,
         instance.classroomId,
         instance.studentPassword,
+        instance.tutorPassword,
         instance.teacherPassword,
         instance.creationTimestamp,
         hasUserJoined = instance.hasUserJoined(),
