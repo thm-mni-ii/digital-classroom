@@ -29,6 +29,11 @@ class ConferenceController(private val conferenceService: ConferenceService) {
         return conferenceService.joinConferenceOfUser(joiningUser, conferencingUser)
     }
 
+    @MessageMapping("socket/conference/leave")
+    fun leaveConference(@AuthenticationPrincipal user: User, @Payload conferenceInfo: ConferenceInfo): Mono<Void> {
+        return conferenceService.leaveConference(user, conferenceInfo)
+    }
+
     @MessageMapping("socket/conference/end")
     fun endConference(@AuthenticationPrincipal user: User, @Payload conferenceInfo: ConferenceInfo): Mono<Void> {
         TODO("NOT YET IMPLEMENTED")
@@ -38,5 +43,4 @@ class ConferenceController(private val conferenceService: ConferenceService) {
     fun inviteToConference(@AuthenticationPrincipal user: User, @Payload invitationEvent: InvitationEvent): Mono<Void> {
         return conferenceService.forwardInvitation(user, invitationEvent)
     }
-
 }

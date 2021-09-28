@@ -1,7 +1,7 @@
 <div matDialogTitle>Sie werden in eine Konferenz eingeladen</div>
 
 <mat-dialog-content class="container">
-  <p>{{this.invitation.inviter.fullName + 'lädt Sie zur Konferenz ' + this.invitation.conferenceInfo.conferenceName + 'ein!'}}}</p>
+  <p>{{this.invitation.inviter.fullName + ' lädt Sie zur Konferenz "' + this.invitation.conferenceInfo.conferenceName + '" ein!'}}</p>
   <mat-dialog-actions>
     <button mat-flat-button color="warn" (click)="acceptCall()">Annehmen</button>
     <button mat-flat-button color="accent" (click)="declineCall()">Ablehnen</button>

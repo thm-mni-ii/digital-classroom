@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {AssignTicketDialogComponent} from "../../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component";
 import {Ticket} from "../../../model/Ticket";
 import {ClassroomService} from "../../../service/classroom.service";
@@ -8,7 +8,7 @@ import {User} from "../../../model/User";
 @Component({
   selector: 'app-ticket-list',
   templateUrl: './ticket-list.component.html',
-  styleUrls: ['../classroom.component.scss', './ticket-list.component.scss']
+  styleUrls: ['./ticket-list.component.scss']
 })
 export class TicketListComponent {
 
@@ -21,13 +21,11 @@ export class TicketListComponent {
   ) { }
 
   public assignTeacher(ticket: Ticket) {
-    if (this.classroomService.isCurrentUserAuthorized()) {
-      this.dialog.open(AssignTicketDialogComponent, {
-        height: 'auto',
-        width: 'auto',
-        data: ticket
-      });
-    }
+    this.dialog.open(AssignTicketDialogComponent, {
+      height: 'auto',
+      width: 'auto',
+      data: ticket
+    });
   }
 
   public sortTickets(tickets: Ticket[]) {

@@ -5,20 +5,22 @@ import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import java.time.ZonedDateTime
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
-import javax.xml.bind.annotation.XmlTransient
 import javax.xml.bind.annotation.XmlType
 
 @XmlRootElement(name = "response")
-@XmlType(propOrder=[
-    "returncode",
-    "meetings",
-    "messageKey",
-    "message"
-])
+@XmlType(
+    propOrder = [
+        "returncode",
+        "meetings",
+        "messageKey",
+        "message"
+    ]
+)
 class GetMeetingsBBBResponse(
     digitalClassrooms: List<DigitalClassroom>? = listOf(),
     success: Boolean = true
-): SuperMessageBBB(success,
+) : SuperMessageBBB(
+    success,
     messageKey = if (digitalClassrooms.isNullOrEmpty()) "noMeetings" else null,
     message = if (digitalClassrooms.isNullOrEmpty()) "no meetings were found on this server" else null
 ) {
@@ -30,11 +32,11 @@ class Meetings(digitalClassrooms: List<DigitalClassroom>? = null) {
 
     @XmlElement(name = "meeting")
     private val meetings = digitalClassrooms?.map(::Meeting)
-
 }
 
-@XmlType(name = "meeting",
-    propOrder=[
+@XmlType(
+    name = "meeting",
+    propOrder = [
         "meetingName",
         "meetingID",
         "internalMeetingID",

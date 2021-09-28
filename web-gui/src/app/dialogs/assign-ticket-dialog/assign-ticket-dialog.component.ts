@@ -27,7 +27,7 @@ export class AssignTicketDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.classroomService.userObservable.subscribe((users) => {
+    this.classroomService.userDisplayObservable.subscribe((users) => {
       this.users = users
     });
     this.dialogRef.afterOpened().subscribe(() => this.disabled = false);
@@ -51,7 +51,7 @@ export class AssignTicketDialogComponent implements OnInit {
       return;
     }
     this.disabled = true;
-    this.classroomService.inviteToConference(invitee);
+    this.classroomService.inviteToConference(invitee, null, this.data);
     this.snackBar.open(`${invitee.fullName} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
     this.dialogRef.close();
   }

@@ -11,9 +11,10 @@ open class User(
     override val classroomId: String,
     val userId: String,
     val fullName: String,
-    var userRole: UserRole
-): Principal, UserDetails, ClassroomDependent {
+    var userRole: UserRole,
+) : Principal, UserDetails, ClassroomDependent {
 
+    @JsonIgnore
     fun isPrivileged(): Boolean = userRole == UserRole.TEACHER || userRole == UserRole.TUTOR
 
     @JsonIgnore
@@ -59,7 +60,7 @@ open class User(
     @JsonIgnore
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (javaClass != other?.javaClass && other?.javaClass != UserDisplay::class.java) return false
 
         other as User
 
@@ -75,5 +76,4 @@ open class User(
         result = 31 * result + userId.hashCode()
         return result
     }
-
 }

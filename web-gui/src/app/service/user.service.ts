@@ -1,11 +1,12 @@
 import {Injectable} from '@angular/core';
-import {UserDisplay, userDisplayFromEvent} from "../model/User";
+import {User, UserDisplay, userDisplayFromEvent} from "../model/User";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {BehaviorSubject, Observable, ReplaySubject, Subject} from "rxjs";
 import {EventListenerService} from "../rsocket/event-listener.service";
-import {finalize, map, tap} from "rxjs/operators";
+import {distinctUntilChanged, finalize, map, tap} from "rxjs/operators";
 import {UserAction, UserEvent} from "../rsocket/event/UserEvent";
 import {AuthService} from "./auth.service";
+import {ConferenceService} from "./conference.service";
 
 @Injectable({
   providedIn: 'root'
@@ -17,16 +18,30 @@ export class UserService {
 
   private selfSubject: Subject<UserDisplay> = new ReplaySubject(1)
   currentUserObservable: Observable<UserDisplay> = this.selfSubject.asObservable()
+  private currentUser: UserDisplay
 
   constructor(
     private rSocketService: RSocketService,
     private eventListenerService: EventListenerService,
-    private authService: AuthService
+    private authService: AuthService,
+    private conferenceService: ConferenceService,
   ) {
     this.initUsers()
     this.eventListenerService.userEvents.pipe(
       tap((userEvent: UserEvent) => this.handleUserEvent(userEvent)),
       map(() => this.publish())
+    ).subscribe()
+    this.currentUserObservable.subscribe(currentUser => this.currentUser = currentUser);
+    this.conferenceService.conferencesObservable.pipe(
+      distinctUntilChanged(),
+      tap(conferences => {
+        this.users.forEach((user, userId, map) => {
+          user.conferences = conferences
+            .filter(conference => conference.visible)
+            .filter(conference => conference.attendees.includes(userId))
+          map.set(userId, user)
+        })
+      })
     ).subscribe()
   }
 
@@ -45,14 +60,17 @@ export class UserService {
   }
 
   private handleUserEvent(userEvent: UserEvent) {
-    const userDisplay = userDisplayFromEvent(userEvent)
     switch (userEvent.userAction) {
-      case UserAction.JOIN: { this.updateUser(userDisplay); break; }
-      case UserAction.JOIN_CONFERENCE: { this.updateUser(userDisplay); break; }
-      case UserAction.LEAVE_CONFERENCE: { this.updateUser(userDisplay); break; }
-
+      case UserAction.JOIN: {
+        this.updateUser(userDisplayFromEvent(userEvent));
+        break;
+      }
       case UserAction.LEAVE: {
-        this.users.delete(userEvent.user.userId)
+        this.users.delete(userEvent.user.userId);
+        break;
+      }
+      case UserAction.VISIBILITY_CHANGE: {
+        this.updateVisibility(userEvent.user, userEvent.user.visible);
         break;
       }
     }
@@ -65,12 +83,29 @@ export class UserService {
     this.users.set(userDisplay.userId, userDisplay)
   }
 
+  private updateVisibility(user: User, visible: boolean) {
+    const userDisplay = this.users.get(user.userId)
+    userDisplay.visible = visible
+    this.users.set(userDisplay.userId, userDisplay)
+  }
+
   private publish() {
     const users: UserDisplay[] = []
-    this.users.forEach((userDisplay) => {
-      users.push(userDisplay)
+    this.users.forEach((user) => {
+      users.push(user)
     })
     this.userSubject.next(users)
   }
 
+  public changeVisibility(visible: boolean) {
+    const currentUser: UserDisplay = this.currentUser;
+    if (visible === currentUser.visible) return
+    currentUser.visible = visible;
+    this.selfSubject.next(currentUser);
+    const event = new UserEvent();
+    event.user = currentUser;
+    event.visible = visible;
+    event.userAction = UserAction.VISIBILITY_CHANGE;
+    this.rSocketService.fireAndForget("socket/classroom-event", event)
+  }
 }

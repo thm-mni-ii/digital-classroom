@@ -5,4 +5,4 @@ class UnknownUserException(
     meetingId: String,
     bbbMessageKey: String = "userUnknownToClassroom",
     bbbMessage: String = "User $userId unknown to classroom $meetingId!"
-): ApiException(bbbMessageKey, null, bbbMessage)
+) : ApiException(bbbMessageKey, null, bbbMessage)

@@ -17,9 +17,8 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import javax.crypto.spec.SecretKeySpec
 
-
 @Component
-class ClassroomJwtService(jwtProperties: JwtProperties): ReactiveJwtDecoder {
+class ClassroomJwtService(jwtProperties: JwtProperties) : ReactiveJwtDecoder {
 
     private val secretKey = SecretKeySpec(jwtProperties.secret.repeatLength(60).toByteArray(), "HmacSHA384")
     private val reactiveJwtDecoder = NimbusReactiveJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS384).build()
@@ -42,5 +41,4 @@ class ClassroomJwtService(jwtProperties: JwtProperties): ReactiveJwtDecoder {
             User(it.claims)
         }
     }
-
 }

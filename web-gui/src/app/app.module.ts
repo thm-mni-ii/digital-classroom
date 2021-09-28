@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import {ErrorHandler, NgModule} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -6,8 +6,8 @@ import { AppComponent } from './app.component';
 import {ClassroomComponent} from "./page-components/classroom/classroom.component";
 import {MenuBarComponent} from "./page-components/menu-bar/menu-bar.component";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {NewTicketDialogComponent} from "./dialogs/newticket-dialog/new-ticket-dialog.component";
-import {InviteToConferenceDialogComponent} from "./dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component";
+import {NewTicketDialogComponent} from "./dialogs/new-ticket-dialog/new-ticket-dialog.component";
+import {InviteToConferenceDialogComponent} from "./dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component";
 import {AssignTicketDialogComponent} from "./dialogs/assign-ticket-dialog/assign-ticket-dialog.component";
 import {MaterialComponentsModule} from "./modules/material-components/material-components.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -21,9 +21,13 @@ import { UnauthorizedComponent } from './page-components/unauthorized/unauthoriz
 import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
 import {IsNotSelfPipe } from './pipes/is-not-self.pipe';
 import {IsPrivilegedPipe} from "./pipes/is-privileged-pipe";
-import {ManageTicketDialogComponent} from "./dialogs/manage-ticket-dialog/manage-ticket-dialog.component";
 import {UserListComponent} from "./page-components/classroom/user-list/user-list.component";
 import {TicketListComponent} from "./page-components/classroom/ticket-list/ticket-list.component";
+import {GlobalErrorHandler} from "./util/GlobalErrorHandler";
+import { ConferencesComponent } from './page-components/classroom/conferences/conferences.component';
+import {CreateConferenceDialogComponent} from "./dialogs/create-conference-dialog/create-conference-dialog.component";
+import {MatInputModule} from "@angular/material/input";
+import {MatFormFieldModule} from "@angular/material/form-field";
 
 @NgModule({
   declarations: [
@@ -38,9 +42,10 @@ import {TicketListComponent} from "./page-components/classroom/ticket-list/ticke
     JoinComponent,
     UnauthorizedComponent,
     IsNotSelfPipe,
-    ManageTicketDialogComponent,
     UserListComponent,
-    TicketListComponent
+    TicketListComponent,
+    ConferencesComponent,
+    CreateConferenceDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -52,13 +57,15 @@ import {TicketListComponent} from "./page-components/classroom/ticket-list/ticke
     MatSliderModule,
     HttpClientModule,
     RouterModule,
+    MatFormFieldModule,
+    MatInputModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,
       }
     })
   ],
-  providers: [httpInterceptorProviders],
+  providers: [httpInterceptorProviders, {provide: ErrorHandler, useClass: GlobalErrorHandler}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

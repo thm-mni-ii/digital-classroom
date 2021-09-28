@@ -2,12 +2,11 @@ package de.thm.mni.ii.classroom.security.jwt
 
 import de.thm.mni.ii.classroom.model.classroom.User
 import org.springframework.security.authentication.AbstractAuthenticationToken
-import org.springframework.security.core.Authentication
 
 class ClassroomAuthentication(
     val user: User?,
     private val jwt: String?
-): AbstractAuthenticationToken(user?.authorities) {
+) : AbstractAuthenticationToken(user?.authorities) {
 
     fun getClassroomId() = user!!.classroomId
 
@@ -28,5 +27,4 @@ class ClassroomAuthentication(
     override fun setAuthenticated(isAuthenticated: Boolean) {
         valid = isAuthenticated
     }
-
 }

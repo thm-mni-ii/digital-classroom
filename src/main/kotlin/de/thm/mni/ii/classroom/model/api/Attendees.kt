@@ -1,6 +1,5 @@
 package de.thm.mni.ii.classroom.model.api
 
-import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.User
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
@@ -11,10 +10,10 @@ class Attendees(users: Set<User>? = null) {
 
     @XmlElement(name = "attendee")
     private val attendees = users?.map(::Attendee)
-
 }
 
-@XmlType(name = "attendee",
+@XmlType(
+    name = "attendee",
     propOrder = [
         "userID",
         "fullName",

@@ -10,14 +10,14 @@ open class SuperMessageBBB(
     success: Boolean,
     @field:XmlElement val messageKey: String?,
     @field:XmlElement val message: String?
-): ReturnCodeBBB(success)
+) : ReturnCodeBBB(success)
 
 @XmlRootElement(name = "response")
-@XmlType(propOrder=["returncode", "messageKey", "message"])
+@XmlType(propOrder = ["returncode", "messageKey", "message"])
 class MessageBBB(
     success: Boolean,
     messageKey: String?,
     message: String?
-): SuperMessageBBB(success, messageKey, message) {
-    constructor(): this(false, null, null)
+) : SuperMessageBBB(success, messageKey, message) {
+    constructor() : this(false, null, null)
 }

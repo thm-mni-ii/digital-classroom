@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlTransient
 import javax.xml.bind.annotation.XmlType
 
 @XmlTransient
-@XmlType(propOrder=["returncode"])
+@XmlType(propOrder = ["returncode"])
 abstract class ReturnCodeBBB(
     success: Boolean
 ) {
@@ -14,5 +14,5 @@ abstract class ReturnCodeBBB(
     /**
      * Dummy constructor for JAXB Serialization
      */
-    constructor(): this(false)
+    constructor() : this(false)
 }

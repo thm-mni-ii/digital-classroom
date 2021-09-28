@@ -7,30 +7,25 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {DOCUMENT} from '@angular/common';
 import {Subscription} from 'rxjs';
 import {ClassroomService} from '../../service/classroom.service';
-import {InviteToConferenceDialogComponent} from '../../dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component';
-import {AssignTicketDialogComponent} from '../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component';
 import {Ticket} from '../../model/Ticket';
-import {parseCourseRole, User, UserDisplay} from "../../model/User";
+import {UserDisplay} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
-import {ClassroomInfo} from "../../model/ClassroomInfo";
 
 @Component({
-  selector: 'app-conference',
+  selector: 'app-classroom',
   templateUrl: './classroom.component.html',
   styleUrls: ['./classroom.component.scss']
 })
 export class ClassroomComponent implements OnInit, OnDestroy {
 
-  classroomInfo: ClassroomInfo = undefined
-  currentUser: User = undefined
+  currentUser: UserDisplay
   users: UserDisplay[] = [];
   tickets: Ticket[] = [];
   conferences: ConferenceInfo[] = [];
   subscriptions: Subscription[] = [];
-  parseCourseRole: Function = parseCourseRole
 
   constructor(private route: ActivatedRoute,
               private titlebarService: TitlebarService,
@@ -51,68 +46,20 @@ export class ClassroomComponent implements OnInit, OnDestroy {
       this.classroomService.currentUserObservable.subscribe(
       currentUser => this.currentUser = currentUser
       ),
-      this.classroomService.classroomInfo.subscribe(
-      classroomInfo => this.classroomInfo = classroomInfo
-      ),
       this.classroomService.tickets.subscribe(
       tickets => this.tickets = tickets
       ),
-      this.classroomService.userObservable.subscribe(
+      this.classroomService.userDisplayObservable.subscribe(
       users => this.users = users
+      ),
+      this.classroomService.conferencesObservable.subscribe(
+        conferences => this.conferences = conferences
       )
     )
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe())
-  }
-
-  public inviteToConference(user: User) {
-    this.dialog.open(InviteToConferenceDialogComponent, {
-      height: 'auto',
-      width: 'auto',
-      data: user
-    });
-  }
-
-  public assignTeacher(ticket) {
-    if (this.classroomService.isCurrentUserAuthorized()) {
-      this.dialog.open(AssignTicketDialogComponent, {
-        height: 'auto',
-        width: 'auto',
-        data: ticket
-      });
-    }
-  }
-
-  public sortTickets(tickets: Ticket[]) {
-    if (tickets.length <= 0) return null
-    return tickets.sort( (a, b) => {
-      if (a.assignee?.userId === this.currentUser.userId && b.assignee?.userId === this.currentUser.userId) {
-        return a.createTime > b.createTime ? 1 : -1;
-      } else if (a.assignee?.userId === this.currentUser.userId) {
-        return -1;
-      } else if (b.assignee?.userId === this.currentUser.userId) {
-        return 1;
-      }
-      return a.createTime > b.createTime ? 1 : -1;
-    });
-  }
-
-  public sortUsers(users) {
-    return users.sort((a, b) => {
-      if (a.courseRole > b.courseRole) {
-        return 1;
-      } else if ( a.courseRole < b.courseRole) {
-        return -1;
-      } else {
-        if (a.courseRole > b.courseRole) {
-          return 1;
-        } else {
-          return -1;
-        }
-      }
-    });
   }
 
 }

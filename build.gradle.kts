@@ -7,6 +7,8 @@ plugins {
     kotlin("jvm") version "1.4.32"
     kotlin("plugin.spring") version "1.4.32"
     kotlin("kapt") version "1.4.32"
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
+    id("org.jlleitschuh.gradle.ktlint-idea") version "10.2.0"
 }
 
 group = "de.thm.mni.ii"

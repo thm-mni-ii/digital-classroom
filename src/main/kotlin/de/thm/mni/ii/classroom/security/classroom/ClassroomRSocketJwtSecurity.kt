@@ -9,7 +9,7 @@ import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHa
 import org.springframework.security.config.annotation.rsocket.RSocketSecurity
 import org.springframework.security.messaging.handler.invocation.reactive.AuthenticationPrincipalArgumentResolver
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder
-import org.springframework.security.oauth2.server.resource.authentication.*
+import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor
 
 @Configuration
@@ -18,9 +18,10 @@ class ClassroomRSocketJwtSecurity {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Bean
-    fun rSocketInterceptor(rSocket: RSocketSecurity,
-                           decoder: ReactiveJwtDecoder,
-                           converter: JwtClassroomAuthenticationConverterAdapter
+    fun rSocketInterceptor(
+        rSocket: RSocketSecurity,
+        decoder: ReactiveJwtDecoder,
+        converter: JwtClassroomAuthenticationConverterAdapter
     ): PayloadSocketAcceptorInterceptor {
         rSocket.authorizePayload {
             it.route("stream/users").authenticated()
@@ -54,5 +55,4 @@ class ClassroomRSocketJwtSecurity {
         mh.rSocketStrategies = strategies!!
         return mh
     }
-
 }

@@ -2,10 +2,10 @@ package de.thm.mni.ii.classroom.model.classroom
 
 import org.springframework.security.core.GrantedAuthority
 
-enum class UserRole(val value: Int, val bbbRole: BBBRole): GrantedAuthority {
+enum class UserRole(val value: Int, val bbbRole: BBBRole) : GrantedAuthority {
     TEACHER(0, BBBRole.Moderator) {
-            override fun getAuthority() = this.name
-                                  },
+        override fun getAuthority() = this.name
+    },
     TUTOR(1, BBBRole.Moderator) {
         override fun getAuthority() = this.name
     },

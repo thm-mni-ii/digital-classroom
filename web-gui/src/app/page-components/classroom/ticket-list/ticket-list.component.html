@@ -1,26 +1,24 @@
-<div class="ticketColumn tickets">
-  <h3>Offene Tickets</h3>
-  <mat-list>
-    <mat-card class="ticket-mat-card" (click)="assignTeacher(ticket)" *ngFor="let ticket of sortTickets(tickets); index as i"
-              [ngClass]="{
-                'unassigned': ticket.assignee === null,
-                'selfassigned': ticket.assignee !== null && ticket.assignee?.userId === this.currentUser.userId,
-                'otherassigned': ticket.assignee !== null && ticket.assignee.userId !== ticket.creator.userId && ticket.assignee.userId !== currentUser.userId
-                }">
-      <mat-card-content>
-        <div class="grid-container">
-          <div class="grid-item ticket-desc"><p>{{ticket.description}}</p></div>
-          <div class="grid-item ticket-prio"><p>Priorität: <b>{{1}}</b></p></div>
-          <div class="grid-item ticket-assignee"><p *ngIf="ticket.assignee?.userId !== ticket.creator.userId">Zugewiesen an: {{ticket.assignee?.fullName}}</p>
-          </div>
-          <div class="grid-item ticket-date"><p>Erstellt: {{ticket.createTime | date:"dd/MM/yyyy 'um' hh:mm"}}</p>
-          </div>
-          <div class="grid-item ticket-creator"><p>Ersteller: {{ticket.creator.fullName}}</p>
-          </div>
-          <div class="grid-item ticket-position"><p>Position: <b>{{i}}</b></p>
-          </div>
+<h3>Offene Tickets</h3>
+
+<mat-list class="ticket-list">
+  <mat-card class="ticket" (click)="assignTeacher(ticket)" *ngFor="let ticket of sortTickets(tickets); index as i"
+            [ngClass]="{
+              'unassigned': ticket.assignee === null,
+              'self-assigned': ticket.assignee !== null && ticket.assignee?.userId === this.currentUser.userId,
+              'other-assigned': ticket.assignee !== null && ticket.assignee.userId !== ticket.creator.userId && ticket.assignee.userId !== currentUser.userId
+              }">
+    <mat-card-content>
+      <div class="grid-container">
+        <div class="grid-item ticket-desc"><p>{{ticket.description}}</p></div>
+        <div class="grid-item ticket-assignee"><p *ngIf="ticket.assignee?.userId !== ticket.creator.userId">Zugewiesen an: {{ticket.assignee?.fullName}}</p>
         </div>
-      </mat-card-content>
-    </mat-card>
-  </mat-list>
-</div>
+        <div class="grid-item ticket-date"><p>Erstellt: {{ticket.createTime | date:"dd/MM/yyyy 'um' HH:mm"}}</p>
+        </div>
+        <div class="grid-item ticket-creator"><p>Ersteller: {{ticket.creator.fullName}}</p>
+        </div>
+        <div class="grid-item ticket-position"><p>Position: <b>{{i}}</b></p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</mat-list>

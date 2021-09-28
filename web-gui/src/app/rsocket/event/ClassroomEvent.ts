@@ -26,12 +26,12 @@ export enum ConferenceAction {
   CREATE = "CREATE",
   CLOSE = "CLOSE",
   PUBLISH = "PUBLISH",
-  HIDE = "HIDE"
+  HIDE = "HIDE",
+  USER_CHANGE = "USER_CHANGE"
 }
 
 export class ConferenceEvent extends ClassroomEvent {
   conferenceInfo: ConferenceInfo
-  inProgress: Boolean
   conferenceAction: ConferenceAction
 
   constructor() {

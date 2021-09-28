@@ -32,8 +32,9 @@ import reactor.kotlin.core.publisher.toMono
  * @see de.thm.mni.ii.classroom.security.downstream.DownstreamAPISecurity
  */
 @Component
-class ClassroomHttpSessionTokenSecurity(private val userDetailsRepository: ClassroomUserDetailsRepository,
-                                        private val jwtService: ClassroomJwtService
+class ClassroomHttpSessionTokenSecurity(
+    private val userDetailsRepository: ClassroomUserDetailsRepository,
+    private val jwtService: ClassroomJwtService
 ) {
     /**
      * Function constructing the main {@link AuthenticationWebFilter}
@@ -59,7 +60,8 @@ class ClassroomHttpSessionTokenSecurity(private val userDetailsRepository: Class
                         ServerWebExchangeMatcher.MatchResult.notMatch()
                     }
                 }
-        ))
+            )
+        )
         sessionTokenFilter.setServerAuthenticationConverter(this.sessionTokenAuthenticationConverter())
         sessionTokenFilter.setAuthenticationSuccessHandler(successHandler)
         return sessionTokenFilter
@@ -101,12 +103,11 @@ class ClassroomHttpSessionTokenSecurity(private val userDetailsRepository: Class
 
         return ServerAuthenticationSuccessHandler {
             webFilterExchange, authentication ->
-                val exchange = webFilterExchange.exchange
-                exchange.response
-                    .headers
-                    .add(HttpHeaders.AUTHORIZATION, getHttpAuthHeaderValue(authentication as ClassroomAuthentication))
-                webFilterExchange.chain.filter(exchange)
+            val exchange = webFilterExchange.exchange
+            exchange.response
+                .headers
+                .add(HttpHeaders.AUTHORIZATION, getHttpAuthHeaderValue(authentication as ClassroomAuthentication))
+            webFilterExchange.chain.filter(exchange)
         }
     }
 }
-

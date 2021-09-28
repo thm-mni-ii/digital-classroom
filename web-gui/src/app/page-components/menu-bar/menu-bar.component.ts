@@ -1,8 +1,15 @@
-import { Component } from '@angular/core';
-import {defaultUserDisplay, parseCourseRole, UserDisplay} from 'src/app/model/User';
+import {Component, Input} from '@angular/core';
+import {parseCourseRole, UserDisplay} from 'src/app/model/User';
 import {ClassroomService} from "../../service/classroom.service";
 import {ConferenceService} from "../../service/conference.service";
 import {AuthService} from "../../service/auth.service";
+import {MatDialog} from "@angular/material/dialog";
+import {filter} from "rxjs/operators";
+import {
+  CreateConferenceDialogComponent,
+  CreateConferenceInputData
+} from "../../dialogs/create-conference-dialog/create-conference-dialog.component";
+import {ConferenceInfo} from "../../model/ConferenceInfo";
 
 
 @Component({
@@ -13,16 +20,27 @@ import {AuthService} from "../../service/auth.service";
 export class MenuBarComponent {
 
   public parseCourseRole: Function = parseCourseRole
-  public currentUser: UserDisplay = defaultUserDisplay(this.authService.getToken())
+  @Input() public currentUser: UserDisplay
 
   constructor(
     public classroomService: ClassroomService,
     public conferenceService: ConferenceService,
-    private authService: AuthService
-) {
-    classroomService.currentUserObservable.subscribe( userDisplay => {
-      this.currentUser = userDisplay
-    })
+    private authService: AuthService,
+    private dialog: MatDialog
+  ) {
+
+  }
+
+  public createConference() {
+      this.dialog.open(CreateConferenceDialogComponent, {
+        height: 'auto',
+        width: 'auto',
+        data: new CreateConferenceInputData(this.classroomService.classroomInfo, this.classroomService.currentUser)
+      }).beforeClosed().pipe(
+        filter(conferenceInfo => conferenceInfo instanceof ConferenceInfo),
+      ).subscribe((conferenceInfo: ConferenceInfo) => {
+        this.classroomService.createConference(conferenceInfo)
+      });
   }
 
 }
