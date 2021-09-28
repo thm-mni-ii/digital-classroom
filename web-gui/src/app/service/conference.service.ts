@@ -122,6 +122,7 @@ export class ConferenceService {
         this.sendInvitation(invitationEvent)
       })
     } else {
+      invitationEvent.conferenceInfo = conferenceInfo
       // Conference already exists
       this.sendInvitation(invitationEvent)
     }

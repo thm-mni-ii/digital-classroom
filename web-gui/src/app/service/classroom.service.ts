@@ -19,10 +19,11 @@ import {NewTicketDialogComponent} from "../dialogs/new-ticket-dialog/new-ticket-
 import {ConferenceInfo} from "../model/ConferenceInfo";
 import {ClassroomInfo} from "../model/ClassroomInfo";
 import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
+import {InviteToConferenceDialogComponent} from "../dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component";
 
 /**
- * Service that provides observables that asynchronously updates tickets, users and privide Conferences to take
- * part in a conference.
+ * Service that provides observables that asynchronously updates tickets, users and
+ * provide Conferences to take part in a conference.
  */
 @Injectable({
   providedIn: 'root'
@@ -94,20 +95,36 @@ export class ClassroomService {
    * @param conferenceInfo
    * @param ticket
    */
-  public inviteToConference(invitee: User, conferenceInfo: ConferenceInfo = null, ticket: Ticket = null) {
+  public inviteToConference(invitee: UserDisplay, conferenceInfo: ConferenceInfo = null, ticket: Ticket = null) {
     if (conferenceInfo !== null) {
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else if (ticket !== null) {
-      const conferenceInfo = new ConferenceInfo()
-      conferenceInfo.classroomId = this.classroomInfo.classroomId
-      conferenceInfo.creator = this.currentUser
-      conferenceInfo.visible = true
-      conferenceInfo.creationTimestamp = Date.now()
-      conferenceInfo.conferenceName = ticket.description
+      const conferenceInfo = this.createConferenceInfo(ticket.description)
+      this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
+    } else if (this.currentUser.conferences.length === 0) {
+      const conferenceInfo = this.createConferenceInfo("Meeting", false)
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else {
-      throw new Error("No ticket or conference provided for invitation!")
+      this.dialog.open(InviteToConferenceDialogComponent, {
+        height: 'auto',
+        width: 'auto',
+        data: invitee
+      }).beforeClosed().subscribe(conference => {
+          if (conference !instanceof ConferenceInfo) throw new Error("Error in invite dialog!")
+          this.conferenceService.inviteToConference(invitee, this.currentUser, conference)
+        }
+      );
     }
+  }
+
+  private createConferenceInfo(conferenceName: string, visible: boolean = true): ConferenceInfo {
+    const conferenceInfo = new ConferenceInfo()
+    conferenceInfo.classroomId = this.classroomInfo.classroomId
+    conferenceInfo.creator = this.currentUser
+    conferenceInfo.visible = visible
+    conferenceInfo.creationTimestamp = Date.now()
+    conferenceInfo.conferenceName = conferenceName
+    return conferenceInfo
   }
 
   public joinConferenceOfUser(conferencingUser: User) {
