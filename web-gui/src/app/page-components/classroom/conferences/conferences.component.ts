@@ -12,9 +12,7 @@ export class ConferencesComponent {
   @Input() conferences: ConferenceInfo[]
   @Input() currentUser: UserDisplay
 
-  constructor() {
-    console.log("conferences")
-  }
+  constructor() { }
 
   isUserAttending(conference: ConferenceInfo): boolean {
     return conference.attendees.includes(this.currentUser.userId)
