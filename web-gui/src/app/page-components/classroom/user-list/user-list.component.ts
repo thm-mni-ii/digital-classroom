@@ -1,7 +1,6 @@
 import {Component, Input} from '@angular/core';
-import {UserDisplay} from "../../../model/User";
+import {parseCourseRole, UserDisplay, UserRole} from "../../../model/User";
 import {ClassroomService} from "../../../service/classroom.service";
-import {parseCourseRole} from "../../../model/User";
 
 @Component({
   selector: 'app-user-list',
@@ -21,19 +20,28 @@ export class UserListComponent {
   public sortUsers(users: UserDisplay[]) {
     return users
       .filter(user => user.visible)
-      .sort((a, b) => {
-      if (a.userRole > b.userRole) {
-        return 1;
-      } else if ( a.userRole < b.userRole) {
-        return -1;
+      .sort(UserListComponent.compareUsers);
+  }
+
+  private static compareUsers(a: UserDisplay, b: UserDisplay) {
+    if (UserListComponent.roleValue(a.userRole) > UserListComponent.roleValue(b.userRole)) {
+      return 1;
+    } else if (UserListComponent.roleValue(a.userRole) < UserListComponent.roleValue(b.userRole)) {
+      return -1;
+    } else {
+      if (a.fullName > b.fullName) {
+        return 1
       } else {
-        if (a.userRole > b.userRole) {
-          return 1;
-        } else {
-          return -1;
-        }
+        return -1
       }
-    });
+    }
+  }
+
+  private static roleValue(role: UserRole): number {
+    if (role === UserRole.STUDENT) return 90
+    if (role === UserRole.TUTOR) return 50
+    if (role === UserRole.TEACHER) return 0
+    else return 0
   }
 
 }
