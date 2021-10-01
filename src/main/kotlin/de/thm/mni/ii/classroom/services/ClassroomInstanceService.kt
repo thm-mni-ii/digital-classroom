@@ -36,7 +36,8 @@ class ClassroomInstanceService(private val senderService: ClassroomEventSenderSe
         classroomName: String?,
         studentPassword: String?,
         tutorPassword: String?,
-        teacherPassword: String?
+        teacherPassword: String?,
+        logoutUrl: String? = "/logout"
     ): Mono<DigitalClassroom> {
         return Mono.defer {
             val classroom = DigitalClassroom(
