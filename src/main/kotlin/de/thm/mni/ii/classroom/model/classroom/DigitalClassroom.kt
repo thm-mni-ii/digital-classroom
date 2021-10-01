@@ -22,8 +22,9 @@ class DigitalClassroom(
     val studentPassword: String,
     val tutorPassword: String,
     val teacherPassword: String,
-    classroomName: String
-) : ClassroomInfo(classroomId, classroomName) {
+    classroomName: String,
+    logoutUrl: String
+) : ClassroomInfo(classroomId, classroomName, logoutUrl) {
 
     private val logger = LoggerFactory.getLogger(DigitalClassroom::class.java)
 
@@ -37,7 +38,6 @@ class DigitalClassroom(
     fun hasUserJoined() = users.isNotEmpty()
     fun hasBeenForciblyEnded() = false
     fun getDuration() = ChronoUnit.MINUTES.between(creationTimestamp, ZonedDateTime.now())
-
     fun doesUserExist(user: User): Boolean = users.contains(user)
 
     fun authenticateAssignRole(password: String, user: User): Mono<User> {

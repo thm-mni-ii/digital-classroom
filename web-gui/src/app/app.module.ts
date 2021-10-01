@@ -28,6 +28,8 @@ import { ConferencesComponent } from './page-components/classroom/conferences/co
 import {CreateConferenceDialogComponent} from "./dialogs/create-conference-dialog/create-conference-dialog.component";
 import {MatInputModule} from "@angular/material/input";
 import {MatFormFieldModule} from "@angular/material/form-field";
+import { LogoutComponent } from './page-components/logout/logout.component';
+import {NotFoundComponent} from "./page-components/not-found/not-found.component";
 
 @NgModule({
   declarations: [
@@ -44,8 +46,10 @@ import {MatFormFieldModule} from "@angular/material/form-field";
     IsNotSelfPipe,
     UserListComponent,
     TicketListComponent,
+    NotFoundComponent,
     ConferencesComponent,
-    CreateConferenceDialogComponent
+    CreateConferenceDialogComponent,
+    LogoutComponent
   ],
   imports: [
     BrowserModule,

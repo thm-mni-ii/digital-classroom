@@ -37,7 +37,7 @@ class ClassroomInstanceService(private val senderService: ClassroomEventSenderSe
         studentPassword: String?,
         tutorPassword: String?,
         teacherPassword: String?,
-        logoutUrl: String? = "/logout"
+        logoutUrl: String?
     ): Mono<DigitalClassroom> {
         return Mono.defer {
             val classroom = DigitalClassroom(
@@ -45,7 +45,8 @@ class ClassroomInstanceService(private val senderService: ClassroomEventSenderSe
                 studentPassword = studentPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 tutorPassword = tutorPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 teacherPassword = teacherPassword ?: RandomStringUtils.randomAlphanumeric(30),
-                classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}"
+                classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}",
+                logoutUrl = logoutUrl ?: "/logout"
             )
             classrooms.computeIfAbsent(classroomId) { classroom }
             Mono.just(classroom)

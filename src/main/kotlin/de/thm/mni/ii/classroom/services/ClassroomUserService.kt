@@ -132,7 +132,7 @@ class ClassroomUserService(
     fun getClassroomInfo(user: User): Mono<ClassroomInfo> {
         return classroomInstanceService
             .getClassroomInstance(user.classroomId)
-            .map { ClassroomInfo(it.classroomId, it.classroomName) }
+            .cast(ClassroomInfo::class.java)
     }
 
     fun getConferences(user: User): Flux<ConferenceInfo> {

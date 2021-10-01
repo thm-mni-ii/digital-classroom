@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpResponse} from '@angular/common/http';
 import {JwtHelperService} from '@auth0/angular-jwt';
-import {Observable} from 'rxjs';
-import {of, throwError} from 'rxjs';
-import {mergeMap, map} from 'rxjs/operators';
+import {Observable, of, throwError} from 'rxjs';
+import {map, mergeMap} from 'rxjs/operators';
 import {Params} from "@angular/router";
 import {User} from "../model/User";
 
@@ -17,8 +16,7 @@ const TOKEN_ID = 'classroom-token';
 })
 export class AuthService {
 
-  constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {
-  }
+  constructor(private http: HttpClient, private jwtHelper: JwtHelperService) { }
 
   /**
    * Logout user by removing its token.
@@ -56,7 +54,7 @@ export class AuthService {
   public renewToken(response: HttpResponse<any>) {
     const token = AuthService.extractTokenFromHeader(response);
     if (token && !this.jwtHelper.isTokenExpired(token)) {
-      this.storeToken(token);
+      AuthService.storeToken(token);
     }
   }
 
@@ -76,7 +74,7 @@ export class AuthService {
     return localStorage.getItem(TOKEN_ID);
   }
 
-  private storeToken(token: string): void {
+  private static storeToken(token: string): void {
     localStorage.setItem(TOKEN_ID, token);
   }
 
@@ -88,7 +86,7 @@ export class AuthService {
   public startTokenAutoRefresh() {
     setInterval(() => {
       if (this.isAuthenticated()) {
-        const token = this.getToken();
+        // const token = this.getToken();
         //if (Math.floor(new Date().getTime() / 1000) + 90 >= token.exp) {
         //  console.log("request token")
           //this.requestNewToken().subscribe(() => {});
@@ -102,7 +100,7 @@ export class AuthService {
       {params: params, observe: 'response'})
       .pipe(map(res => {
         const token = AuthService.extractTokenFromHeader(res);
-        this.storeToken(token);
+        AuthService.storeToken(token);
         console.log(token)
         return token;
       }), mergeMap(token => {
