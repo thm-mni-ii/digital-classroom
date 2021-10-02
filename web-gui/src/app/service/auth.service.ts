@@ -102,8 +102,6 @@ export class AuthService {
         const refreshToken = AuthService.extractRefreshTokenFromHeader(res)
         AuthService.storeToken(token);
         AuthService.storeRefreshToken(refreshToken)
-        console.log(token)
-        console.log('Token will expire on ' + this.jwtHelper.getTokenExpirationDate(token))
         return token;
       }), mergeMap(token => {
         const decodedToken = this.decodeToken(token);
@@ -128,8 +126,7 @@ export class AuthService {
     setInterval(() => {
       if (this.isAuthenticated()) {
         const token = this.loadToken();
-        if (this.jwtHelper.isTokenExpired(token, 120)) {
-          console.log("request token")
+        if (this.jwtHelper.isTokenExpired(token, 70)) {
           this.requestNewToken();
         }
       }

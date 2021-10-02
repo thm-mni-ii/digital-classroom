@@ -13,9 +13,7 @@ import {environment} from "../environments/environment";
 export class AppComponent implements OnInit {
   constructor(
     private authService: AuthService
-  ) {
-    console.log(environment.production)
-  }
+  ) {}
 
   ngOnInit(): void {
     this.authService.startTokenAutoRefresh();
