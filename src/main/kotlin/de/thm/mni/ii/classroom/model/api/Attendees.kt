@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlType
 @XmlRootElement(name = "attendees")
 class Attendees(users: Set<User>? = null) {
 
+    @Suppress("unused")
     @XmlElement(name = "attendee")
     private val attendees = users?.map(::Attendee)
 }
@@ -26,6 +27,7 @@ class Attendees(users: Set<User>? = null) {
     ]
 )
 
+@Suppress("unused")
 class Attendee(user: User? = null) {
     @XmlElement private val userID: String? = user?.userId
     @XmlElement private val fullName: String? = user?.fullName

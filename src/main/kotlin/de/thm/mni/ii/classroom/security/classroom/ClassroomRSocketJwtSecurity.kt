@@ -2,7 +2,6 @@ package de.thm.mni.ii.classroom.security.classroom
 
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
-import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
@@ -18,8 +17,6 @@ import reactor.core.publisher.Mono
 
 @Configuration
 class ClassroomRSocketJwtSecurity {
-
-    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Bean
     fun rSocketInterceptor(

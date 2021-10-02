@@ -108,8 +108,8 @@ class ClassroomUserService(
                     (user.isPrivileged() || ticket.creator == user)
             }.switchIfEmpty {
                 Mono.error(UnauthorizedException("User not authorized to delete ticket!"))
-            }.flatMap {
-                it.deleteTicket(ticket)
+            }.flatMap { classroom ->
+                classroom.deleteTicket(ticket)
             }.doOnNext { (ticket, classroom) ->
                 senderService.sendToAll(classroom, TicketEvent(ticket, TicketAction.CLOSE)).subscribe()
             }.doOnSuccess { (ticket, classroom) ->

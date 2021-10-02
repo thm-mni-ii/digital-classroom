@@ -46,10 +46,6 @@ class ConferenceStorage {
         return conferences[conferenceId]
     }
 
-    fun getLatestConferenceOfUser(user: User): Conference? {
-        return getConferencesOfUser(user).lastOrNull()
-    }
-
     fun leaveConference(user: User, conference: Conference): Conference {
         this.conferences[conference.conferenceId]!!.attendees.remove(user)
         this.usersConference[user]?.remove(conference)

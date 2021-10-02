@@ -42,7 +42,7 @@ class ClassroomHttpJwtSecurity(
     }
 
     @Bean
-    fun classroomHttpJwtAuthenticationConverter() : ServerAuthenticationConverter {
+    fun classroomHttpJwtAuthenticationConverter(): ServerAuthenticationConverter {
         return ServerAuthenticationConverter { exchange ->
             val bearer = "Bearer "
             val matchBearerLength = Predicate { authValue: String -> authValue.length > bearer.length }
@@ -70,6 +70,5 @@ class ClassroomHttpJwtSecurity(
                 .flatMap(::isolateBearerValue)
                 .flatMap(::createAuthenticationObject)
         }
-
     }
 }
