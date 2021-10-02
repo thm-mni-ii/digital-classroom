@@ -17,7 +17,9 @@ const REFRESH_STORAGE = 'classroom-refresh-token';
 })
 export class AuthService {
 
-  constructor(private http: HttpClient, private jwtHelper: JwtHelperService) { }
+  constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {
+    this.startTokenAutoRefresh()
+  }
 
   private static extractJwtFromHeader(response: HttpResponse<any>): string {
     const authHeader: string = response.headers.get('Authorization');
@@ -122,7 +124,7 @@ export class AuthService {
     localStorage.removeItem(REFRESH_STORAGE);
   }
 
-  public startTokenAutoRefresh() {
+  private startTokenAutoRefresh() {
     setInterval(() => {
       if (this.isAuthenticated()) {
         const token = this.loadToken();
