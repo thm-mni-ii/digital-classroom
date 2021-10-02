@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
 import javax.xml.bind.annotation.XmlType
 
+@Suppress("unused")
 @XmlRootElement(name = "response")
 @XmlType(
     propOrder = [
@@ -27,6 +28,7 @@ class GetMeetingsBBBResponse(
     @XmlElement(required = true, nillable = true) private val meetings = Meetings(digitalClassrooms)
 }
 
+@Suppress("unused")
 @XmlRootElement(name = "meetings")
 class Meetings(digitalClassrooms: List<DigitalClassroom>? = null) {
 
@@ -34,6 +36,7 @@ class Meetings(digitalClassrooms: List<DigitalClassroom>? = null) {
     private val meetings = digitalClassrooms?.map(::Meeting)
 }
 
+@Suppress("unused")
 @XmlType(
     name = "meeting",
     propOrder = [

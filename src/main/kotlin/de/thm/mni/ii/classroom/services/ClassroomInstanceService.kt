@@ -17,7 +17,7 @@ import kotlin.collections.HashMap
  * Central service for managing and creating all DigitalClassroomInstances.
  */
 @Service
-class ClassroomInstanceService(private val senderService: ClassroomEventSenderService) {
+class ClassroomInstanceService {
 
     private val classrooms = HashMap<String, DigitalClassroom>()
 

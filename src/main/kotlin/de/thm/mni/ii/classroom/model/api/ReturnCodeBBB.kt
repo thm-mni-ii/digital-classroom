@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlTransient
 import javax.xml.bind.annotation.XmlType
 
+@Suppress("unused")
 @XmlTransient
 @XmlType(propOrder = ["returncode"])
 abstract class ReturnCodeBBB(

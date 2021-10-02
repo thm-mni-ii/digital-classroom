@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement
 import javax.xml.bind.annotation.XmlTransient
 import javax.xml.bind.annotation.XmlType
 
+@Suppress("unused")
 @XmlTransient
 open class SuperMessageBBB(
     success: Boolean,
@@ -12,6 +13,7 @@ open class SuperMessageBBB(
     @field:XmlElement val message: String?
 ) : ReturnCodeBBB(success)
 
+@Suppress("unused")
 @XmlRootElement(name = "response")
 @XmlType(propOrder = ["returncode", "messageKey", "message"])
 class MessageBBB(
