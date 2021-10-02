@@ -76,4 +76,8 @@ open class User(
         result = 31 * result + userId.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "${this.userId} / ${this.fullName}"
+    }
 }
