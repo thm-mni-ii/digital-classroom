@@ -35,7 +35,7 @@ class ClassroomUserService(
             }.doOnNext { (classroom, userDisplay) ->
                 senderService.sendToAll(classroom, UserEvent(userDisplay, UserAction.JOIN)).subscribe()
             }.doOnSuccess {
-                logger.info("${user.userId}/${user.fullName} connected to ${user.classroomId}!")
+                logger.info("$user connected to ${user.classroomId}!")
             }.flatMap {
                 socketRequester.rsocketClient().source()
             }.doOnNext {
@@ -55,9 +55,9 @@ class ClassroomUserService(
                 senderService.sendToAll(classroom, UserEvent(UserDisplay(user, true), userAction = UserAction.LEAVE)).subscribe()
             }.doOnNext {
                 if (throwable == null) {
-                    logger.info("${user.userId} / ${user.fullName} disconnected from ${user.classroomId}!")
+                    logger.info("$user disconnected from ${user.classroomId}!")
                 } else {
-                    logger.error("${user.userId} / ${user.fullName} disconnected from ${user.classroomId} with error {}!", throwable.message)
+                    logger.error("$user disconnected from ${user.classroomId} with error {}!", throwable.message)
                 }
             }.subscribe()
     }
@@ -80,7 +80,7 @@ class ClassroomUserService(
             }.doOnNext { (ticket, classroom) ->
                 senderService.sendToAll(classroom, TicketEvent(ticket, TicketAction.CREATE)).subscribe()
             }.doOnSuccess { (ticket, classroom) ->
-                logger.info("Ticket ${classroom.classroomName}/${ticket.ticketId} created!")
+                logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} created!")
             }.subscribe()
     }
 
@@ -96,7 +96,7 @@ class ClassroomUserService(
             }.doOnNext { (ticket, classroom) ->
                 senderService.sendToAll(classroom, TicketEvent(ticket, TicketAction.ASSIGN)).subscribe()
             }.doOnSuccess { (ticket, classroom) ->
-                logger.info("Ticket ${classroom.classroomName}/${ticket.ticketId} assigned to ${ticket.assignee!!.fullName}!")
+                logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee!!.fullName}!")
             }.subscribe()
     }
 
@@ -113,7 +113,7 @@ class ClassroomUserService(
             }.doOnNext { (ticket, classroom) ->
                 senderService.sendToAll(classroom, TicketEvent(ticket, TicketAction.CLOSE)).subscribe()
             }.doOnSuccess { (ticket, classroom) ->
-                logger.info("Ticket ${classroom.classroomName}/${ticket.ticketId} assigned to ${ticket.assignee?.fullName ?: "N/A"}!")
+                logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee?.fullName ?: "N/A"}!")
             }.subscribe()
     }
 
