@@ -49,7 +49,6 @@ class ClassroomHttpSessionTokenSecurity(
     fun sessionTokenFilter(): AuthenticationWebFilter {
         val sessionTokenFilter: AuthenticationWebFilter
         val authManager = this.reactiveAuthenticationManager()
-        val successHandler: ServerAuthenticationSuccessHandler = this.sessionTokenAuthenticationSuccessHandler()
         sessionTokenFilter = AuthenticationWebFilter(authManager)
         sessionTokenFilter.setRequiresAuthenticationMatcher(
             AndServerWebExchangeMatcher(
@@ -64,7 +63,6 @@ class ClassroomHttpSessionTokenSecurity(
             )
         )
         sessionTokenFilter.setServerAuthenticationConverter(this.sessionTokenAuthenticationConverter())
-        sessionTokenFilter.setAuthenticationSuccessHandler(successHandler)
         return sessionTokenFilter
     }
 
@@ -99,20 +97,5 @@ class ClassroomHttpSessionTokenSecurity(
             }
         }
         exchange.toMono().flatMap(::getSessionToken)
-    }
-
-    private fun sessionTokenAuthenticationSuccessHandler(): ServerAuthenticationSuccessHandler {
-        fun getHttpAuthHeaderValue(authentication: ClassroomAuthentication): String {
-            return "Bearer ${authentication.credentials}"
-        }
-
-        return ServerAuthenticationSuccessHandler {
-            webFilterExchange, authentication ->
-            val exchange = webFilterExchange.exchange
-            exchange.response
-                .headers
-                .add(HttpHeaders.AUTHORIZATION, getHttpAuthHeaderValue(authentication as ClassroomAuthentication))
-            webFilterExchange.chain.filter(exchange)
-        }
     }
 }
