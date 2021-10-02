@@ -2,6 +2,7 @@ package de.thm.mni.ii.classroom.security.classroom
 
 import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import de.thm.mni.ii.classroom.security.jwt.ClassroomJwtService
+import de.thm.mni.ii.classroom.security.jwt.ClassroomSessionTokenRepository
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import org.springframework.http.HttpHeaders
@@ -27,13 +28,13 @@ import reactor.kotlin.core.publisher.toMono
  *
  * @param userDetailsRepository A DAO offering access to valid session token and UserDetails.
  * @param jwtService A service creating and verifying JWT with UserDetails.
- * @see ClassroomUserDetailsRepository
+ * @see ClassroomSessionTokenRepository
  * @see ClassroomJwtService
  * @see de.thm.mni.ii.classroom.security.downstream.DownstreamAPISecurity
  */
 @Component
 class ClassroomHttpSessionTokenSecurity(
-    private val userDetailsRepository: ClassroomUserDetailsRepository,
+    private val userDetailsRepository: ClassroomSessionTokenRepository,
     private val jwtService: ClassroomJwtService
 ) {
     /**
@@ -69,6 +70,7 @@ class ClassroomHttpSessionTokenSecurity(
 
     /**
      * The ReactiveAuthenticationManager validating the ClassroomAuthentication object.
+     * Searches for the given sessionToken and creates a JWT if authenticated.
      * If the ClassroomAuthentication object is not valid, the JWTSecurity config will try to authenticate the request.
      * The Authentication object is constructed from the ServerExchange within the sessionTokenAuthenticationConverter.
      * @see ClassroomHttpSessionTokenSecurity.sessionTokenAuthenticationConverter
@@ -77,9 +79,12 @@ class ClassroomHttpSessionTokenSecurity(
      * @see ClassroomAuthentication
      */
     private fun reactiveAuthenticationManager() = ReactiveAuthenticationManager { auth ->
-        userDetailsRepository.findBySessionToken(auth.credentials as String).flatMap { user ->
-            Mono.zip(Mono.just(user), jwtService.createToken(user))
-        }.map { (user, token) -> ClassroomAuthentication(user, token) }
+        userDetailsRepository.authenticateBySessionToken(auth.credentials as String)
+            .flatMap { user ->
+                Mono.zip(Mono.just(user), jwtService.createToken(user))
+            }.map { (user, token) ->
+                ClassroomAuthentication(user, token)
+            }
     }
 
     /**

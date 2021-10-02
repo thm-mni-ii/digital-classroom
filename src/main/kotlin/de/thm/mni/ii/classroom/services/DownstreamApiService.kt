@@ -12,7 +12,7 @@ import de.thm.mni.ii.classroom.model.api.MessageBBB
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.model.classroom.UserRole
 import de.thm.mni.ii.classroom.properties.ClassroomProperties
-import de.thm.mni.ii.classroom.security.classroom.ClassroomUserDetailsRepository
+import de.thm.mni.ii.classroom.security.jwt.ClassroomSessionTokenRepository
 import de.thm.mni.ii.classroom.util.BbbApiQueryParamKeys
 import org.apache.commons.lang3.RandomStringUtils
 import org.slf4j.LoggerFactory
@@ -25,7 +25,7 @@ import java.util.UUID
 @Component
 class DownstreamApiService(
     private val classroomInstanceService: ClassroomInstanceService,
-    private val classroomUserDetailsRepository: ClassroomUserDetailsRepository,
+    private val classroomSessionTokenRepository: ClassroomSessionTokenRepository,
     private val classroomProperties: ClassroomProperties,
 ) {
 
@@ -80,7 +80,7 @@ class DownstreamApiService(
     private fun createSessionToken(user: User): Mono<String> {
         return Mono.just(RandomStringUtils.randomAlphanumeric(16))
             .doOnNext { sessionToken ->
-                classroomUserDetailsRepository.insertValidToken(sessionToken, user)
+                classroomSessionTokenRepository.insertValidToken(sessionToken, user)
             }
     }
 

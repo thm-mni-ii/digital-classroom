@@ -4,6 +4,7 @@ import de.thm.mni.ii.classroom.security.jwt.JwtClassroomAuthenticationConverterA
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.annotation.Order
 import org.springframework.messaging.rsocket.RSocketStrategies
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler
 import org.springframework.security.config.annotation.rsocket.RSocketSecurity
@@ -20,19 +21,19 @@ class ClassroomRSocketJwtSecurity {
     @Bean
     fun rSocketInterceptor(
         rSocket: RSocketSecurity,
-        decoder: ReactiveJwtDecoder,
-        converter: JwtClassroomAuthenticationConverterAdapter
+        jwtReactiveAuthenticationManager: JwtReactiveAuthenticationManager
     ): PayloadSocketAcceptorInterceptor {
         rSocket.authorizePayload {
             it.route("stream/users").authenticated()
                 .anyRequest().authenticated()
                 .anyExchange().permitAll()
         }.jwt {
-            it.authenticationManager(this.jwtReactiveAuthenticationManager(decoder, converter))
+            it.authenticationManager(jwtReactiveAuthenticationManager)
         }
         return rSocket.build()
     }
 
+    @Bean
     fun jwtReactiveAuthenticationManager(
         decoder: ReactiveJwtDecoder,
         converter: JwtClassroomAuthenticationConverterAdapter

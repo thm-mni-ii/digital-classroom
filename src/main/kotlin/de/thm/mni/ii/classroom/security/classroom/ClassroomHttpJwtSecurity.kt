@@ -1,11 +1,9 @@
 package de.thm.mni.ii.classroom.security.classroom
 
-import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
-import de.thm.mni.ii.classroom.security.jwt.ClassroomJwtService
 import org.springframework.http.HttpHeaders
-import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
 import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
@@ -19,12 +17,11 @@ import java.util.function.Predicate
 
 @Component
 class ClassroomHttpJwtSecurity(
-    private val userDetailsRepository: ClassroomUserDetailsRepository,
-    private val jwtService: ClassroomJwtService
+    private val jwtReactiveAuthenticationManager: JwtReactiveAuthenticationManager
 ) {
 
     fun jwtFilter(): AuthenticationWebFilter {
-        val authManager = jwtAuthenticationManager()
+        val authManager = jwtReactiveAuthenticationManager
         val jwtFilter = AuthenticationWebFilter(authManager)
         jwtFilter.setRequiresAuthenticationMatcher(
             AndServerWebExchangeMatcher(
@@ -43,12 +40,13 @@ class ClassroomHttpJwtSecurity(
         return jwtFilter
     }
 
-    fun jwtAuthenticationManager() = ReactiveAuthenticationManager { auth ->
-        val jwt = auth.credentials as String
-        jwtService.decodeToUser(jwt).map { user ->
-            ClassroomAuthentication(user, jwt)
-        }
-    }
+    // fun jwtAuthenticationManager() = ReactiveAuthenticationManager { auth ->
+    //    Jwt.withTokenValue(auth.credentials as String).build()
+    //    val jwt = auth.credentials as String
+    //    jwtService.decodeToUser(jwt).map { user ->
+    //        ClassroomAuthentication(user, jwt)
+    //    }
+    // }
 }
 
 class ClassroomHttpJwtAuthenticationConverter : ServerAuthenticationConverter {
