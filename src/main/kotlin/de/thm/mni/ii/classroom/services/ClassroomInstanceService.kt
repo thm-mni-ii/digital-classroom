@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
+import java.net.URL
 import java.util.UUID
 import kotlin.collections.HashMap
 
@@ -46,7 +47,7 @@ class ClassroomInstanceService {
                 tutorPassword = tutorPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 teacherPassword = teacherPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}",
-                logoutUrl = logoutUrl ?: "/logout"
+                logoutUrl = logoutUrl?.let { URL(it) }
             )
             classrooms.computeIfAbsent(classroomId) { classroom }
             Mono.just(classroom)

@@ -10,5 +10,5 @@ enum class BbbApiQueryParamKeys(val key: String) {
     UserId("userID"),
     Username("fullName"),
     ClassroomId("meetingID"),
-    LogoutUrl("logoutUrl")
+    LogoutUrl("logoutURL")
 }

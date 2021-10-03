@@ -186,6 +186,6 @@ export class ClassroomService {
   }
 
   public leave() {
-    this.router.navigate([this.classroomInfo.logoutUrl]).then()
+    this.router.navigate(["/logout"], ).then()
   }
 }

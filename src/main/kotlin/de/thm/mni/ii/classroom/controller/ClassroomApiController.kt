@@ -64,8 +64,7 @@ class ClassroomApiController(
                 val ex = UnauthorizedException("Invalid refresh token provided by user ${auth.user?.fullName}")
                 logger.error("", ex)
                 Mono.error(ex)
-            }
-            .filter { user ->
+            }.filter { user ->
                 user == auth.user
             }.switchIfEmpty {
                 val ex = UnauthorizedException("Owner of refresh token does not match requester!")

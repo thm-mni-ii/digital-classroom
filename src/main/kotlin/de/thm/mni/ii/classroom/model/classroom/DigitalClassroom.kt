@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
+import java.net.URL
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicLong
@@ -23,7 +24,7 @@ class DigitalClassroom(
     val tutorPassword: String,
     val teacherPassword: String,
     classroomName: String,
-    logoutUrl: String
+    logoutUrl: URL?
 ) : ClassroomInfo(classroomId, classroomName, logoutUrl) {
 
     private val logger = LoggerFactory.getLogger(DigitalClassroom::class.java)
