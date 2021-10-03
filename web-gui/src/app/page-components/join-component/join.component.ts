@@ -22,17 +22,10 @@ export class JoinComponent implements OnInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-        console.log('sessionToken: ', params["sessionToken"])
-        this.auth.useSessionToken(params).subscribe(token => {
-            console.log('user ', token.fullName, 'authenticated via sessionToken!')
-            this.router.navigate(['/classroom']).then()
-          }, error => {
-          console.log(error)
-          if (!this.auth.isAuthenticated()) {
-            this.router.navigate(['/unauthorized']).then()
-            return;
-          }
-        })
+      this.auth.useSessionToken(params).subscribe(
+        () => {
+          this.router.navigate(['/classroom']).then()
+          })
     })
   }
 }

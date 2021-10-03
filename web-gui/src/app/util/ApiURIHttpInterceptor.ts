@@ -4,9 +4,7 @@ import {
   HttpHandler,
   HttpInterceptor,
   HttpRequest,
-  HttpResponse
 } from "@angular/common/http";
-import {tap} from "rxjs/operators";
 import {Observable} from "rxjs";
 import {AuthService} from "../service/auth.service";
 import {Injectable} from "@angular/core";
@@ -21,17 +19,9 @@ export class ApiURIHttpInterceptor implements HttpInterceptor {
           headers: req.headers.set("Authorization",
             "Bearer " + idToken)
         });
-        return next.handle(cloned).pipe(tap(event => {
-          if (event instanceof HttpResponse) {
-            const response = <HttpResponse<any>>event;
-            this.authService.renewToken(response);
-          }
-        })
-        )
+        return next.handle(cloned);
       }
-      else {
-        return next.handle(req);
-      }
+      return next.handle(req);
     }
 }
 

@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {JwtHelperService} from '@auth0/angular-jwt';
-import {Observable, of, throwError} from 'rxjs';
-import {map, mergeMap, tap} from 'rxjs/operators';
+import {Observable, timer} from 'rxjs';
+import {map, tap} from 'rxjs/operators';
 import {Params} from "@angular/router";
 import {User} from "../model/User";
 
@@ -53,17 +53,6 @@ export class AuthService {
     return decodedToken;
   }
 
-  /**
-   * Renews token taken from the http response.
-   * @param response The http response.
-   */
-  public renewToken(response: HttpResponse<any>) {
-    const token = AuthService.extractJwtFromHeader(response);
-    if (token && !this.jwtHelper.isTokenExpired(token)) {
-      AuthService.storeToken(token);
-    }
-  }
-
   private decodeToken(token: string): User {
     return this.jwtHelper.decodeToken<User>(token);
   }
@@ -83,8 +72,9 @@ export class AuthService {
     localStorage.setItem(JWT_STORAGE, token);
   }
 
-  private static storeRefreshToken(token: string): void {
+  private storeRefreshToken(token: string): void {
     localStorage.setItem(REFRESH_STORAGE, token);
+    this.startTokenAutoRefresh();
   }
 
   public requestNewToken() {
@@ -92,28 +82,22 @@ export class AuthService {
     return this.http.get<void>('/classroom-api/refresh', {headers: headers, observe: 'response'})
       .pipe(
         tap(res => AuthService.storeToken(AuthService.extractJwtFromHeader(res))),
-        tap(res => AuthService.storeRefreshToken(AuthService.extractRefreshTokenFromHeader(res)))
+        tap(res => this.storeRefreshToken(AuthService.extractRefreshTokenFromHeader(res))),
       ).subscribe();
   }
 
   public useSessionToken(params: Params): Observable<User> {
     return this.http.get<void>('/classroom-api/join',
       {params: params, observe: 'response'})
-      .pipe(map(res => {
-        const token = AuthService.extractJwtFromHeader(res);
-        const refreshToken = AuthService.extractRefreshTokenFromHeader(res)
-        AuthService.storeToken(token);
-        AuthService.storeRefreshToken(refreshToken)
-        return token;
-      }), mergeMap(token => {
-        const decodedToken = this.decodeToken(token);
-        if (!decodedToken) {
-          return throwError('Decoding the token failed');
-        } else if (this.jwtHelper.isTokenExpired(token)) {
-          return throwError('Token expired');
-        }
-        return of(decodedToken)
-      }));
+      .pipe(
+        tap(res => {
+          const token = AuthService.extractJwtFromHeader(res);
+          const refreshToken = AuthService.extractRefreshTokenFromHeader(res)
+          AuthService.storeToken(token);
+          this.storeRefreshToken(refreshToken)
+        }),
+        map(() => this.getToken()),
+      );
   }
 
   /**
@@ -125,13 +109,22 @@ export class AuthService {
   }
 
   private startTokenAutoRefresh() {
-    setInterval(() => {
       if (this.isAuthenticated()) {
         const token = this.loadToken();
-        if (this.jwtHelper.isTokenExpired(token, 70)) {
-          this.requestNewToken();
+        const now = new Date()
+        const expDate = this.jwtHelper.getTokenExpirationDate(token)
+        const reqDate = new Date(expDate.getTime() - 5000)
+        if (now >= reqDate) {
+          this.requestNewToken()
+        } else {
+          console.log("Token expires at " + expDate + "!")
+          console.log("Request at " + reqDate + "!")
+
+          timer(reqDate).pipe(
+            tap(() => this.requestNewToken()),
+            tap(test => console.log(test))
+          ).subscribe()
         }
       }
-    }, 60000);
   }
 }
