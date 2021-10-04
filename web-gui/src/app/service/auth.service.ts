@@ -110,10 +110,15 @@ export class AuthService {
 
   private startTokenAutoRefresh() {
       if (this.isAuthenticated()) {
-        const token = this.loadToken();
-        const now = new Date()
-        const expDate = this.jwtHelper.getTokenExpirationDate(token)
+        const token: string = this.loadToken();
+        const now: Date = new Date()
+        const expDate: Date = this.jwtHelper.getTokenExpirationDate(token)
+        if (expDate === null) {
+          console.warn("JWT has no expiration Date!")
+          return
+        }
         const reqDate = new Date(expDate.getTime() - 5000)
+
         if (now >= reqDate) {
           this.requestNewToken()
         } else {

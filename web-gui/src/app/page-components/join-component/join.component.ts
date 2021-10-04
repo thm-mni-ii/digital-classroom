@@ -25,7 +25,7 @@ export class JoinComponent implements OnInit {
       this.auth.useSessionToken(params).subscribe(
         () => {
           this.router.navigate(['/classroom']).then()
-          })
+        })
     })
   }
 }
