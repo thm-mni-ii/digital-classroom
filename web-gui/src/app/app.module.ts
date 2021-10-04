@@ -31,6 +31,8 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import { LogoutComponent } from './page-components/logout/logout.component';
 import {NotFoundComponent} from "./page-components/not-found/not-found.component";
 import { OverlayErrorComponent } from './page-components/overlay-error/overlay-error.component';
+import {AvatarModule} from "ngx-avatar";
+import {ClickOutsideDirective} from "angular2-click-outside/clickOutside.directive";
 
 @NgModule({
   declarations: [
@@ -52,7 +54,8 @@ import { OverlayErrorComponent } from './page-components/overlay-error/overlay-e
     CreateConferenceDialogComponent,
     LogoutComponent,
     CreateConferenceDialogComponent,
-    OverlayErrorComponent
+    OverlayErrorComponent,
+    ClickOutsideDirective
   ],
   imports: [
     BrowserModule,
@@ -70,7 +73,8 @@ import { OverlayErrorComponent } from './page-components/overlay-error/overlay-e
       config: {
         tokenGetter: tokenGetter,
       }
-    })
+    }),
+    AvatarModule
   ],
   providers: [httpInterceptorProviders, {provide: ErrorHandler, useClass: GlobalErrorHandler}],
   bootstrap: [AppComponent]

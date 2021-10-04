@@ -13,6 +13,7 @@ import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
+import {ClassroomInfo} from "../../model/ClassroomInfo";
 
 @Component({
   selector: 'app-classroom',
@@ -25,6 +26,7 @@ export class ClassroomComponent implements OnInit, OnDestroy {
   users: UserDisplay[] = [];
   tickets: Ticket[] = [];
   conferences: ConferenceInfo[] = [];
+  classroomInfo: ClassroomInfo
   subscriptions: Subscription[] = [];
 
   constructor(private route: ActivatedRoute,
@@ -54,6 +56,9 @@ export class ClassroomComponent implements OnInit, OnDestroy {
       ),
       this.classroomService.conferencesObservable.subscribe(
         conferences => this.conferences = conferences
+      ),
+      this.classroomService.classroomInfoObservable.subscribe(
+        classroomInfo => this.classroomInfo = classroomInfo
       )
     )
   }

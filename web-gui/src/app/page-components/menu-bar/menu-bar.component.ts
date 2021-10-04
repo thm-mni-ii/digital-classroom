@@ -10,7 +10,7 @@ import {
   CreateConferenceInputData
 } from "../../dialogs/create-conference-dialog/create-conference-dialog.component";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
-
+import {ClassroomInfo} from "../../model/ClassroomInfo";
 
 @Component({
   selector: 'app-menu-bar',
@@ -19,8 +19,13 @@ import {ConferenceInfo} from "../../model/ConferenceInfo";
 })
 export class MenuBarComponent {
 
+  //colors: string[] = ['avatar-green', 'avatar-orange', 'avatar-blue', 'avatar-light-blue']
+  colors: string[] = ['#FD9A63', '#60CB7E', '#26B8B8', '#405E9A']
+
   public parseCourseRole: Function = parseCourseRole
   @Input() public currentUser: UserDisplay
+  @Input() public classroomInfo: ClassroomInfo
+  menuVisible: boolean = false;
 
   constructor(
     public classroomService: ClassroomService,
@@ -42,4 +47,24 @@ export class MenuBarComponent {
         this.classroomService.createConference(conferenceInfo)
       });
   }
+
+  toggleMenu() {
+    this.menuVisible = !this.menuVisible;
+  }
+
+  calculateColorClass(name: string): string {
+   return this.colors[this.hashCode(name) % this.colors.length];
+  }
+
+  hashCode(str: string) {
+    let hash = 0, i, chr;
+    if (str.length === 0) return hash;
+    for (i = 0; i < str.length; i++) {
+      chr   = str.charCodeAt(i);
+      hash  = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+  };
+
 }
