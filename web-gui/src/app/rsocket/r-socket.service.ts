@@ -36,8 +36,7 @@ export class RSocketService implements OnDestroy {
     url: environment.wsUrl,
     debug: true
   }, BufferEncoders)
-
-  private connectionStatus: ConnectionStatus
+  private connectionStatus: ConnectionStatus;
 
   constructor(private auth: AuthService,
               private notification: NotificationService,
@@ -137,19 +136,22 @@ export class RSocketService implements OnDestroy {
     return this.connectionStatus.kind === "CONNECTED"
   }
 
-  private statusSubscriber(notification: NotificationService = this.notification): ISubscriber<ConnectionStatus> {
+  private statusSubscriber(
+    rSocketService: RSocketService = this
+  ): ISubscriber<ConnectionStatus> {
     return {
       onComplete(): void {
         console.log("ConnectionStatus Flowable completed?!")
       },
       onError(error: Error): void {
-        notification.showOverlayError(error.message)
+        rSocketService.notification.showOverlayError(error.message)
       },
       onNext(value: ConnectionStatus): void {
+        rSocketService.connectionStatus = value
         if (value.kind === 'CLOSED') {
-          notification.showOverlayError("Die Verbindung wurde vom Server geschlossen.")
+          rSocketService.notification.showOverlayError("Die Verbindung wurde vom Server geschlossen.")
         } else if (value.kind === 'ERROR') {
-          notification.showOverlayError(value.error.message)
+          rSocketService.notification.showOverlayError(value.error.message)
         }
       },
       onSubscribe(subscription: ISubscription): void {

@@ -71,7 +71,7 @@ export class ClassroomService {
   /**
    * @return True if service is connected to the backend.
    */
-  public isJoined() {
+  public isConnected() {
     return this.rSocketService.isConnected()
   }
 
