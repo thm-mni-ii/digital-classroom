@@ -18,7 +18,7 @@ data class JwtProperties(
     /**
      * validity duration of JWT in seconds
      */
-    @NotBlank @Range(min = 60) val expiration: Int,
+    @NotBlank @Range(min = 60) val expiration: Long,
 
     val jwtSubject: String = "classroom-auth"
 

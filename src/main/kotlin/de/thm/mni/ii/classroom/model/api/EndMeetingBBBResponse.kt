@@ -3,6 +3,7 @@ package de.thm.mni.ii.classroom.model.api
 import javax.xml.bind.annotation.XmlRootElement
 import javax.xml.bind.annotation.XmlType
 
+@Suppress("unused")
 @XmlRootElement(name = "response")
 @XmlType(propOrder = ["returncode", "messageKey", "message"])
 class EndMeetingBBBResponse(

@@ -42,5 +42,4 @@ export class MenuBarComponent {
         this.classroomService.createConference(conferenceInfo)
       });
   }
-
 }

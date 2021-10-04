@@ -1,13 +1,13 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {JwtHelperService} from '@auth0/angular-jwt';
-import {Observable} from 'rxjs';
-import {of, throwError} from 'rxjs';
-import {mergeMap, map} from 'rxjs/operators';
+import {Observable, timer} from 'rxjs';
+import {map, tap} from 'rxjs/operators';
 import {Params} from "@angular/router";
 import {User} from "../model/User";
 
-const TOKEN_ID = 'classroom-token';
+const JWT_STORAGE = 'classroom-token';
+const REFRESH_STORAGE = 'classroom-refresh-token';
 
 /**
  * Manages login and logout of the user of the page.
@@ -18,13 +18,17 @@ const TOKEN_ID = 'classroom-token';
 export class AuthService {
 
   constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {
+    this.startTokenAutoRefresh()
   }
 
-  /**
-   * Logout user by removing its token.
-   */
-  public logout() {
-    localStorage.removeItem(TOKEN_ID);
+  private static extractJwtFromHeader(response: HttpResponse<any>): string {
+    const authHeader: string = response.headers.get('Authorization');
+    return authHeader ? authHeader.replace('Bearer ', '') : null;
+  }
+
+  private static extractRefreshTokenFromHeader(response: HttpResponse<any>): string {
+    const refreshToken: string = response.headers.get('refresh_token');
+    return refreshToken ? refreshToken : null;
   }
 
   /**
@@ -38,7 +42,7 @@ export class AuthService {
   /**
    * @return The lastly received token.
    */
-  getToken(): User {
+  public getToken(): User {
     const token = this.loadToken();
     const decodedToken = this.decodeToken(token);
     if (!decodedToken) {
@@ -49,71 +53,83 @@ export class AuthService {
     return decodedToken;
   }
 
-  /**
-   * Renews token taken from the http response.
-   * @param response The http response.
-   */
-  public renewToken(response: HttpResponse<any>) {
-    const token = AuthService.extractTokenFromHeader(response);
-    if (token && !this.jwtHelper.isTokenExpired(token)) {
-      this.storeToken(token);
-    }
-  }
-
   private decodeToken(token: string): User {
     return this.jwtHelper.decodeToken<User>(token);
-  }
-
-  private static extractTokenFromHeader(response: HttpResponse<any>): string {
-    const authHeader: string = response.headers.get('Authorization');
-    return authHeader ? authHeader.replace('Bearer ', '') : null;
   }
 
   /**
    * @return Get token as string or null if no token exists.
    */
   public loadToken(): string {
-    return localStorage.getItem(TOKEN_ID);
+    return localStorage.getItem(JWT_STORAGE);
   }
 
-  private storeToken(token: string): void {
-    localStorage.setItem(TOKEN_ID, token);
+  public loadRefreshToken(): string {
+    return localStorage.getItem(REFRESH_STORAGE);
   }
 
-  public requestNewToken(): Observable<void> {
-    return this.http.get('/api/v1/login/token', {}).pipe(map(() => null));
+  private static storeToken(token: string): void {
+    localStorage.setItem(JWT_STORAGE, token);
   }
 
-
-  public startTokenAutoRefresh() {
-    setInterval(() => {
-      if (this.isAuthenticated()) {
-        const token = this.getToken();
-        //if (Math.floor(new Date().getTime() / 1000) + 90 >= token.exp) {
-        //  console.log("request token")
-          //this.requestNewToken().subscribe(() => {});
-        //}
-      }
-    }, 60000);
+  private storeRefreshToken(token: string): void {
+    localStorage.setItem(REFRESH_STORAGE, token);
+    this.startTokenAutoRefresh();
   }
 
-  useSessionToken(params: Params): Observable<User> {
-    return this.http.get<string>('/classroom-api/join',
+  public requestNewToken() {
+    let headers = new HttpHeaders().set('refresh_token', this.loadRefreshToken())
+    return this.http.get<void>('/classroom-api/refresh', {headers: headers, observe: 'response'})
+      .pipe(
+        tap(res => AuthService.storeToken(AuthService.extractJwtFromHeader(res))),
+        tap(res => this.storeRefreshToken(AuthService.extractRefreshTokenFromHeader(res))),
+      ).subscribe();
+  }
+
+  public useSessionToken(params: Params): Observable<User> {
+    return this.http.get<void>('/classroom-api/join',
       {params: params, observe: 'response'})
-      .pipe(map(res => {
-        const token = AuthService.extractTokenFromHeader(res);
-        this.storeToken(token);
-        console.log(token)
-        return token;
-      }), mergeMap(token => {
-        const decodedToken = this.decodeToken(token);
-        if (!decodedToken) {
-          return throwError('Decoding the token failed');
-        } else if (this.jwtHelper.isTokenExpired(token)) {
-          return throwError('Token expired');
+      .pipe(
+        tap(res => {
+          const token = AuthService.extractJwtFromHeader(res);
+          const refreshToken = AuthService.extractRefreshTokenFromHeader(res)
+          AuthService.storeToken(token);
+          this.storeRefreshToken(refreshToken)
+        }),
+        map(() => this.getToken()),
+      );
+  }
+
+  /**
+   * Logout user by removing its token.
+   */
+  public logout() {
+    localStorage.removeItem(JWT_STORAGE);
+    localStorage.removeItem(REFRESH_STORAGE);
+  }
+
+  private startTokenAutoRefresh() {
+      if (this.isAuthenticated()) {
+        const token: string = this.loadToken();
+        const now: Date = new Date()
+        const expDate: Date = this.jwtHelper.getTokenExpirationDate(token)
+        if (expDate === null) {
+          console.warn("JWT has no expiration Date!")
+          return
         }
-        console.log(decodedToken)
-        return of(decodedToken);
-      }));
+        const reqDate = new Date(expDate.getTime() - 5000)
+
+        if (now >= reqDate) {
+          this.requestNewToken()
+        } else {
+          console.log("Token expires at " + expDate + "!")
+          console.log("Request at " + reqDate + "!")
+
+          timer(reqDate).pipe(
+            tap(() => this.requestNewToken()),
+            tap(test => console.log(test))
+          ).subscribe()
+        }
+      }
   }
 }

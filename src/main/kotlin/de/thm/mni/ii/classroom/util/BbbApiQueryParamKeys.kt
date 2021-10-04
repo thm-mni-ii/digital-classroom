@@ -1,6 +1,6 @@
 package de.thm.mni.ii.classroom.util
 
-enum class APIQueryParamTranslation(val api: String) {
+enum class BbbApiQueryParamKeys(val key: String) {
 
     StudentPassword("attendeePW"),
     TutorPassword("tutorPW"),
@@ -8,6 +8,7 @@ enum class APIQueryParamTranslation(val api: String) {
     ClassroomName("name"),
     Password("password"),
     UserId("userID"),
-    userName("fullName"),
-    ClassroomId("meetingID")
+    Username("fullName"),
+    ClassroomId("meetingID"),
+    LogoutUrl("logoutURL")
 }

@@ -3,12 +3,14 @@
 
   <span class="spacer"></span>
 
-  <ng-container *ngIf="classroomService.isJoined()">
+  <ng-container *ngIf="classroomService.isConnected()">
     <button mat-icon-button color="primary" (click)="classroomService.createTicket()" matTooltip="Ticket erstellen"><mat-icon >live_help</mat-icon></button>
     <!--<button mat-icon-button color="primary" *ngIf="isAuthorized() && classroomService.isJoined()" (click)="createConference()" matTooltip="Konferenzeinstellungen"><mat-icon >duo</mat-icon></button>-->
     <button mat-icon-button color="primary" (click)="this.createConference()" matTooltip="Konferenz öffnen"><mat-icon >videocam</mat-icon></button>
-    <button mat-icon-button color="primary" *ngIf="!this.currentUser?.visible" (click)="this.classroomService.showUser()" matTooltip="Nutzer sichtbar machen"><mat-icon >visibility</mat-icon></button>
-    <button mat-icon-button color="primary" *ngIf="this.currentUser?.visible" (click)="this.classroomService.hideUser()" matTooltip="Nutzer unsichtbar machen"><mat-icon >visibility_off</mat-icon></button>
+    <button mat-icon-button color="primary" *ngIf="!this.currentUser?.visible" (click)="this.classroomService.showUser()" matTooltip="Nutzer sichtbar machen"><mat-icon>visibility</mat-icon></button>
+    <button mat-icon-button color="primary" *ngIf="this.currentUser?.visible" (click)="this.classroomService.hideUser()" matTooltip="Nutzer unsichtbar machen"><mat-icon>visibility_off</mat-icon></button>
+    <button mat-icon-button color="primary" (click)="this.classroomService.leave()" matTooltip="Klassenraum verlassen!"><mat-icon>close</mat-icon></button>
+
   </ng-container>
 
 </mat-card>

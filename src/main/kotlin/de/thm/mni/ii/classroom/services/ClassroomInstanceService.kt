@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
+import java.net.URL
 import java.util.UUID
 import kotlin.collections.HashMap
 
@@ -17,7 +18,7 @@ import kotlin.collections.HashMap
  * Central service for managing and creating all DigitalClassroomInstances.
  */
 @Service
-class ClassroomInstanceService(private val senderService: ClassroomEventSenderService) {
+class ClassroomInstanceService {
 
     private val classrooms = HashMap<String, DigitalClassroom>()
 
@@ -36,7 +37,8 @@ class ClassroomInstanceService(private val senderService: ClassroomEventSenderSe
         classroomName: String?,
         studentPassword: String?,
         tutorPassword: String?,
-        teacherPassword: String?
+        teacherPassword: String?,
+        logoutUrl: String?
     ): Mono<DigitalClassroom> {
         return Mono.defer {
             val classroom = DigitalClassroom(
@@ -44,7 +46,8 @@ class ClassroomInstanceService(private val senderService: ClassroomEventSenderSe
                 studentPassword = studentPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 tutorPassword = tutorPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 teacherPassword = teacherPassword ?: RandomStringUtils.randomAlphanumeric(30),
-                classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}"
+                classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}",
+                logoutUrl = logoutUrl?.let { URL(it) }
             )
             classrooms.computeIfAbsent(classroomId) { classroom }
             Mono.just(classroom)

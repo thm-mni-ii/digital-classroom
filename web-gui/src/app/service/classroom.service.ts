@@ -20,6 +20,8 @@ import {ConferenceInfo} from "../model/ConferenceInfo";
 import {ClassroomInfo} from "../model/ClassroomInfo";
 import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
 import {InviteToConferenceDialogComponent} from "../dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component";
+import {Router} from "@angular/router";
+import {NotificationService} from "./notification.service";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and
@@ -44,12 +46,14 @@ export class ClassroomService {
   public classroomInfo: ClassroomInfo
   public currentUser: UserDisplay
 
-  public constructor(private authService: AuthService,
+  public constructor(private router: Router,
+                     private authService: AuthService,
                      private conferenceService: ConferenceService,
                      private dialog: MatDialog,
                      private rSocketService: RSocketService,
                      private ticketService: TicketService,
-                     private userService: UserService) {
+                     private userService: UserService,
+                     private notification: NotificationService) {
     this.currentUserObservable.subscribe(currentUser => this.currentUser = currentUser)
     this.classroomInfoObservable.subscribe(info => this.classroomInfo = info)
     this.userDisplayObservable.subscribe(users => this.users = users)
@@ -67,7 +71,7 @@ export class ClassroomService {
   /**
    * @return True if service is connected to the backend.
    */
-  public isJoined() {
+  public isConnected() {
     return this.rSocketService.isConnected()
   }
 
@@ -82,7 +86,10 @@ export class ClassroomService {
   public join() {
     return this.rSocketService.requestResponse<ClassroomInfo>("socket/init-classroom", "").pipe(
         tap(info => this.classroomInfoSubject.next(info))
-      ).subscribe()
+      ).subscribe(
+        classroom => this.notification.show("Connected to " + classroom.classroomName + "!"),
+        e => {throw Error("Could not connect to classroom: \n" + e.message)}
+    )
   }
 
   public createConference(conferenceInfo: ConferenceInfo) {
@@ -176,5 +183,9 @@ export class ClassroomService {
       if (userDisplay === undefined) return false
     }
     return userDisplay.conferences.length !== 0
+  }
+
+  public leave() {
+    this.router.navigate(["/logout"], ).then()
   }
 }

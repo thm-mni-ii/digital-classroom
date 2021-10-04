@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import reactor.core.publisher.Mono
 import kotlin.text.Charsets.UTF_8
 
@@ -19,7 +20,6 @@ import kotlin.text.Charsets.UTF_8
 class SecurityConfiguration(
     private val classroomHttpSessionTokenSecurity: ClassroomHttpSessionTokenSecurity,
     private val downstreamAPISecurity: DownstreamAPISecurity,
-    private val classroomHttpJwtSecurity: ClassroomHttpJwtSecurity
 ) {
 
     /**
@@ -31,7 +31,10 @@ class SecurityConfiguration(
      * @see ClassroomHttpJwtSecurity
      */
     @Bean
-    fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    fun springSecurityFilterChain(
+        http: ServerHttpSecurity,
+        jwtFilter: AuthenticationWebFilter
+    ): SecurityWebFilterChain {
         http.exceptionHandling()
             .authenticationEntryPoint { exchange, denied ->
                 val response = exchange.response
@@ -52,7 +55,7 @@ class SecurityConfiguration(
             // Resolves authenticated requests to a User with a role STUDENT, TUTOR or TEACHER.
             .addFilterAt(classroomHttpSessionTokenSecurity.sessionTokenFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
             // As above, but with JWT
-            .addFilterAt(classroomHttpJwtSecurity.jwtFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+            .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
             .authorizeExchange() // Exchanges at the path below with Role GATEWAY is authorized.
             .pathMatchers("/api/*")
             .hasAuthority("GATEWAY")

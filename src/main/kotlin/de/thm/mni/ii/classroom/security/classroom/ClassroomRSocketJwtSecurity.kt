@@ -1,41 +1,42 @@
 package de.thm.mni.ii.classroom.security.classroom
 
-import de.thm.mni.ii.classroom.security.jwt.JwtClassroomAuthenticationConverterAdapter
-import org.slf4j.LoggerFactory
+import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.convert.converter.Converter
 import org.springframework.messaging.rsocket.RSocketStrategies
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler
 import org.springframework.security.config.annotation.rsocket.RSocketSecurity
 import org.springframework.security.messaging.handler.invocation.reactive.AuthenticationPrincipalArgumentResolver
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor
+import reactor.core.publisher.Mono
 
 @Configuration
 class ClassroomRSocketJwtSecurity {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
-
     @Bean
     fun rSocketInterceptor(
         rSocket: RSocketSecurity,
-        decoder: ReactiveJwtDecoder,
-        converter: JwtClassroomAuthenticationConverterAdapter
+        jwtReactiveAuthenticationManager: JwtReactiveAuthenticationManager
     ): PayloadSocketAcceptorInterceptor {
         rSocket.authorizePayload {
             it.route("stream/users").authenticated()
                 .anyRequest().authenticated()
                 .anyExchange().permitAll()
         }.jwt {
-            it.authenticationManager(this.jwtReactiveAuthenticationManager(decoder, converter))
+            it.authenticationManager(jwtReactiveAuthenticationManager)
         }
         return rSocket.build()
     }
 
+    @Bean
     fun jwtReactiveAuthenticationManager(
         decoder: ReactiveJwtDecoder,
-        converter: JwtClassroomAuthenticationConverterAdapter
+        converter: Converter<Jwt, Mono<ClassroomAuthentication>>
     ): JwtReactiveAuthenticationManager {
         val manager = JwtReactiveAuthenticationManager(decoder)
         manager.setJwtAuthenticationConverter(converter)
@@ -44,15 +45,24 @@ class ClassroomRSocketJwtSecurity {
 
     @Bean
     fun messageHandler(strategies: RSocketStrategies): RSocketMessageHandler {
-        return getMessageHandler(strategies)
-    }
-
-    private fun getMessageHandler(strategies: RSocketStrategies?): RSocketMessageHandler {
         val mh = RSocketMessageHandler()
         mh.argumentResolverConfigurer.addCustomResolver(
             AuthenticationPrincipalArgumentResolver()
         )
-        mh.rSocketStrategies = strategies!!
+        mh.rSocketStrategies = strategies
         return mh
+    }
+
+    @Bean
+    fun jwtToAuthenticationConverter(): Converter<Jwt, Mono<ClassroomAuthentication>> {
+        return Converter<Jwt, Mono<ClassroomAuthentication>> { jwt ->
+
+            fun delegateMono(jwt: Jwt): ClassroomAuthentication {
+                val user = User(jwt.claims)
+                return ClassroomAuthentication(user, jwt.tokenValue)
+            }
+
+            Mono.just(jwt).map(::delegateMono)
+        }
     }
 }

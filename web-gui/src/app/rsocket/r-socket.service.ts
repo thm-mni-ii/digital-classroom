@@ -12,7 +12,7 @@ import {
   RSocketClient
 } from "rsocket-core";
 import {AuthService} from "../service/auth.service";
-import {Payload, ReactiveSocket} from "rsocket-types";
+import {ConnectionStatus, ISubscriber, ISubscription, Payload, ReactiveSocket} from "rsocket-types";
 import {
   createMetadata,
   decodeToString,
@@ -21,24 +21,32 @@ import {
 import {first, map, switchMap, mergeMap} from "rxjs/operators";
 import {EventListenerService} from "./event-listener.service";
 import {environment} from "../../environments/environment";
+import {NotificationService} from "../service/notification.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class RSocketService implements OnDestroy {
 
-  client: RSocketClient<Buffer, Buffer>;
+  private readonly client: RSocketClient<Buffer, Buffer>;
   private socketSubject: ReplaySubject<ReactiveSocket<Buffer, Buffer>>
     = new ReplaySubject<ReactiveSocket<Buffer, Buffer>>(1)
-  auth: AuthService = undefined
 
   transport = new RSocketWebSocketClient({
     url: environment.wsUrl,
     debug: true
   }, BufferEncoders)
+  private connectionStatus: ConnectionStatus;
 
-  constructor(auth: AuthService, private responder: EventListenerService) {
-    this.auth = auth
+  constructor(private auth: AuthService,
+              private notification: NotificationService,
+              private responder: EventListenerService) {
+    const token = auth.loadToken()
+    if (!auth.isAuthenticated()) {
+      notification.showError("Sie sind nicht eingeloggt!")
+      return
+    }
+
     // Create an instance of a client
     this.client = new RSocketClient({
       setup: {
@@ -54,7 +62,7 @@ export class RSocketService implements OnDestroy {
           data: undefined,
           metadata: encodeCompositeMetadata([
             [MESSAGE_RSOCKET_ROUTING, encodeRoute("")],
-            [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(auth.loadToken())],
+            [MESSAGE_RSOCKET_AUTHENTICATION, encodeBearerAuthMetadata(token)],
           ]),
         }
       },
@@ -66,9 +74,10 @@ export class RSocketService implements OnDestroy {
     this.client.connect().subscribe({
       onComplete: (socket) => {
         this.socketSubject.next(socket)
+        socket.connectionStatus().subscribe(this.statusSubscriber())
       },
       onError: error => {
-        console.log('Connection has been refused due to:: ' + error);
+        notification.showError(error.message)
       },
       onSubscribe: () => {}
     });
@@ -123,6 +132,33 @@ export class RSocketService implements OnDestroy {
   }
 
   isConnected(): boolean {
-    return true
+    if (this.connectionStatus === undefined) return false
+    return this.connectionStatus.kind === "CONNECTED"
   }
+
+  private statusSubscriber(
+    rSocketService: RSocketService = this
+  ): ISubscriber<ConnectionStatus> {
+    return {
+      onComplete(): void {
+        console.log("ConnectionStatus Flowable completed?!")
+      },
+      onError(error: Error): void {
+        rSocketService.notification.showOverlayError(error.message)
+      },
+      onNext(value: ConnectionStatus): void {
+        rSocketService.connectionStatus = value
+        if (value.kind === 'CLOSED') {
+          rSocketService.notification.showOverlayError("Die Verbindung wurde vom Server geschlossen.")
+        } else if (value.kind === 'ERROR') {
+          rSocketService.notification.showOverlayError(value.error.message)
+        }
+      },
+      onSubscribe(subscription: ISubscription): void {
+        subscription.request(99999)
+      }
+
+    }
+  }
+
 }

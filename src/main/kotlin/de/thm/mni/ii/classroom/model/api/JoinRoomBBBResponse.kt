@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
 import javax.xml.bind.annotation.XmlType
 
+@Suppress("unused")
 @XmlRootElement(name = "response")
 @XmlType(propOrder = ["returncode", "messageKey", "message", "meetingID", "userID", "authToken", "sessionToken", "url"])
 class JoinRoomBBBResponse(
