@@ -30,6 +30,7 @@ import {MatInputModule} from "@angular/material/input";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import { LogoutComponent } from './page-components/logout/logout.component';
 import {NotFoundComponent} from "./page-components/not-found/not-found.component";
+import { OverlayErrorComponent } from './page-components/overlay-error/overlay-error.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,9 @@ import {NotFoundComponent} from "./page-components/not-found/not-found.component
     NotFoundComponent,
     ConferencesComponent,
     CreateConferenceDialogComponent,
-    LogoutComponent
+    LogoutComponent,
+    CreateConferenceDialogComponent,
+    OverlayErrorComponent
   ],
   imports: [
     BrowserModule,

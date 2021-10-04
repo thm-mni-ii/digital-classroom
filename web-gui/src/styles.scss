@@ -37,3 +37,10 @@ $web-gui-theme: mat.define-light-theme((
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  &.error-overlay-backdrop {
+    background: rgb(120 11 0 / 32%);
+    //opacity: 0.85 !important;
+  }
+}

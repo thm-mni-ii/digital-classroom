@@ -12,7 +12,7 @@ import {
   RSocketClient
 } from "rsocket-core";
 import {AuthService} from "../service/auth.service";
-import {ConnectionStatus, Payload, ReactiveSocket} from "rsocket-types";
+import {ConnectionStatus, ISubscriber, ISubscription, Payload, ReactiveSocket} from "rsocket-types";
 import {
   createMetadata,
   decodeToString,
@@ -28,7 +28,7 @@ import {NotificationService} from "../service/notification.service";
 })
 export class RSocketService implements OnDestroy {
 
-  client: RSocketClient<Buffer, Buffer>;
+  private readonly client: RSocketClient<Buffer, Buffer>;
   private socketSubject: ReplaySubject<ReactiveSocket<Buffer, Buffer>>
     = new ReplaySubject<ReactiveSocket<Buffer, Buffer>>(1)
 
@@ -42,12 +42,12 @@ export class RSocketService implements OnDestroy {
   constructor(private auth: AuthService,
               private notification: NotificationService,
               private responder: EventListenerService) {
-    this.auth = auth
     const token = auth.loadToken()
     if (!auth.isAuthenticated()) {
       notification.showError("Sie sind nicht eingeloggt!")
       return
     }
+
     // Create an instance of a client
     this.client = new RSocketClient({
       setup: {
@@ -75,9 +75,7 @@ export class RSocketService implements OnDestroy {
     this.client.connect().subscribe({
       onComplete: (socket) => {
         this.socketSubject.next(socket)
-        flowableToObservable(socket.connectionStatus()).subscribe(
-          status => this.connectionStatus = status,
-          )
+        socket.connectionStatus().subscribe(this.statusSubscriber())
       },
       onError: error => {
         notification.showError(error.message)
@@ -138,4 +136,27 @@ export class RSocketService implements OnDestroy {
     if (this.connectionStatus === undefined) return false
     return this.connectionStatus.kind === "CONNECTED"
   }
+
+  private statusSubscriber(notification: NotificationService = this.notification): ISubscriber<ConnectionStatus> {
+    return {
+      onComplete(): void {
+        console.log("ConnectionStatus Flowable completed?!")
+      },
+      onError(error: Error): void {
+        notification.showOverlayError(error.message)
+      },
+      onNext(value: ConnectionStatus): void {
+        if (value.kind === 'CLOSED') {
+          notification.showOverlayError("Die Verbindung wurde vom Server geschlossen.")
+        } else if (value.kind === 'ERROR') {
+          notification.showOverlayError(value.error.message)
+        }
+      },
+      onSubscribe(subscription: ISubscription): void {
+        subscription.request(99999)
+      }
+
+    }
+  }
+
 }
