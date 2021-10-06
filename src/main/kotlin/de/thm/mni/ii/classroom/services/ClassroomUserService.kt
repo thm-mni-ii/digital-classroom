@@ -37,10 +37,10 @@ class ClassroomUserService(
                 classroom.sendToAll(UserEvent(userDisplay, UserAction.JOIN))
             }.doOnSuccess {
                 logger.info("$userCredentials connected to ${userCredentials.classroomId}!")
-            }.flatMap {
-                socketRequester.rsocketClient().source()
-            }.doOnNext { socketClient ->
-                socketClient.onClose().doOnSuccess {
+            }.map {
+                socketRequester.rsocket()!!
+            }.doOnNext { socket ->
+                socket.onClose().doOnSuccess {
                     userDisconnected(userCredentials)
                 }.doOnError { exception ->
                     userDisconnected(userCredentials, exception)

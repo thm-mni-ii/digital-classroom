@@ -42,7 +42,7 @@ class DigitalClassroom(
     fun hasUserJoined() = users.isNotEmpty()
     fun hasBeenForciblyEnded() = false
     fun getDuration() = ChronoUnit.MINUTES.between(creationTimestamp, ZonedDateTime.now())
-    fun getUser(userId: String): User = users.keys.find { it.userId == userId }!!
+    fun getUser(userId: String): User = users.keys.find { it.userId == userId } ?: preAuthUserData.values.find { it.userId == userId }!!
     fun doesUserExist(userCredentials: UserCredentials): Boolean = users.contains(userCredentials)
 
     fun authenticateAssignRole(password: String, userCredentials: UserCredentials): Mono<UserCredentials> {
@@ -65,8 +65,7 @@ class DigitalClassroom(
 
     fun disconnectSocket(userCredentials: UserCredentials): Mono<User> {
         val user = users.keys.find { it == userCredentials }!!
-        val socket = users.remove(userCredentials)
-        socket?.rsocket()?.dispose()
+        users.remove(userCredentials)
         this.preAuthUserData[userCredentials] = user
         return Mono.just(user)
     }
