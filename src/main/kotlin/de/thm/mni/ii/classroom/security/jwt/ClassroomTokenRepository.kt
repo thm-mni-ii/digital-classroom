@@ -1,6 +1,7 @@
 package de.thm.mni.ii.classroom.security.jwt
 
 import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -8,7 +9,7 @@ import reactor.core.publisher.Mono
 class ClassroomTokenRepository {
 
     private val sessionTokens = HashMap<String, User>()
-    private val refreshTokens = HashMap<String, User>()
+    private val refreshTokens = HashMap<String, UserCredentials>()
 
     fun authenticateBySessionToken(sessionToken: String): Mono<User> =
         Mono.justOrEmpty(sessionTokens.remove(sessionToken))
@@ -17,10 +18,10 @@ class ClassroomTokenRepository {
         sessionTokens[sessionToken] = user
     }
 
-    fun findRefreshToken(refreshToken: String): Mono<User> =
+    fun findRefreshToken(refreshToken: String): Mono<UserCredentials> =
         Mono.justOrEmpty(refreshTokens[refreshToken])
 
-    fun insertRefreshToken(refreshToken: String, user: User) {
-        refreshTokens[refreshToken] = user
+    fun insertRefreshToken(refreshToken: String, userCredentials: UserCredentials) {
+        refreshTokens[refreshToken] = userCredentials
     }
 }

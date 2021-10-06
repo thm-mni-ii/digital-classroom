@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {ConferenceInfo} from "../../../model/ConferenceInfo";
-import {UserDisplay} from "../../../model/User";
+import {User} from "../../../model/User";
 
 @Component({
   selector: 'app-conferences',
@@ -10,7 +10,7 @@ import {UserDisplay} from "../../../model/User";
 export class ConferencesComponent {
 
   @Input() conferences: ConferenceInfo[]
-  @Input() currentUser: UserDisplay
+  @Input() currentUser: User
 
   constructor() { }
 

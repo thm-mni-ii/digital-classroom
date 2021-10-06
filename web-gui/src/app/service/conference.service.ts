@@ -7,7 +7,7 @@ import {
 import {RSocketService} from "../rsocket/r-socket.service";
 import {EventListenerService} from "../rsocket/event-listener.service";
 import {ConferenceAction, ConferenceEvent, InvitationEvent} from "../rsocket/event/ClassroomEvent";
-import {User} from "../model/User";
+import {UserCredentials} from "../model/User";
 import {ConferenceInfo, JoinLink} from "../model/ConferenceInfo";
 
 @Injectable({
@@ -85,7 +85,7 @@ export class ConferenceService {
     }
   }
 
-  public joinConferenceOfUser(conferencingUser: User) {
+  public joinConferenceOfUser(conferencingUser: UserCredentials) {
       this.rSocketService.requestResponse<JoinLink>("socket/conference/join-user", conferencingUser).pipe(
         tap(joinLink => this.openConferenceWindow(joinLink)),
         tap(_ => this.publish())
@@ -111,7 +111,7 @@ export class ConferenceService {
     this.rSocketService.fireAndForget("socket/conference/leave", conference)
   }
 
-  public inviteToConference(invitee: User, inviter: User, conferenceInfo: ConferenceInfo) {
+  public inviteToConference(invitee: UserCredentials, inviter: UserCredentials, conferenceInfo: ConferenceInfo) {
     const invitationEvent = new InvitationEvent()
     invitationEvent.invitee = invitee
     invitationEvent.inviter = inviter

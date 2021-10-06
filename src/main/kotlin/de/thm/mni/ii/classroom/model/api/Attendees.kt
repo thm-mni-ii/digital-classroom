@@ -1,16 +1,16 @@
 package de.thm.mni.ii.classroom.model.api
 
-import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
 import javax.xml.bind.annotation.XmlType
 
 @XmlRootElement(name = "attendees")
-class Attendees(users: Set<User>? = null) {
+class Attendees(userCredentials: Set<UserCredentials>? = null) {
 
     @Suppress("unused")
     @XmlElement(name = "attendee")
-    private val attendees = users?.map(::Attendee)
+    private val attendees = userCredentials?.map(::Attendee)
 }
 
 @XmlType(
@@ -28,10 +28,10 @@ class Attendees(users: Set<User>? = null) {
 )
 
 @Suppress("unused")
-class Attendee(user: User? = null) {
-    @XmlElement private val userID: String? = user?.userId
-    @XmlElement private val fullName: String? = user?.fullName
-    @XmlElement private val role: String? = user?.userRole?.name
+class Attendee(userCredentials: UserCredentials? = null) {
+    @XmlElement private val userID: String? = userCredentials?.userId
+    @XmlElement private val fullName: String? = userCredentials?.fullName
+    @XmlElement private val role: String? = userCredentials?.userRole?.name
     @XmlElement private val isPresenter = false
     @XmlElement private val isListeningOnly = true
     @XmlElement private val hasJoinedVoice = false

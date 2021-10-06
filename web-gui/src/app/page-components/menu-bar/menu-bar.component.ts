@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {parseCourseRole, UserDisplay} from 'src/app/model/User';
+import {parseCourseRole, User} from 'src/app/model/User';
 import {ClassroomService} from "../../service/classroom.service";
 import {ConferenceService} from "../../service/conference.service";
 import {AuthService} from "../../service/auth.service";
@@ -23,7 +23,7 @@ export class MenuBarComponent {
   colors: string[] = ['#FD9A63', '#60CB7E', '#26B8B8', '#405E9A']
 
   public parseCourseRole: Function = parseCourseRole
-  @Input() public currentUser: UserDisplay
+  @Input() public currentUser: User
   @Input() public classroomInfo: ClassroomInfo
   menuVisible: boolean = false;
 

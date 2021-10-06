@@ -7,22 +7,22 @@ import reactor.kotlin.core.publisher.toMono
 
 class ConferenceStorage {
 
-    private val usersConference = HashMap<User, LinkedHashSet<Conference>>()
+    private val usersConference = HashMap<UserCredentials, LinkedHashSet<Conference>>()
     private val conferences = HashMap<String, Conference>()
 
-    fun getConferencesOfUser(user: User) = usersConference[user] ?: LinkedHashSet()
+    fun getConferencesOfUser(userCredentials: UserCredentials) = usersConference[userCredentials] ?: LinkedHashSet()
 
-    fun getUsersOfConference(conference: Conference): Set<User> {
+    fun getUsersOfConference(conference: Conference): Set<UserCredentials> {
         return conferences[conference.conferenceId]?.attendees
             ?: throw ConferenceNotFoundException(conference.conferenceId)
     }
 
-    fun joinUser(conference: Conference, user: User): Mono<User> {
-        return Mono.just(user).doOnNext {
-            usersConference.computeIfAbsent(user) { LinkedHashSet() }
+    fun joinUser(conference: Conference, userCredentials: UserCredentials): Mono<UserCredentials> {
+        return Mono.just(userCredentials).doOnNext {
+            usersConference.computeIfAbsent(userCredentials) { LinkedHashSet() }
                 .also { it.add(conference) }
             conferences.computeIfAbsent(conference.conferenceId) { conference }
-                .also { it.attendees.add(user) }
+                .also { it.attendees.add(userCredentials) }
         }
     }
 
@@ -34,21 +34,21 @@ class ConferenceStorage {
         return Flux.fromIterable(conferences.values)
     }
 
-    fun getUsersInConferences(): Flux<User> {
+    fun getUsersInConferences(): Flux<UserCredentials> {
         return Flux.fromIterable(usersConference.keys)
     }
 
-    fun isUserInConference(user: User): Mono<Boolean> {
-        return Mono.just(usersConference.containsKey(user))
+    fun isUserInConference(userCredentials: UserCredentials): Mono<Boolean> {
+        return Mono.just(usersConference.containsKey(userCredentials))
     }
 
     fun getConference(conferenceId: String): Conference? {
         return conferences[conferenceId]
     }
 
-    fun leaveConference(user: User, conference: Conference): Conference {
-        this.conferences[conference.conferenceId]!!.attendees.remove(user)
-        this.usersConference[user]?.remove(conference)
+    fun leaveConference(userCredentials: UserCredentials, conference: Conference): Conference {
+        this.conferences[conference.conferenceId]!!.attendees.remove(userCredentials)
+        this.usersConference[userCredentials]?.remove(conference)
         return this.conferences[conference.conferenceId]!!
     }
 

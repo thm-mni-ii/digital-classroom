@@ -1,10 +1,12 @@
 package de.thm.mni.ii.classroom.controller
 
 import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
 import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import de.thm.mni.ii.classroom.security.jwt.ClassroomJwtService
 import de.thm.mni.ii.classroom.security.jwt.ClassroomTokenRepository
+import de.thm.mni.ii.classroom.services.ClassroomInstanceService
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import org.apache.commons.lang3.RandomStringUtils
@@ -26,8 +28,9 @@ import reactor.kotlin.core.publisher.switchIfEmpty
 @RequestMapping("/classroom-api")
 @CrossOrigin
 class ClassroomApiController(
-    val classroomTokenRepository: ClassroomTokenRepository,
-    val jwtService: ClassroomJwtService
+    private val classroomTokenRepository: ClassroomTokenRepository,
+    private val jwtService: ClassroomJwtService,
+    private val classroomInstanceService: ClassroomInstanceService
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -40,8 +43,11 @@ class ClassroomApiController(
     @GetMapping("/join")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun joinClassroom(auth: ClassroomAuthentication, originalExchange: ServerWebExchange): Mono<ServerHttpResponse> {
-        return Mono.just(generateRefreshToken(auth.principal))
-            .map { refreshToken ->
+        return classroomInstanceService.getClassroomInstance(auth.getClassroomId())
+            .doOnNext { classroom ->
+                classroom.savePreAuthUserData(auth.principal as User)
+            }.map {
+                val refreshToken = generateRefreshToken(auth.principal)
                 // Set refresh_token header
                 val refreshTokenSet = setHeader("refresh_token", refreshToken, originalExchange)
                 // Set Authorization header
@@ -61,11 +67,11 @@ class ClassroomApiController(
         return classroomTokenRepository
             .findRefreshToken(refreshToken)
             .switchIfEmpty {
-                val ex = UnauthorizedException("Invalid refresh token provided by user ${auth.user?.fullName}")
+                val ex = UnauthorizedException("Invalid refresh token provided by user ${auth.userCredentials?.fullName}")
                 logger.error("", ex)
                 Mono.error(ex)
             }.filter { user ->
-                user == auth.user
+                user == auth.userCredentials
             }.switchIfEmpty {
                 val ex = UnauthorizedException("Owner of refresh token does not match requester!")
                 logger.error("", ex)
@@ -82,9 +88,9 @@ class ClassroomApiController(
             }
     }
 
-    private fun generateRefreshToken(user: User): String {
+    private fun generateRefreshToken(userCredentials: UserCredentials): String {
         val newRefreshToken = RandomStringUtils.randomAscii(30)
-        classroomTokenRepository.insertRefreshToken(newRefreshToken, user)
+        classroomTokenRepository.insertRefreshToken(newRefreshToken, userCredentials)
         return newRefreshToken
     }
 

@@ -5,7 +5,7 @@ import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.MACSigner
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
-import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.properties.ClassroomProperties
 import de.thm.mni.ii.classroom.properties.JwtProperties
 import de.thm.mni.ii.classroom.util.repeatLength
@@ -35,13 +35,13 @@ class ClassroomJwtService(
     private val reactiveJwtDecoder = NimbusReactiveJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS384).build()
     private val jwsSigner = MACSigner(secretKey)
 
-    fun createToken(user: User): Mono<String> {
+    fun createToken(userCredentials: UserCredentials): Mono<String> {
         return Mono.defer {
             val claimsSet = JWTClaimsSet.Builder()
                 .subject(jwtProperties.jwtSubject)
                 .issuer(classroomProperties.host)
                 .expirationTime(Date(Date().time + jwtProperties.expiration * 1000))
-                .addClaims(user.getJwtClaims())
+                .addClaims(userCredentials.getJwtClaims())
                 .build()
             val signedJwt = SignedJWT(JWSHeader(JWSAlgorithm.HS384), claimsSet)
             signedJwt.sign(jwsSigner)
@@ -53,9 +53,9 @@ class ClassroomJwtService(
         return reactiveJwtDecoder.decode(token)
     }
 
-    fun decodeToUser(token: String): Mono<User> {
+    fun decodeToUser(token: String): Mono<UserCredentials> {
         return this.decode(token).map {
-            User(it.claims)
+            UserCredentials(it.claims)
         }
     }
 }

@@ -3,7 +3,7 @@ import {AssignTicketDialogComponent} from "../../../dialogs/assign-ticket-dialog
 import {Ticket} from "../../../model/Ticket";
 import {ClassroomService} from "../../../service/classroom.service";
 import {MatDialog} from "@angular/material/dialog";
-import {User} from "../../../model/User";
+import {UserCredentials} from "../../../model/User";
 
 @Component({
   selector: 'app-ticket-list',
@@ -12,7 +12,7 @@ import {User} from "../../../model/User";
 })
 export class TicketListComponent {
 
-  @Input() currentUser: User
+  @Input() currentUser: UserCredentials
   @Input() tickets: Ticket[]
 
   constructor(

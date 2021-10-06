@@ -4,7 +4,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {ClassroomService} from '../../service/classroom.service';
 import {AuthService} from '../../service/auth.service';
 import {Ticket} from '../../model/Ticket';
-import {User, UserDisplay} from "../../model/User";
+import {UserCredentials, User} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {ConferenceService} from "../../service/conference.service";
 
@@ -14,7 +14,7 @@ import {ConferenceService} from "../../service/conference.service";
   styleUrls: ['./assign-ticket-dialog.component.scss']
 })
 export class AssignTicketDialogComponent implements OnInit {
-  users: UserDisplay[] = [];
+  users: User[] = [];
   disabled = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: Ticket,
@@ -56,7 +56,7 @@ export class AssignTicketDialogComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  public joinConference(user: User) {
+  public joinConference(user: UserCredentials) {
     this.classroomService.joinConferenceOfUser(user);
   }
 }
