@@ -49,10 +49,10 @@ class ClassroomUserService(
 
     private fun userDisconnected(userCredentials: UserCredentials, throwable: Throwable? = null) {
         classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
-            .doOnNext { classroom ->
-                classroom.disconnectSocket(userCredentials)
-            }.doOnNext { classroom ->
-                senderService.sendToAll(classroom, UserEvent(User(userCredentials, true), userAction = UserAction.LEAVE)).subscribe()
+            .flatMap { classroom ->
+                Mono.zip(classroom.disconnectSocket(userCredentials), Mono.just(classroom))
+            }.doOnNext { (user, classroom) ->
+                senderService.sendToAll(classroom, UserEvent(user, userAction = UserAction.LEAVE)).subscribe()
             }.doOnNext {
                 if (throwable == null) {
                     logger.info("$userCredentials disconnected from ${userCredentials.classroomId}!")

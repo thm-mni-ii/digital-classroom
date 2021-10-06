@@ -60,7 +60,8 @@ open class UserCredentials(
     @JsonIgnore
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass && other?.javaClass != User::class.java) return false
+        if (this.javaClass != UserCredentials::class.java && this.javaClass != User::class.java) return false
+        if (other?.javaClass != UserCredentials::class.java && other?.javaClass != User::class.java) return false
 
         other as UserCredentials
 

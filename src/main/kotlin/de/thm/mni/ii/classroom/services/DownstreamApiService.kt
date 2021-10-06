@@ -79,17 +79,10 @@ class DownstreamApiService(
         }
     }
 
-    private fun createSessionToken(userCredentials: UserCredentials): Mono<String> {
-        return Mono.just(userCredentials)
-            .map { User(userCredentials, true) }
-            .map { user ->
-                val sessionToken = RandomStringUtils.randomAlphanumeric(16)
-                classroomTokenRepository.insertSessionToken(
-                    sessionToken,
-                    user
-                )
-                sessionToken
-            }
+    private fun createSessionToken(user: User): Mono<String> {
+        val sessionToken = RandomStringUtils.randomAlphanumeric(16)
+        classroomTokenRepository.insertSessionToken(sessionToken, user)
+        return Mono.just(sessionToken)
     }
 
     fun isMeetingRunning(param: MultiValueMap<String, String>): Mono<IsMeetingRunningBBB> {

@@ -60,11 +60,12 @@ class DigitalClassroom(
         return Mono.just(user)
     }
 
-    fun disconnectSocket(userCredentials: UserCredentials) {
+    fun disconnectSocket(userCredentials: UserCredentials): Mono<User> {
         val user = users.keys.find { it == userCredentials }!!
         val socket = users.remove(userCredentials)
         socket?.rsocket()?.dispose()
         this.preAuthUserData[userCredentials] = user
+        return Mono.just(user)
     }
 
     fun getTickets(): Flux<Ticket> {

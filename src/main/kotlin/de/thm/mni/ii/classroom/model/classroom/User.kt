@@ -12,16 +12,17 @@ class User(
     val conferences: List<ConferenceInfo>,
     val avatarUrl: URL?
 ) : UserCredentials(classroomId, userId, fullName, userRole) {
-    constructor(userCredentials: UserCredentials, visible: Boolean, avatarUrl: String? = null) : this(
+    constructor(userCredentials: UserCredentials, visible: Boolean, avatarUrl: String?) : this(
         userCredentials.classroomId,
         userCredentials.userId,
         userCredentials.fullName,
         userCredentials.userRole,
         visible,
         listOf(),
-        avatarUrl?.let { URL(it) }
+        if (!avatarUrl.isNullOrBlank()) URL(avatarUrl) else null
     )
 
     @JsonIgnore
     fun getCredentials(): UserCredentials = this
+
 }

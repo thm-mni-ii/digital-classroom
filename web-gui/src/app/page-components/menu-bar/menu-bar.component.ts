@@ -32,9 +32,7 @@ export class MenuBarComponent {
     public conferenceService: ConferenceService,
     private authService: AuthService,
     private dialog: MatDialog
-  ) {
-
-  }
+  ) {}
 
   public createConference() {
       this.dialog.open(CreateConferenceDialogComponent, {
