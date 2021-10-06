@@ -1,5 +1,5 @@
 export class ClassroomInfo {
-  classroomId: string
-  classroomName: string
-  logoutUrl: string
+  classroomId: string = null
+  classroomName: string = null
+  logoutUrl: string = null
 }

@@ -5,3 +5,22 @@
 h3 {
   alignment: center;
 }
+
+p {
+  text-align: center;
+}
+
+.overlay {
+  flex-flow: column nowrap;
+  align-items: center;
+}
+
+mat-action-row {
+  alignment: center;
+}
+
+button {
+  background-color: rgb(139 11 0 / 32%);
+  margin-right: 5px;
+  margin-left: 5px;
+}
