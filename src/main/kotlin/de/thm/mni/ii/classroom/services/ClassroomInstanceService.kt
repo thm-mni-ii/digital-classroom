@@ -3,8 +3,8 @@ package de.thm.mni.ii.classroom.services
 import de.thm.mni.ii.classroom.exception.api.ClassroomNotFoundException
 import de.thm.mni.ii.classroom.exception.api.NoPasswordSpecifiedException
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
-import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.util.toPair
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.stereotype.Service

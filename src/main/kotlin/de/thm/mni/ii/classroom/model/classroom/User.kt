@@ -24,5 +24,4 @@ class User(
 
     @JsonIgnore
     fun getCredentials(): UserCredentials = this
-
 }

@@ -4,8 +4,8 @@ import de.thm.mni.ii.classroom.event.ClassroomEvent
 import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.Ticket
-import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.services.ClassroomEventReceiverService
 import de.thm.mni.ii.classroom.services.ClassroomUserService
 import org.springframework.messaging.handler.annotation.MessageMapping

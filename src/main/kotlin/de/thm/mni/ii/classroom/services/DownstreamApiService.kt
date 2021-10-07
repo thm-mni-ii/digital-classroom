@@ -9,8 +9,8 @@ import de.thm.mni.ii.classroom.model.api.IsMeetingRunningBBB
 import de.thm.mni.ii.classroom.model.api.JoinRoomBBBResponse
 import de.thm.mni.ii.classroom.model.api.MeetingInfoBBBResponse
 import de.thm.mni.ii.classroom.model.api.MessageBBB
-import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.model.classroom.UserRole
 import de.thm.mni.ii.classroom.properties.ClassroomProperties
 import de.thm.mni.ii.classroom.security.jwt.ClassroomTokenRepository
