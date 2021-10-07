@@ -17,7 +17,7 @@ import {HttpClientModule} from "@angular/common/http";
 import {JwtModule} from "@auth0/angular-jwt";
 import {RouterModule} from "@angular/router";
 import {JoinComponent} from "./page-components/join-component/join.component";
-import { UnauthorizedComponent } from './page-components/unauthorized/unauthorized.component';
+import { UnauthorizedComponent } from './page-components/full-page/unauthorized/unauthorized.component';
 import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
 import {IsNotSelfPipe } from './pipes/is-not-self.pipe';
 import {IsPrivilegedPipe} from "./pipes/is-privileged-pipe";
@@ -28,11 +28,12 @@ import { ConferencesComponent } from './page-components/classroom/conferences/co
 import {CreateConferenceDialogComponent} from "./dialogs/create-conference-dialog/create-conference-dialog.component";
 import {MatInputModule} from "@angular/material/input";
 import {MatFormFieldModule} from "@angular/material/form-field";
-import { LogoutComponent } from './page-components/logout/logout.component';
-import {NotFoundComponent} from "./page-components/not-found/not-found.component";
+import { LogoutComponent } from './page-components/full-page/logout/logout.component';
+import {NotFoundComponent} from "./page-components/full-page/not-found/not-found.component";
 import { OverlayErrorComponent } from './page-components/overlay-error/overlay-error.component';
 import {AvatarModule} from "ngx-avatar";
 import {ClickOutsideDirective} from "angular2-click-outside/clickOutside.directive";
+import { FullPageComponent } from './page-components/full-page/full-page.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import {ClickOutsideDirective} from "angular2-click-outside/clickOutside.directi
     LogoutComponent,
     CreateConferenceDialogComponent,
     OverlayErrorComponent,
-    ClickOutsideDirective
+    ClickOutsideDirective,
+    FullPageComponent
   ],
   imports: [
     BrowserModule,
