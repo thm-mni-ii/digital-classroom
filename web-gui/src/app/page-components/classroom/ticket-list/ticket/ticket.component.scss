@@ -1,0 +1,55 @@
+mat-card-content {
+  margin: 2px;
+  .grid-container {
+    display: grid;
+    grid-column-gap: 10px;
+    grid-template-columns: 1fr fit-content(100%);
+    .ticket-desc {
+      .ticket-icon {
+        color: #405E9A;
+        margin-right: 3px;
+      }
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      font-size: 20px;
+    }
+    .ticket-creator {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .ticket-date {
+      grid-column: 2;
+      grid-row: 3;
+      text-align: right;
+    }
+    .ticket-prio {
+      text-align: right;
+      grid-column: 3;
+      grid-row: 2;
+    }
+    .ticket-assignee {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .ticket-position {
+      text-align: right;
+      border-left: solid 1px #B1B1B1;
+      padding-left: 2px;
+      grid-column: 3;
+      grid-row: 1;
+      .ticket-num {
+        font-size: 14px;
+        color: #B1B1B1;
+        text-align: left;
+      }
+      .ticket-time {
+        color: #6D6D6D;
+        font-size: 11px;
+      }
+    }
+    p {
+      margin: 2px;
+    }
+  }
+}

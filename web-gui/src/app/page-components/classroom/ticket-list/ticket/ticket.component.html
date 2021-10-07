@@ -1,0 +1,19 @@
+<mat-card-content>
+  <div class="grid-container">
+    <div class="grid-item ticket-desc">
+      <mat-icon class="ticket-icon">local_offer</mat-icon>
+      <p>{{ticket.description}}</p>
+    </div>
+    <div class="grid-item ticket-assignee"><p>Zugewiesen
+      an: {{ticket.assignee?.fullName}}</p>
+    </div>
+    <div class="grid-item ticket-date"><p>Erstellt: {{ticket.createTime | date:"dd/MM/yyyy 'um' HH:mm"}}</p>
+    </div>
+    <div class="grid-item ticket-creator"><p>Ersteller: {{ticket.creator.fullName}}</p>
+    </div>
+    <div class="grid-item ticket-position">
+      <p class="ticket-num">#{{ticket.ticketId}}</p>
+      <p class="ticket-time">{{this.getTicketTime(ticket)}}</p>
+    </div>
+  </div>
+</mat-card-content>

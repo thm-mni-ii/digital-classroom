@@ -34,6 +34,7 @@ import { OverlayErrorComponent } from './page-components/overlay-error/overlay-e
 import {AvatarModule} from "ngx-avatar";
 import {ClickOutsideDirective} from "angular2-click-outside/clickOutside.directive";
 import { FullPageComponent } from './page-components/full-page/full-page.component';
+import { TicketComponent } from './page-components/classroom/ticket-list/ticket/ticket.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import { FullPageComponent } from './page-components/full-page/full-page.compone
     CreateConferenceDialogComponent,
     OverlayErrorComponent,
     ClickOutsideDirective,
-    FullPageComponent
+    FullPageComponent,
+    TicketComponent
   ],
   imports: [
     BrowserModule,
