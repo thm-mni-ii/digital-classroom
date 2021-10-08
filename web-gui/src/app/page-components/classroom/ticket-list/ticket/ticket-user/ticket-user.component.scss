@@ -3,7 +3,7 @@
   flex-flow: row nowrap;
   justify-content: space-between;
   align-items: center;
-  width: 132px;
+  min-width: 132px;
   height: 38px;
   .user-avatar {
     height: 32px;
@@ -30,7 +30,7 @@
   //justify-content: space-evenly;
   align-items: center;
   align-content: space-around;
-  width: 132px;
+  min-width: 132px;
   height: 38px;
   cursor: pointer;
   .assign-icon {

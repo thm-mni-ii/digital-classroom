@@ -1,23 +1,26 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {UserIconService} from "../../../../../util/user-icon.service";
-import {User} from "../../../../../model/User";
+import {User, UserCredentials} from "../../../../../model/User";
 import {Ticket} from "../../../../../model/Ticket";
 import {MatDialog} from "@angular/material/dialog";
 import {AssignTicketDialogComponent} from "../../../../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component";
+import {UserService} from "../../../../../service/user.service";
 
 @Component({
   selector: 'app-ticket-user',
   templateUrl: './ticket-user.component.html',
   styleUrls: ['./ticket-user.component.scss']
 })
-export class TicketUserComponent implements OnInit {
+export class TicketUserComponent {
 
-  @Input() user: User;
+  @Input() userCredentials: UserCredentials;
   @Input() ticket: Ticket;
   @Input() ticketContext: string;
+
   constructor(
     public userIconService: UserIconService,
     private dialog: MatDialog,
+    private userService: UserService
   ) {
   }
 
@@ -29,8 +32,8 @@ export class TicketUserComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    console.log(this.user)
+  public fullUser(): User {
+    return this.userService.getFullUser(this.userCredentials)
   }
 
 }

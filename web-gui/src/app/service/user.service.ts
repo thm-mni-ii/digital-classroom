@@ -12,6 +12,7 @@ import {ConferenceService} from "./conference.service";
   providedIn: 'root'
 })
 export class UserService {
+
   private users: Map<string, User> = new Map<string, User>()
   private userSubject: Subject<User[]> = new BehaviorSubject([])
   userObservable: Observable<User[]> = this.userSubject.asObservable()
@@ -106,5 +107,9 @@ export class UserService {
     event.user = currentUser;
     event.userAction = UserAction.VISIBILITY_CHANGE;
     this.rSocketService.fireAndForget("socket/classroom-event", event)
+  }
+
+  public getFullUser(userCredentials: UserCredentials): User {
+    return this.users.get(userCredentials?.userId)
   }
 }
