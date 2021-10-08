@@ -25,7 +25,6 @@
   </div>
 
   <div class="menu-bubble" *ngIf="menuVisible">
-    <div (click)="classroomService.createTicket()" matTooltip="Ticket erstellen"><mat-icon >live_help</mat-icon>Ticket erstellen</div>
     <mat-divider></mat-divider>
     <!--<button mat-icon-button color="primary" *ngIf="isAuthorized() && classroomService.isJoined()" (click)="createConference()" matTooltip="Konferenzeinstellungen"><mat-icon >duo</mat-icon></button>-->
     <div (click)="this.createConference()" matTooltip="Konferenz öffnen"><mat-icon >videocam</mat-icon>Konferenz eröffnen</div>

@@ -3,6 +3,7 @@
 </div>
 
 <div class="classroom-content">
+  <app-side-drawer-menu label="Teilnehmer" orientation="left"></app-side-drawer-menu>
   <app-user-list [users]="this.users"
                  class="classroom-column">
   </app-user-list>
@@ -10,6 +11,7 @@
                    [tickets]="tickets"
                    class="classroom-column">
   </app-ticket-list>
+  <app-side-drawer-menu label="Konferenzen" orientation="right"></app-side-drawer-menu>
 </div>
 
 <app-conferences [conferences]="this.conferences"

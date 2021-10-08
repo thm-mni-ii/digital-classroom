@@ -9,10 +9,21 @@ h3 {
   flex-grow: 2;
 }
 
+.list-header {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+  mat-icon {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
 .ticket {
   padding: 5px;
   margin: 5px;
-
 }
 
 

@@ -36,6 +36,7 @@ import {ClickOutsideDirective} from "angular2-click-outside/clickOutside.directi
 import { FullPageComponent } from './page-components/full-page/full-page.component';
 import { TicketComponent } from './page-components/classroom/ticket-list/ticket/ticket.component';
 import { TicketUserComponent } from './page-components/classroom/ticket-list/ticket/ticket-user/ticket-user.component';
+import { SideDrawerMenuComponent } from './page-components/side-drawer-menu/side-drawer-menu.component';
 
 @NgModule({
   declarations: [
@@ -61,7 +62,8 @@ import { TicketUserComponent } from './page-components/classroom/ticket-list/tic
     ClickOutsideDirective,
     FullPageComponent,
     TicketComponent,
-    TicketUserComponent
+    TicketUserComponent,
+    SideDrawerMenuComponent
   ],
   imports: [
     BrowserModule,

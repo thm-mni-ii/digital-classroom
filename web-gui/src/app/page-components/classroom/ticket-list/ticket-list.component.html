@@ -1,4 +1,8 @@
-<h3>Offene Tickets</h3>
+<div class="list-header">
+  <mat-icon class="functional-icon" (click)="classroomService.createTicket()" svgIcon="add-ticket"></mat-icon>
+  <h3>Tickets</h3>
+  <mat-icon class="functional-icon">filter_list</mat-icon>
+</div>
 
 <mat-list class="ticket-list">
   <mat-card class="ticket" *ngFor="let ticket of sortTickets(tickets); index as i">

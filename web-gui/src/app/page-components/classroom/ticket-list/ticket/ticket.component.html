@@ -17,9 +17,9 @@
         <app-ticket-user ticketContext="ersteller" [userCredentials]="this.ticket.creator" [ticket]="ticket"></app-ticket-user>
       </div>
       <div class="ticket-buttons">
-        <mat-icon class="invite-icon" svgIcon="invite" (click)="this.inviteCreator()"></mat-icon>
-        <mat-icon class="edit-icon" (click)="this.editTicket()">edit</mat-icon>
-        <mat-icon class="delete-icon" (click)="this.closeTicket()">delete</mat-icon>
+        <mat-icon class="invite-icon functional-icon" svgIcon="invite" (click)="this.inviteCreator()"></mat-icon>
+        <mat-icon class="edit-icon functional-icon" (click)="this.editTicket()">edit</mat-icon>
+        <mat-icon class="delete-icon functional-icon" (click)="this.closeTicket()">delete</mat-icon>
       </div>
     </div>
   </div>
