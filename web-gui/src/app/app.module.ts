@@ -35,6 +35,7 @@ import {AvatarModule} from "ngx-avatar";
 import {ClickOutsideDirective} from "angular2-click-outside/clickOutside.directive";
 import { FullPageComponent } from './page-components/full-page/full-page.component';
 import { TicketComponent } from './page-components/classroom/ticket-list/ticket/ticket.component';
+import { TicketUserComponent } from './page-components/classroom/ticket-list/ticket/ticket-user/ticket-user.component';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,8 @@ import { TicketComponent } from './page-components/classroom/ticket-list/ticket/
     OverlayErrorComponent,
     ClickOutsideDirective,
     FullPageComponent,
-    TicketComponent
+    TicketComponent,
+    TicketUserComponent
   ],
   imports: [
     BrowserModule,

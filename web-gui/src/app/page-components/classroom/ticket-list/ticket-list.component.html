@@ -1,12 +1,7 @@
 <h3>Offene Tickets</h3>
 
 <mat-list class="ticket-list">
-  <mat-card class="ticket" (click)="assignTeacher(ticket)" *ngFor="let ticket of sortTickets(tickets); index as i"
-            [ngClass]="{
-              'unassigned': ticket.assignee === null,
-              'self-assigned': ticket.assignee !== null && ticket.assignee?.userId === this.currentUser.userId,
-              'other-assigned': ticket.assignee !== null && ticket.assignee.userId !== ticket.creator.userId && ticket.assignee.userId !== currentUser.userId
-              }">
+  <mat-card class="ticket" *ngFor="let ticket of sortTickets(tickets); index as i">
     <app-ticket [ticket]="ticket" [i]="i"></app-ticket>
   </mat-card>
 </mat-list>

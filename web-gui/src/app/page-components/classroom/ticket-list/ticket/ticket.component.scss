@@ -1,47 +1,37 @@
 mat-card-content {
   margin: 2px;
-  .grid-container {
-    display: grid;
-    grid-column-gap: 10px;
-    grid-template-columns: 1fr fit-content(100%);
+  .ticket-column {
+    display: flex;
+    flex-flow: column nowrap;
+    .ticket-row {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: center;
+      padding-left: 5px;
+    }
     .ticket-desc {
-      .ticket-icon {
-        color: #405E9A;
-        margin-right: 3px;
-      }
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
       font-size: 20px;
     }
-    .ticket-creator {
-      grid-column: 1;
-      grid-row: 2;
+    .ticket-details {
+      margin-top: 5px;
+      padding-left: 10px;
+      height: 20px;
+      font-size: 14px;
+      color: #6D6D6D;
     }
-    .ticket-date {
-      grid-column: 2;
-      grid-row: 3;
-      text-align: right;
-    }
-    .ticket-prio {
-      text-align: right;
-      grid-column: 3;
-      grid-row: 2;
-    }
-    .ticket-assignee {
-      grid-column: 1;
-      grid-row: 3;
-    }
-    .ticket-position {
-      text-align: right;
+    .ticket-meta {
+      alignment: left;
+      width: 78px;
+      text-align: left;
       border-left: solid 1px #B1B1B1;
       padding-left: 2px;
-      grid-column: 3;
-      grid-row: 1;
       .ticket-num {
         font-size: 14px;
         color: #B1B1B1;
-        text-align: left;
       }
       .ticket-time {
         color: #6D6D6D;
@@ -52,4 +42,30 @@ mat-card-content {
       margin: 2px;
     }
   }
+}
+
+app-ticket-user {
+  margin-right: 12px;
+}
+
+mat-icon {
+  margin-right: 3px;
+}
+
+.ticket-icon {
+  color: #405E9A;
+}
+
+.delete-icon {
+  color: #D90C0C;
+  cursor: pointer;
+}
+
+.edit-icon {
+  color: #6D6D6D;
+  cursor: pointer;
+}
+
+.invite-icon {
+  cursor: pointer;
 }

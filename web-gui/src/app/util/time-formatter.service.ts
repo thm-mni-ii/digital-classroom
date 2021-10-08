@@ -32,16 +32,16 @@ export class TimeFormatterService {
     if (prefomattedDate) {
       // Today at 10:20
       // Yesterday at 10:20
-      return `${ prefomattedDate } at ${ hours }:${ minutes }`;
+      return `${ prefomattedDate } um ${ hours }:${ minutes }`;
     }
 
     if (hideYear) {
       // 10. January at 10:20
-      return `${ day }. ${ month } at ${ hours }:${ minutes }`;
+      return `${ day }. ${ month } um ${ hours }:${ minutes }`;
     }
 
     // 10. January 2017. at 10:20
-    return `${ day }. ${ month } ${ year }. at ${ hours }:${ minutes }`;
+    return `${ day }. ${ month } ${ year }. um ${ hours }:${ minutes }`;
   }
 
 
@@ -62,18 +62,18 @@ export class TimeFormatterService {
     const isThisYear = new Date(today).getFullYear() === date.getFullYear();
 
 
-    if (seconds < 5) {
+    if (seconds < 30) {
       return 'gerade eben';
-    } else if (seconds < 60) {
-      return `vor ${ seconds } Sekunden`;
+    //} else if (seconds < 30) {
+    // return `vor ${ seconds } Sek.`;
     } else if (seconds < 90) {
-      return 'vor einer Minute';
+      return 'vor 1 Minute';
     } else if (minutes < 60) {
       return `vor ${ minutes } Minuten`;
     } else if (isToday) {
-      return this.getFormattedDate(date, 'Today'); // Today at 10:20
+      return this.getFormattedDate(date, 'Heute'); // Today at 10:20
     } else if (isYesterday) {
-      return this.getFormattedDate(date, 'Yesterday'); // Yesterday at 10:20
+      return this.getFormattedDate(date, 'Gestern'); // Yesterday at 10:20
     } else if (isThisYear) {
       return this.getFormattedDate(date, undefined, true); // 10. January at 10:20
     }

@@ -179,6 +179,11 @@ export class ClassroomService {
     });
   }
 
+  public closeTicket(ticket) {
+    this.ticketService.removeTicket(ticket);
+    this.notification.show(`Das Ticket wurde geschlossen`);
+  }
+
   public isInConference(user: UserCredentials): boolean {
     let userDisplay: User
     if (user instanceof User)

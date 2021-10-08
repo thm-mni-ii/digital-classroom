@@ -1,0 +1,30 @@
+<ng-container
+  *ngIf="this.user !== null && this.user !== undefined; then displayUser; else assignUser">
+</ng-container>
+
+<ng-template #displayUser>
+  <div class="ticket-user">
+    <ngx-avatar
+      class="user-avatar"
+      [bgColor]="this.userIconService.calculateColorClass(this.user.fullName)"
+      [name]="this.user.fullName"
+      initialsSize="2"
+      cornerRadius="4"
+      size="32"
+      [round]="false"
+      [textSizeRatio]="2.2"
+      [src]="this.user.avatarUrl"
+    ></ngx-avatar>
+    <div class="user-text">
+      <span class="ticket-context">{{this.ticketContext}}</span>
+      <span class="user-name">{{this.user.fullName}}</span>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #assignUser>
+  <div class="assign-user" (click)="this.assignUserTo()">
+    <mat-icon class="assign-icon">add_circle_outline</mat-icon>
+    <div class="assign-text">zuweisen</div>
+  </div>
+</ng-template>

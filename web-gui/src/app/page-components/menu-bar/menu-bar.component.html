@@ -11,7 +11,7 @@
     <div class="user-info" *ngIf="currentUser !== undefined">
       <ngx-avatar
         class="user-avatar"
-        [bgColor]="calculateColorClass(currentUser.fullName)"
+        [bgColor]="this.userIconService.calculateColorClass(currentUser.fullName)"
         [name]="currentUser.fullName"
         [size]="32"
         initialsSize="2"

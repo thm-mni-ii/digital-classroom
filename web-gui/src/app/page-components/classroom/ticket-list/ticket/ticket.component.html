@@ -1,19 +1,26 @@
 <mat-card-content>
-  <div class="grid-container">
-    <div class="grid-item ticket-desc">
-      <mat-icon class="ticket-icon">local_offer</mat-icon>
-      <p>{{ticket.description}}</p>
+  <div class="ticket-column">
+    <div class="ticket-row">
+      <div class="ticket-desc">
+        <mat-icon class="ticket-icon">local_offer</mat-icon>
+        <p>{{ticket.description}}</p>
+      </div>
+      <div class="ticket-meta">
+        <p class="ticket-num">#{{ticket.ticketId}}</p>
+        <p class="ticket-time">{{this.getTicketTime(ticket)}}</p>
+      </div>
     </div>
-    <div class="grid-item ticket-assignee"><p>Zugewiesen
-      an: {{ticket.assignee?.fullName}}</p>
-    </div>
-    <div class="grid-item ticket-date"><p>Erstellt: {{ticket.createTime | date:"dd/MM/yyyy 'um' HH:mm"}}</p>
-    </div>
-    <div class="grid-item ticket-creator"><p>Ersteller: {{ticket.creator.fullName}}</p>
-    </div>
-    <div class="grid-item ticket-position">
-      <p class="ticket-num">#{{ticket.ticketId}}</p>
-      <p class="ticket-time">{{this.getTicketTime(ticket)}}</p>
+    <div class="ticket-row ticket-details">{{ticket.description}}</div>
+    <div class="ticket-row">
+      <div class="ticket-users ticket-row">
+        <app-ticket-user ticketContext="zugewiesen" [user]="this.ticket.assignee" [ticket]="ticket"></app-ticket-user>
+        <app-ticket-user ticketContext="ersteller" [user]="this.ticket.creator" [ticket]="ticket"></app-ticket-user>
+      </div>
+      <div class="ticket-buttons">
+        <mat-icon class="invite-icon" svgIcon="invite" (click)="this.inviteCreator()"></mat-icon>
+        <mat-icon class="edit-icon" (click)="this.editTicket()">edit</mat-icon>
+        <mat-icon class="delete-icon" (click)="this.closeTicket()">delete</mat-icon>
+      </div>
     </div>
   </div>
 </mat-card-content>
