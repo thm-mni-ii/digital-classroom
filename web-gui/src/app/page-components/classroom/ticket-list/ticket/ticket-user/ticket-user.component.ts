@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {UserIconService} from "../../../../../util/user-icon.service";
 import {User} from "../../../../../model/User";
 import {Ticket} from "../../../../../model/Ticket";
@@ -10,7 +10,7 @@ import {AssignTicketDialogComponent} from "../../../../../dialogs/assign-ticket-
   templateUrl: './ticket-user.component.html',
   styleUrls: ['./ticket-user.component.scss']
 })
-export class TicketUserComponent {
+export class TicketUserComponent implements OnInit {
 
   @Input() user: User;
   @Input() ticket: Ticket;
@@ -27,6 +27,10 @@ export class TicketUserComponent {
       width: 'auto',
       data: this.ticket
     });
+  }
+
+  ngOnInit(): void {
+    console.log(this.user)
   }
 
 }
