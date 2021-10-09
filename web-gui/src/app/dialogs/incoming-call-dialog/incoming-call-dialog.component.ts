@@ -10,7 +10,8 @@ import {InvitationEvent} from "../../rsocket/event/ClassroomEvent";
 })
 export class IncomingCallDialogComponent implements OnInit {
   audio: HTMLAudioElement;
-  constructor(public dialogRef: MatDialogRef<IncomingCallDialogComponent>, public classroomService: ClassroomService,
+  constructor(public dialogRef: MatDialogRef<IncomingCallDialogComponent>,
+              public classroomService: ClassroomService,
               @Inject(MAT_DIALOG_DATA) public invitation: InvitationEvent) { }
 
   ngOnInit(): void {
@@ -37,7 +38,7 @@ export class IncomingCallDialogComponent implements OnInit {
   }
   // todo: fix string constants ( enum didnt work)
   public acceptCall() {
-    this.classroomService.joinConferenceOfUser(this.invitation.inviter);
+    this.classroomService.joinConference(this.invitation.conferenceInfo);
     this.dialogRef.close();
   }
 
