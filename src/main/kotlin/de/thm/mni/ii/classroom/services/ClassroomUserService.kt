@@ -23,7 +23,7 @@ import java.lang.IllegalArgumentException
 @Service
 class ClassroomUserService(
     private val classroomInstanceService: ClassroomInstanceService,
-    private val senderService: ClassroomEventSenderService
+    private val conferenceService: ConferenceService
 ) {
 
     private val logger = LoggerFactory.getLogger(ClassroomUserService::class.java)
@@ -32,8 +32,8 @@ class ClassroomUserService(
         return classroomInstanceService.getClassroomInstance(user.classroomId)
             .flatMap { classroom ->
                 Mono.zip(Mono.just(classroom), classroom.connectSocket(user, socketRequester))
-            }.doOnNext { (classroom, userDisplay) ->
-                senderService.sendToAll(classroom, UserEvent(userDisplay, UserAction.JOIN)).subscribe()
+            }.delayUntil { (classroom, userDisplay) ->
+                classroom.sendToAll(UserEvent(userDisplay, UserAction.JOIN))
             }.doOnSuccess {
                 logger.info("$user connected to ${user.classroomId}!")
             }.flatMap {
@@ -47,12 +47,13 @@ class ClassroomUserService(
             }.thenEmpty(Mono.empty())
     }
 
-    private fun userDisconnected(user: User, throwable: Throwable? = null) {
+    fun userDisconnected(user: User, throwable: Throwable? = null) {
         classroomInstanceService.getClassroomInstance(user.classroomId)
-            .doOnNext { classroom ->
+            .delayUntil { classroom ->
                 classroom.disconnectSocket(user)
-            }.doOnNext { classroom ->
-                senderService.sendToAll(classroom, UserEvent(UserDisplay(user, true), userAction = UserAction.LEAVE)).subscribe()
+                conferenceService.removeUserFromAllConferences(classroom, user)
+            }.delayUntil { classroom ->
+                classroom.sendToAll(UserEvent(UserDisplay(user, true), userAction = UserAction.LEAVE))
             }.doOnNext {
                 if (throwable == null) {
                     logger.info("$user disconnected from ${user.classroomId}!")
@@ -77,8 +78,8 @@ class ClassroomUserService(
                 Mono.error(IllegalArgumentException())
             }.flatMap {
                 it.createTicket(ticket)
-            }.doOnNext { (ticket, classroom) ->
-                senderService.sendToAll(classroom, TicketEvent(ticket, TicketAction.CREATE)).subscribe()
+            }.delayUntil { (ticket, classroom) ->
+                classroom.sendToAll(TicketEvent(ticket, TicketAction.CREATE))
             }.doOnSuccess { (ticket, classroom) ->
                 logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} created!")
             }.subscribe()
@@ -93,8 +94,8 @@ class ClassroomUserService(
                 Mono.error(UnauthorizedException("User not authorized to assign ticket!"))
             }.flatMap {
                 it.assignTicket(receivedTicket, receivedTicket.assignee!!)
-            }.doOnNext { (ticket, classroom) ->
-                senderService.sendToAll(classroom, TicketEvent(ticket, TicketAction.ASSIGN)).subscribe()
+            }.delayUntil { (ticket, classroom) ->
+                classroom.sendToAll(TicketEvent(ticket, TicketAction.ASSIGN))
             }.doOnSuccess { (ticket, classroom) ->
                 logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee!!.fullName}!")
             }.subscribe()
@@ -110,8 +111,8 @@ class ClassroomUserService(
                 Mono.error(UnauthorizedException("User not authorized to delete ticket!"))
             }.flatMap { classroom ->
                 classroom.deleteTicket(ticket)
-            }.doOnNext { (ticket, classroom) ->
-                senderService.sendToAll(classroom, TicketEvent(ticket, TicketAction.CLOSE)).subscribe()
+            }.delayUntil { (ticket, classroom) ->
+                classroom.sendToAll(TicketEvent(ticket, TicketAction.CLOSE))
             }.doOnSuccess { (ticket, classroom) ->
                 logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee?.fullName ?: "N/A"}!")
             }.subscribe()
@@ -139,7 +140,7 @@ class ClassroomUserService(
         return classroomInstanceService
             .getClassroomInstance(user.classroomId)
             .flatMapMany { classroom ->
-                classroom.getConferences()
+                classroom.conferences.getConferences()
             }.map(::ConferenceInfo)
     }
 
@@ -150,7 +151,7 @@ class ClassroomUserService(
             .flatMap { classroom ->
                 Mono.zip(Mono.just(classroom), classroom.changeVisibility(event.user))
             }.flatMap { (classroom, user) ->
-                senderService.sendToAll(classroom, UserEvent(user, UserAction.VISIBILITY_CHANGE))
+                classroom.sendToAll(UserEvent(user, UserAction.VISIBILITY_CHANGE))
             }.subscribe()
     }
 }

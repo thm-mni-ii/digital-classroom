@@ -32,4 +32,9 @@ class Conference(
     }
 
     fun toConferenceInfo() = ConferenceInfo(this)
+
+    fun removeUser(user: User): Conference {
+        this.attendees.remove(user)
+        return this
+    }
 }

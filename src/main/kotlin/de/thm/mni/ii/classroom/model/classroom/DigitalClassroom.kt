@@ -1,7 +1,8 @@
 package de.thm.mni.ii.classroom.model.classroom
 
+import de.thm.mni.ii.classroom.event.ClassroomEvent
+import de.thm.mni.ii.classroom.event.InvitationEvent
 import de.thm.mni.ii.classroom.exception.api.InvalidMeetingPasswordException
-import de.thm.mni.ii.classroom.exception.classroom.ConferenceNotFoundException
 import de.thm.mni.ii.classroom.exception.classroom.TicketAlreadyExistsException
 import de.thm.mni.ii.classroom.exception.classroom.TicketNotFoundException
 import org.slf4j.LoggerFactory
@@ -32,7 +33,7 @@ class DigitalClassroom(
     private val users = HashMap<UserDisplay, RSocketRequester?>()
     private val tickets = HashSet<Ticket>()
     private val nextTicketId = AtomicLong(10000L)
-    private val conferenceStorage = ConferenceStorage()
+    val conferences = ConferenceStorage()
 
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
 
@@ -103,55 +104,34 @@ class DigitalClassroom(
         return getUsers().toFlux()
     }
 
-    fun getConferencesOfUser(user: User): Flux<Conference> {
-        return Flux.fromIterable(conferenceStorage.getConferencesOfUser(user))
-    }
-
-    fun getConferences(): Flux<Conference> {
-        return conferenceStorage.getConferences()
-    }
-
-    fun saveConference(conference: Conference): Mono<Conference> {
-        return conferenceStorage.createConference(conference)
-    }
-
-    fun joinUserToConference(conference: Conference, user: User): Mono<User> {
-        return conferenceStorage.joinUser(conference, user)
-    }
-
-    fun getUsersInConferences(): Flux<User> {
-        return conferenceStorage.getUsersInConferences()
-    }
-
     fun getSockets(): Flux<Pair<User, RSocketRequester?>> = Flux.fromIterable(users.toList())
 
-    fun getSocketOfUser(user: User): Mono<RSocketRequester> = Mono.just(users[user]!!)
-
-    fun isUserInConference(user: User): Mono<Boolean> {
-        return conferenceStorage.isUserInConference(user)
-    }
-
-    fun getConference(conferenceId: String): Mono<Conference> {
-        return conferenceStorage.getConference(conferenceId).toMono()
-            .switchIfEmpty(Mono.error(ConferenceNotFoundException(conferenceId)))
-    }
-
-    fun leaveConference(user: User, conference: Conference): Mono<Conference> {
-        return this.conferenceStorage.leaveConference(user, conference).toMono()
-    }
-
-    fun getUsersOfConference(conference: Conference): Flux<User> {
-        return Flux.fromIterable(conferenceStorage.getUsersOfConference(conference))
-    }
-
-    fun deleteConference(conference: Conference): Mono<Conference> {
-        return this.conferenceStorage.deleteConference(conference)
-    }
+    private fun getSocketOfUser(user: User): Mono<RSocketRequester> = Mono.just(users[user]!!)
 
     fun changeVisibility(user: UserDisplay): Mono<UserDisplay> {
         return this.users.keys
             .find { it == user }
             .also { it?.visible = user.visible }
             .toMono()
+    }
+
+    fun sendInvitation(invitationEvent: InvitationEvent): Mono<Void> {
+        return getSocketOfUser(invitationEvent.invitee).doOnNext { requester ->
+            logger.trace("${invitationEvent.inviter.fullName} invites ${invitationEvent.invitee.fullName} to conference!")
+            fireAndForget(invitationEvent, requester)
+        }.then()
+    }
+
+    fun sendToAll(event: ClassroomEvent): Mono<Void> {
+        return getSockets().doOnNext { (user, requester) ->
+            if (requester != null) {
+                logger.trace("sending to ${user.fullName}")
+                fireAndForget(event, requester)
+            }
+        }.then()
+    }
+
+    private fun fireAndForget(event: ClassroomEvent, requester: RSocketRequester) {
+        requester.route("").data(event).send().subscribe().dispose()
     }
 }

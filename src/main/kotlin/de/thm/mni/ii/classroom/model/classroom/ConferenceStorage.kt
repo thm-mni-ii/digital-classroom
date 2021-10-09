@@ -3,6 +3,7 @@ package de.thm.mni.ii.classroom.model.classroom
 import de.thm.mni.ii.classroom.exception.classroom.ConferenceNotFoundException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
 class ConferenceStorage {
@@ -10,15 +11,16 @@ class ConferenceStorage {
     private val usersConference = HashMap<User, LinkedHashSet<Conference>>()
     private val conferences = HashMap<String, Conference>()
 
-    fun getConferencesOfUser(user: User) = usersConference[user] ?: LinkedHashSet()
+    fun getConferencesOfUser(user: User) =
+        Flux.fromIterable(usersConference[user] ?: LinkedHashSet())
 
-    fun getUsersOfConference(conference: Conference): Set<User> {
-        return conferences[conference.conferenceId]?.attendees
+    fun getUsersOfConference(conference: Conference): Flux<User> {
+        return conferences[conference.conferenceId]?.attendees?.toFlux()
             ?: throw ConferenceNotFoundException(conference.conferenceId)
     }
 
-    fun joinUser(conference: Conference, user: User): Mono<User> {
-        return Mono.just(user).doOnNext {
+    fun joinUser(conference: Conference, user: User): Mono<Conference> {
+        return Mono.just(user).map {
             usersConference.computeIfAbsent(user) { LinkedHashSet() }
                 .also { it.add(conference) }
             conferences.computeIfAbsent(conference.conferenceId) { conference }
@@ -42,14 +44,16 @@ class ConferenceStorage {
         return Mono.just(usersConference.containsKey(user))
     }
 
-    fun getConference(conferenceId: String): Conference? {
-        return conferences[conferenceId]
+    fun getConference(conferenceId: String): Mono<Conference> {
+        return conferences[conferenceId].toMono()
+            .switchIfEmpty(Mono.error(ConferenceNotFoundException(conferenceId)))
     }
 
-    fun leaveConference(user: User, conference: Conference): Conference {
-        this.conferences[conference.conferenceId]!!.attendees.remove(user)
-        this.usersConference[user]?.remove(conference)
-        return this.conferences[conference.conferenceId]!!
+    fun leaveConference(user: User, conference: Conference): Mono<Conference> {
+        return Mono.just(conference).map {
+                this.usersConference[user]?.remove(conference)
+                this.conferences[conference.conferenceId]!!.removeUser(user)
+            }
     }
 
     fun deleteConference(conference: Conference): Mono<Conference> {
@@ -59,5 +63,11 @@ class ConferenceStorage {
                 it.remove(conference)
             }
         }
+    }
+
+    fun removeFromConferences(user: User): Flux<Conference> {
+        return this.usersConference[user]?.toFlux()?.flatMap {
+            this.leaveConference(user, it)
+        } ?: Flux.empty()
     }
 }
