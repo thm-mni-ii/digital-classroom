@@ -6,6 +6,7 @@ import de.thm.mni.ii.classroom.security.jwt.ClassroomTokenRepository
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import org.springframework.security.authentication.ReactiveAuthenticationManager
+import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
@@ -78,7 +79,8 @@ class ClassroomHttpSessionTokenSecurity(
                 Mono.zip(Mono.just(user), jwtService.createToken(user))
             }.map { (user, token) ->
                 ClassroomAuthentication(user, token)
-            }
+            }.defaultIfEmpty(ClassroomAuthentication(null, null))
+            .cast(Authentication::class.java)
     }
 
     /**
