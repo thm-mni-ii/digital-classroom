@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.switchIfEmpty
 
 @RestController
 @RequestMapping("/classroom-api")
@@ -66,17 +65,11 @@ class ClassroomApiController(
     ): Mono<ServerHttpResponse> {
         return classroomTokenRepository
             .findRefreshToken(refreshToken)
-            .switchIfEmpty {
-                val ex = UnauthorizedException("Invalid refresh token provided by user ${auth.userCredentials?.fullName}")
-                logger.error("", ex)
-                Mono.error(ex)
-            }.filter { user ->
+            .switchIfEmpty(Mono.error(UnauthorizedException("Invalid refresh token provided by user ${auth.userCredentials?.fullName}")))
+            .filter { user ->
                 user == auth.userCredentials
-            }.switchIfEmpty {
-                val ex = UnauthorizedException("Owner of refresh token does not match requester!")
-                logger.error("", ex)
-                Mono.error(ex)
-            }.map { user ->
+            }.switchIfEmpty(Mono.error(UnauthorizedException("Owner of refresh token does not match requester!")))
+            .map { user ->
                 val newRefreshToken = generateRefreshToken(user)
                 Pair(user, setHeader("refresh_token", newRefreshToken, originalExchange))
             }.flatMap { (user, exchange) ->

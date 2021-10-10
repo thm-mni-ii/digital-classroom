@@ -3,7 +3,6 @@ package de.thm.mni.ii.classroom.model.classroom
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import de.thm.mni.ii.classroom.model.ClassroomDependent
-import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import java.security.Principal
 

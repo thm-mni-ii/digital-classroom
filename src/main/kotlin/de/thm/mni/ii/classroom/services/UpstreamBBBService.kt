@@ -24,7 +24,7 @@ import java.util.UUID
 @Component
 class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBProperties) {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(UpstreamBBBService::class.java)
 
     fun createConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<Conference> {
         return Mono.just(

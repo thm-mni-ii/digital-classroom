@@ -4,11 +4,7 @@ import de.thm.mni.ii.classroom.event.TicketAction
 import de.thm.mni.ii.classroom.event.TicketEvent
 import de.thm.mni.ii.classroom.event.UserAction
 import de.thm.mni.ii.classroom.event.UserEvent
-import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
-import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
-import de.thm.mni.ii.classroom.model.classroom.Ticket
-import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.model.classroom.UserCredentials
+import de.thm.mni.ii.classroom.model.classroom.*
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2

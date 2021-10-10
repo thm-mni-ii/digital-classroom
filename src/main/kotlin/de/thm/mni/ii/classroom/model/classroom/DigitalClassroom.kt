@@ -53,7 +53,6 @@ class DigitalClassroom(
                 tutorPassword -> userCredentials.userRole = UserRole.TUTOR
                 else -> throw InvalidMeetingPasswordException(classroomId)
             }
-            this.preAuthUserData[userCredentials] = user
             Mono.just(userCredentials)
         }
     }
@@ -141,23 +140,28 @@ class DigitalClassroom(
     }
 
     fun sendInvitation(invitationEvent: InvitationEvent): Mono<Void> {
-        return getSocketOfUser(invitationEvent.invitee).doOnNext { requester ->
-            logger.trace("${invitationEvent.inviter.fullName} invites ${invitationEvent.invitee.fullName} to conference!")
-            fireAndForget(invitationEvent, requester)
-        }.then()
+        return getSocketOfUser(invitationEvent.invitee)
+            .doOnNext {
+                logger.trace("${invitationEvent.inviter.fullName} invites ${invitationEvent.invitee.fullName} to conference!")
+            }.flatMap { requester ->
+                fireAndForget(invitationEvent, requester)
+            }
     }
 
     fun sendToAll(event: ClassroomEvent): Mono<Void> {
-        return getSockets().doOnNext { (user, requester) ->
-            if (requester != null) {
-                logger.trace("sending to ${user.fullName}")
-                fireAndForget(event, requester)
-            }
-        }.then()
+        return getSockets()
+            .filter { (user, requester) ->
+                if (requester != null) {
+                    logger.trace("sending to ${user.fullName}")
+                }
+                requester != null
+            }.flatMap { (_, requester) ->
+                fireAndForget(event, requester!!)
+            }.then()
     }
 
-    private fun fireAndForget(event: ClassroomEvent, requester: RSocketRequester) {
-        requester.route("").data(event).send().subscribe().dispose()
+    private fun fireAndForget(event: ClassroomEvent, requester: RSocketRequester): Mono<Void> {
+        return requester.route("").data(event).send()
     }
 
     fun savePreAuthUserData(user: User) {
