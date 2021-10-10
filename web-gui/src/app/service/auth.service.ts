@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {Observable, timer} from 'rxjs';
-import {map, tap} from 'rxjs/operators';
+import {catchError, map, tap} from 'rxjs/operators';
 import {Params} from "@angular/router";
 import {User} from "../model/User";
 
@@ -86,7 +86,7 @@ export class AuthService {
       ).subscribe();
   }
 
-  public useSessionToken(params: Params): Observable<User> {
+  public useSessionToken(params: Params): Observable<HttpResponse<void>> {
     return this.http.get<void>('/classroom-api/join',
       {params: params, observe: 'response'})
       .pipe(
@@ -95,8 +95,7 @@ export class AuthService {
           const refreshToken = AuthService.extractRefreshTokenFromHeader(res)
           AuthService.storeToken(token);
           this.storeRefreshToken(refreshToken)
-        }),
-        map(() => this.getToken()),
+        })
       );
   }
 

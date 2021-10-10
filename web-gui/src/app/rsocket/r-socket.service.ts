@@ -43,7 +43,7 @@ export class RSocketService implements OnDestroy {
               private responder: EventListenerService) {
     const token = auth.loadToken()
     if (!auth.isAuthenticated()) {
-      notification.showError("Sie sind nicht eingeloggt!")
+      notification.showOverlayError("Sie sind nicht eingeloggt!", "Fehler beim Verbinden!")
       return
     }
 
