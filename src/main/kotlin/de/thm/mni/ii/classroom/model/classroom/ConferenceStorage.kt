@@ -70,4 +70,10 @@ class ConferenceStorage {
             this.leaveConference(user, it)
         } ?: Flux.empty()
     }
+
+    fun changeVisibility(conferenceInfo: ConferenceInfo): Mono<Conference> {
+        val conference = this.conferences[conferenceInfo.conferenceId]
+        conference!!.visible = conferenceInfo.visible
+        return conference.toMono()
+    }
 }

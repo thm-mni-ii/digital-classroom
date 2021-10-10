@@ -9,6 +9,7 @@ import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.JoinLink
 import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
 import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
@@ -79,12 +80,20 @@ class ConferenceService(
         TODO("Not yet implemented")
     }
 
-    fun hideConference(user: User, conferenceInfo: ConferenceInfo) {
-        TODO("Not yet implemented")
-    }
-
-    fun publishConference(user: User, conferenceInfo: ConferenceInfo) {
-        TODO("Not yet implemented")
+    fun changeVisibility(user: User, conferenceInfo: ConferenceInfo): Mono<Void> {
+        return classroomInstanceService.getClassroomInstance(user.classroomId)
+            .map {
+                if (user != conferenceInfo.creator) {
+                    throw UnauthorizedException("Only the creator may hide or publish a conference!")
+                } else {
+                    it
+                }
+            }.zipWhen { classroom ->
+                classroom.conferences.changeVisibility(conferenceInfo)
+            }.flatMap { (classroom, conference) ->
+                val event = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.VISIBILITY)
+                classroom.sendToAll(event)
+            }
     }
 
     fun forwardInvitation(user: User, invitationEvent: InvitationEvent): Mono<Void> {

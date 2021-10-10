@@ -10,7 +10,6 @@ data class ConferenceEvent(
 enum class ConferenceAction {
     CREATE,
     CLOSE,
-    PUBLISH,
-    HIDE,
+    VISIBILITY,
     USER_CHANGE
 }

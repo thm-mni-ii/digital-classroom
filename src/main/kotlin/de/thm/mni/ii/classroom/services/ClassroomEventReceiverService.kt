@@ -59,8 +59,7 @@ class ClassroomEventReceiverService(
         when (conferenceEvent.conferenceAction) {
             ConferenceAction.CREATE -> conferenceService.createConference(user, conferenceEvent.conferenceInfo)
             ConferenceAction.CLOSE -> conferenceService.endConference(user, conferenceEvent.conferenceInfo)
-            ConferenceAction.HIDE -> conferenceService.hideConference(user, conferenceEvent.conferenceInfo)
-            ConferenceAction.PUBLISH -> conferenceService.publishConference(user, conferenceEvent.conferenceInfo)
+            ConferenceAction.VISIBILITY -> conferenceService.changeVisibility(user, conferenceEvent.conferenceInfo)
             ConferenceAction.USER_CHANGE -> logger.error("Received USER_CHANGE event from ${user.fullName}! This should never happen")
         }
     }

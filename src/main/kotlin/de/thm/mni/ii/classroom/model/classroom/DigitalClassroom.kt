@@ -32,7 +32,7 @@ class DigitalClassroom(
 
     private val users = HashMap<UserDisplay, RSocketRequester?>()
     private val tickets = HashSet<Ticket>()
-    private val nextTicketId = AtomicLong(10000L)
+    private val nextTicketId = AtomicLong(1L)
     val conferences = ConferenceStorage()
 
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now()

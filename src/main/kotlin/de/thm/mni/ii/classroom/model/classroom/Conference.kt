@@ -9,7 +9,7 @@ class Conference(
     val attendeePassword: String,
     val moderatorPassword: String,
     val creator: User,
-    val visible: Boolean,
+    var visible: Boolean,
     val attendees: MutableSet<User>,
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
 ) {
