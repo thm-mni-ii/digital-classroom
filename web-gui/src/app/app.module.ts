@@ -24,7 +24,7 @@ import {IsPrivilegedPipe} from "./pipes/is-privileged-pipe";
 import {UserListComponent} from "./page-components/classroom/user-list/user-list.component";
 import {TicketListComponent} from "./page-components/classroom/ticket-list/ticket-list.component";
 import {GlobalErrorHandler} from "./util/GlobalErrorHandler";
-import { ConferencesComponent } from './page-components/classroom/conferences/conferences.component';
+import { ConferenceListComponent } from './page-components/classroom/conference-list/conference-list.component';
 import {CreateConferenceDialogComponent} from "./dialogs/create-conference-dialog/create-conference-dialog.component";
 import {MatInputModule} from "@angular/material/input";
 import {MatFormFieldModule} from "@angular/material/form-field";
@@ -55,7 +55,7 @@ import { SideDrawerMenuComponent } from './page-components/side-drawer-menu/side
     UserListComponent,
     TicketListComponent,
     NotFoundComponent,
-    ConferencesComponent,
+    ConferenceListComponent,
     CreateConferenceDialogComponent,
     LogoutComponent,
     CreateConferenceDialogComponent,

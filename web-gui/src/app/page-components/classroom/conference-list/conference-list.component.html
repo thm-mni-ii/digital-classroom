@@ -1,7 +1,7 @@
 <h3>Konferenzen</h3>
 
 <mat-list class="conference-list">
-  <mat-card class="conference" *ngFor="let conference of conferences;"
+  <mat-card class="conference" *ngFor="let conference of this.conferences;"
             [class.attended-conference] = "this.isUserAttending(conference)"
             [class.normal-conference] = "!this.isUserAttending(conference)"
   >

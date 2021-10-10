@@ -3,11 +3,11 @@ import {ConferenceInfo} from "../../../model/ConferenceInfo";
 import {User} from "../../../model/User";
 
 @Component({
-  selector: 'app-conferences',
-  templateUrl: './conferences.component.html',
-  styleUrls: ['./conferences.component.scss']
+  selector: 'app-conference-list',
+  templateUrl: './conference-list.component.html',
+  styleUrls: ['./conference-list.component.scss']
 })
-export class ConferencesComponent {
+export class ConferenceListComponent {
 
   @Input() conferences: ConferenceInfo[]
   @Input() currentUser: User
