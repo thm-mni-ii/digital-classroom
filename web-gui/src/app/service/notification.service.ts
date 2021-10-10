@@ -37,7 +37,8 @@ export class NotificationService {
     const injector = Injector.create({
       providers: [
         {provide: 'message', useValue: message},
-        {provide: 'heading', useValue: heading}
+        {provide: 'heading', useValue: heading},
+        {provide: 'overlayRef', useValue: overlayRef}
       ]
     });
     overlayRef.attach(new ComponentPortal(OverlayErrorComponent, null, injector));

@@ -1,9 +1,8 @@
-import {UserCredentials} from "../../model/User";
+import {User} from "../../model/User";
 import {ClassroomEvent} from "./ClassroomEvent";
 
 export class UserEvent extends ClassroomEvent {
-  user: UserCredentials
-  visible: boolean
+  user: User
   userAction: UserAction
 
   constructor() {

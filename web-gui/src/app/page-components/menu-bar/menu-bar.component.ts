@@ -11,6 +11,7 @@ import {
 } from "../../dialogs/create-conference-dialog/create-conference-dialog.component";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
 import {ClassroomInfo} from "../../model/ClassroomInfo";
+import {UserIconService} from "../../util/user-icon.service";
 
 @Component({
   selector: 'app-menu-bar',
@@ -28,10 +29,9 @@ export class MenuBarComponent {
     public classroomService: ClassroomService,
     public conferenceService: ConferenceService,
     private authService: AuthService,
-    private dialog: MatDialog
-  ) {
-
-  }
+    private dialog: MatDialog,
+    public userIconService: UserIconService
+  ) {}
 
   public createConference() {
       this.dialog.open(CreateConferenceDialogComponent, {
@@ -44,4 +44,9 @@ export class MenuBarComponent {
         this.classroomService.createConference(conferenceInfo)
       });
   }
+
+  toggleMenu() {
+    this.menuVisible = !this.menuVisible;
+  }
+
 }

@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {UserCredentials, User, userDisplayFromEvent} from "../model/User";
+import {UserCredentials, User} from "../model/User";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {BehaviorSubject, Observable, ReplaySubject, Subject} from "rxjs";
 import {EventListenerService} from "../rsocket/event-listener.service";
@@ -12,6 +12,7 @@ import {ConferenceService} from "./conference.service";
   providedIn: 'root'
 })
 export class UserService {
+
   private users: Map<string, User> = new Map<string, User>()
   private userSubject: Subject<User[]> = new BehaviorSubject([])
   userObservable: Observable<User[]> = this.userSubject.asObservable()
@@ -62,7 +63,7 @@ export class UserService {
   private handleUserEvent(userEvent: UserEvent) {
     switch (userEvent.userAction) {
       case UserAction.JOIN: {
-        this.updateUser(userDisplayFromEvent(userEvent));
+        this.updateUser(userEvent.user);
         break;
       }
       case UserAction.LEAVE: {
@@ -70,7 +71,7 @@ export class UserService {
         break;
       }
       case UserAction.VISIBILITY_CHANGE: {
-        this.updateVisibility(userEvent.user, userEvent.visible);
+        this.updateVisibility(userEvent.user, userEvent.user.visible);
         break;
       }
     }
@@ -104,8 +105,11 @@ export class UserService {
     this.selfSubject.next(currentUser);
     const event = new UserEvent();
     event.user = currentUser;
-    event.visible = visible;
     event.userAction = UserAction.VISIBILITY_CHANGE;
     this.rSocketService.fireAndForget("socket/classroom-event", event)
+  }
+
+  public getFullUser(userCredentials: UserCredentials): User {
+    return this.users.get(userCredentials?.userId)
   }
 }

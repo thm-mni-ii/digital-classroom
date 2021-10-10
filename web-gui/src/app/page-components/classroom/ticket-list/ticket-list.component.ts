@@ -1,8 +1,6 @@
 import {Component, Input} from '@angular/core';
-import {AssignTicketDialogComponent} from "../../../dialogs/assign-ticket-dialog/assign-ticket-dialog.component";
 import {Ticket} from "../../../model/Ticket";
 import {ClassroomService} from "../../../service/classroom.service";
-import {MatDialog} from "@angular/material/dialog";
 import {UserCredentials} from "../../../model/User";
 
 @Component({
@@ -16,17 +14,8 @@ export class TicketListComponent {
   @Input() tickets: Ticket[]
 
   constructor(
-    public classroomService: ClassroomService,
-    private dialog: MatDialog,
+    public classroomService: ClassroomService
   ) { }
-
-  public assignTeacher(ticket: Ticket) {
-    this.dialog.open(AssignTicketDialogComponent, {
-      height: 'auto',
-      width: 'auto',
-      data: ticket
-    });
-  }
 
   public sortTickets(tickets: Ticket[]) {
     if (tickets.length <= 0) return null

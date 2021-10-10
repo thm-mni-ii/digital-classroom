@@ -23,6 +23,7 @@ import {InviteToConferenceDialogComponent} from "../dialogs/invite-to-conference
 import {Router} from "@angular/router";
 import {NotificationService} from "./notification.service";
 import {JoinUserConferenceDialogComponent} from "../dialogs/join-user-conference-dialog/join-user-conference-dialog.component";
+import {LogoutService} from "./logout.service";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and
@@ -54,9 +55,13 @@ export class ClassroomService {
                      private rSocketService: RSocketService,
                      private ticketService: TicketService,
                      private userService: UserService,
-                     private notification: NotificationService) {
+                     private notification: NotificationService,
+                     private logoutService: LogoutService) {
     this.currentUserObservable.subscribe(currentUser => this.currentUser = currentUser)
-    this.classroomInfoObservable.subscribe(info => this.classroomInfo = info)
+    this.classroomInfoObservable.subscribe(info => {
+      this.classroomInfo = info
+      this.logoutService.classroomInfo = info
+    })
     this.userDisplayObservable.subscribe(users => this.users = users)
     this.conferencesObservable.subscribe(conferences =>
       this.conferences = conferences.filter(conf => conf.visible || this.currentUser.userId === conf.creator.userId)
@@ -183,6 +188,11 @@ export class ClassroomService {
     ).subscribe((ticket: Ticket) => {
       this.ticketService.createTicket(ticket)
     });
+  }
+
+  public closeTicket(ticket) {
+    this.ticketService.removeTicket(ticket);
+    this.notification.show(`Das Ticket wurde geschlossen`);
   }
 
   public isInConference(user: UserCredentials): boolean {

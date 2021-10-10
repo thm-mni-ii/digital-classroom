@@ -40,12 +40,6 @@ export class AssignTicketDialogComponent implements OnInit {
       this.dialogRef.close();
   }
 
-  public closeTicket(ticket) {
-    this.ticketService.removeTicket(ticket);
-    this.snackBar.open(`Das Ticket wurde geschlossen`, 'OK', {duration: 3000});
-    this.dialogRef.close();
-  }
-
   public startCall(invitee) {
     if (this.disabled) {
       return;

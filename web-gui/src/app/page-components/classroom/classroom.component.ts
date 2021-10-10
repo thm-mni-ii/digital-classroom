@@ -1,9 +1,8 @@
 import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {TitlebarService} from '../../service/titlebar.service';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {DomSanitizer} from '@angular/platform-browser';
+import {DomSanitizer, Title} from '@angular/platform-browser';
 import {DOCUMENT} from '@angular/common';
 import {Subscription} from 'rxjs';
 import {ClassroomService} from '../../service/classroom.service';
@@ -13,6 +12,7 @@ import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
+import {ClassroomInfo} from "../../model/ClassroomInfo";
 
 @Component({
   selector: 'app-classroom',
@@ -25,10 +25,10 @@ export class ClassroomComponent implements OnInit, OnDestroy {
   users: User[] = [];
   tickets: Ticket[] = [];
   conferences: ConferenceInfo[] = [];
+  classroomInfo: ClassroomInfo
   subscriptions: Subscription[] = [];
 
   constructor(private route: ActivatedRoute,
-              private titlebarService: TitlebarService,
               public conferenceService: ConferenceService,
               public classroomService: ClassroomService,
               private dialog: MatDialog,
@@ -37,6 +37,7 @@ export class ClassroomComponent implements OnInit, OnDestroy {
               private router: Router,
               private ticketService: TicketService,
               private userService: UserService,
+              private title: Title,
               @Inject(DOCUMENT) document) {
   }
 
@@ -54,7 +55,11 @@ export class ClassroomComponent implements OnInit, OnDestroy {
       ),
       this.classroomService.conferencesObservable.subscribe(
         conferences => this.conferences = conferences
-      )
+      ),
+      this.classroomService.classroomInfoObservable.subscribe(classroomInfo => {
+          this.classroomInfo = classroomInfo
+          this.title.setTitle("Classroom: " + classroomInfo.classroomName);
+      })
     )
   }
 
