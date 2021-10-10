@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {parseCourseRole, UserDisplay, UserRole} from "../../../model/User";
+import {parseCourseRole, User, UserRole} from "../../../model/User";
 import {ClassroomService} from "../../../service/classroom.service";
 
 @Component({
@@ -9,7 +9,7 @@ import {ClassroomService} from "../../../service/classroom.service";
 })
 export class UserListComponent {
 
-  @Input() public users: UserDisplay[]
+  @Input() public users: User[]
   public parseCourseRole: Function = parseCourseRole
 
   constructor(
@@ -17,13 +17,13 @@ export class UserListComponent {
   ) {
   }
 
-  public sortUsers(users: UserDisplay[]) {
+  public sortUsers(users: User[]) {
     return users
       .filter(user => user.visible)
       .sort(UserListComponent.compareUsers);
   }
 
-  private static compareUsers(a: UserDisplay, b: UserDisplay) {
+  private static compareUsers(a: User, b: User) {
     if (UserListComponent.roleValue(a.userRole) > UserListComponent.roleValue(b.userRole)) {
       return 1;
     } else if (UserListComponent.roleValue(a.userRole) < UserListComponent.roleValue(b.userRole)) {

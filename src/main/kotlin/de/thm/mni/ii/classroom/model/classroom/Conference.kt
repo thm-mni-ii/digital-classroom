@@ -8,9 +8,9 @@ class Conference(
     val conferenceName: String,
     val attendeePassword: String,
     val moderatorPassword: String,
-    val creator: User,
+    val creator: UserCredentials,
     var visible: Boolean,
-    val attendees: MutableSet<User>,
+    val attendees: MutableSet<UserCredentials>,
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
 ) {
     override fun equals(other: Any?): Boolean {
@@ -33,8 +33,8 @@ class Conference(
 
     fun toConferenceInfo() = ConferenceInfo(this)
 
-    fun removeUser(user: User): Conference {
-        this.attendees.remove(user)
+    fun removeUser(userCredentials: UserCredentials): Conference {
+        this.attendees.remove(userCredentials)
         return this
     }
 }

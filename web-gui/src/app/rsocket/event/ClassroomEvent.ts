@@ -1,4 +1,4 @@
-import {User} from "../../model/User";
+import {UserCredentials} from "../../model/User";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
 
 export interface ClassroomDependent {
@@ -39,8 +39,8 @@ export class ConferenceEvent extends ClassroomEvent {
 }
 
 export class InvitationEvent extends ClassroomEvent {
-  inviter: User
-  invitee: User
+  inviter: UserCredentials
+  invitee: UserCredentials
   conferenceInfo: ConferenceInfo
 
   constructor() {

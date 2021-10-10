@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.4.5"
+    id("org.springframework.boot") version "2.5.5"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     idea
     kotlin("jvm") version "1.4.32"
@@ -20,7 +20,6 @@ repositories {
 }
 
 dependencies {
-    implementation("com.google.guava:guava:30.1.1-jre")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.security:spring-security-rsocket")
     implementation("org.springframework.security:spring-security-messaging")

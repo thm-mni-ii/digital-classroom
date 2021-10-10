@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {parseCourseRole, UserDisplay} from 'src/app/model/User';
+import {parseCourseRole, User} from 'src/app/model/User';
 import {ClassroomService} from "../../service/classroom.service";
 import {ConferenceService} from "../../service/conference.service";
 import {AuthService} from "../../service/auth.service";
@@ -10,7 +10,7 @@ import {
   CreateConferenceInputData
 } from "../../dialogs/create-conference-dialog/create-conference-dialog.component";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
-
+import {ClassroomInfo} from "../../model/ClassroomInfo";
 
 @Component({
   selector: 'app-menu-bar',
@@ -20,7 +20,9 @@ import {ConferenceInfo} from "../../model/ConferenceInfo";
 export class MenuBarComponent {
 
   public parseCourseRole: Function = parseCourseRole
-  @Input() public currentUser: UserDisplay
+  @Input() public currentUser: User
+  @Input() public classroomInfo: ClassroomInfo
+  menuVisible: boolean = false;
 
   constructor(
     public classroomService: ClassroomService,

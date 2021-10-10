@@ -7,7 +7,7 @@ import de.thm.mni.ii.classroom.model.classroom.Conference
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.JoinLink
-import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.properties.UpstreamBBBProperties
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
@@ -26,7 +26,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun createConference(user: User, conferenceInfo: ConferenceInfo): Mono<Conference> {
+    fun createConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<Conference> {
         return Mono.just(
             Conference(
                 conferenceInfo.classroomId,
@@ -34,7 +34,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 conferenceInfo.conferenceName,
                 UUID.randomUUID().toString(),
                 UUID.randomUUID().toString(),
-                creator = user,
+                creator = userCredentials,
                 visible = conferenceInfo.visible,
                 attendees = mutableSetOf()
             )
@@ -44,8 +44,8 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 Pair("name", conference.conferenceName),
                 Pair("attendeePW", conference.attendeePassword),
                 Pair("moderatorPW", conference.moderatorPassword),
-                Pair("meta_classroomId", user.classroomId),
-                Pair("meta_creatorId", user.userId)
+                Pair("meta_classroomId", userCredentials.classroomId),
+                Pair("meta_creatorId", userCredentials.userId)
             )
             val request = buildApiRequest("create", queryParams)
             Mono.zip(Mono.just(conference), WebClient.create(request).get().retrieve().toEntity(MessageBBB::class.java))
@@ -55,11 +55,11 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
         }
     }
 
-    fun joinConference(conference: Conference, user: User, asModerator: Boolean): Mono<JoinLink> {
+    fun joinConference(conference: Conference, userCredentials: UserCredentials, asModerator: Boolean): Mono<JoinLink> {
         val queryParams = mapOf(
             Pair("meetingID", conference.conferenceId),
-            Pair("fullName", user.fullName),
-            Pair("userID", user.userId),
+            Pair("fullName", userCredentials.fullName),
+            Pair("userID", userCredentials.userId),
             Pair("password", if (asModerator) conference.moderatorPassword else conference.attendeePassword)
         )
         return Mono.just(buildApiRequest("join", queryParams)).map { JoinLink(ConferenceInfo(conference), it) }
@@ -102,9 +102,9 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 }
             }.map { (conference, meeting) ->
                 val attendingUsers = meeting.attendees.attendees
-                ?.mapTo(mutableSetOf()) {
-                    classroom.getUser(it.userID!!)
-                } ?: mutableSetOf()
+                    ?.mapTo(mutableSetOf()) {
+                        classroom.getUser(it.userID!!).getCredentials()
+                    } ?: mutableSetOf()
                 Conference(
                     conference.classroomId,
                     meeting!!.meetingID!!,

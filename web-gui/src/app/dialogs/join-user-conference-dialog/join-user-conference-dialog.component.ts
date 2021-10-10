@@ -3,8 +3,8 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ClassroomService} from '../../service/classroom.service';
 import {FormBuilder, FormGroup} from '@angular/forms';
-import {UserDisplay} from "../../model/User";
 import {ConferenceService} from "../../service/conference.service";
+import {User} from "../../model/User";
 
 @Component({
   selector: 'app-invite-to-conference-dialog',
@@ -15,7 +15,7 @@ export class JoinUserConferenceDialogComponent implements OnInit {
   form: FormGroup;
   disabled: Boolean = false;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: UserDisplay,
+  constructor(@Inject(MAT_DIALOG_DATA) public data: User,
               public dialogRef: MatDialogRef<JoinUserConferenceDialogComponent>,
               private snackBar: MatSnackBar, private conferenceService: ConferenceService,
               public classroomService: ClassroomService, private _formBuilder: FormBuilder) {

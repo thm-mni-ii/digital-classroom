@@ -1,6 +1,6 @@
 package de.thm.mni.ii.classroom.security.classroom
 
-import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -58,8 +58,8 @@ class ClassroomRSocketJwtSecurity {
         return Converter<Jwt, Mono<ClassroomAuthentication>> { jwt ->
 
             fun delegateMono(jwt: Jwt): ClassroomAuthentication {
-                val user = User(jwt.claims)
-                return ClassroomAuthentication(user, jwt.tokenValue)
+                val userCredentials = UserCredentials(jwt.claims)
+                return ClassroomAuthentication(userCredentials, jwt.tokenValue)
             }
 
             Mono.just(jwt).map(::delegateMono)

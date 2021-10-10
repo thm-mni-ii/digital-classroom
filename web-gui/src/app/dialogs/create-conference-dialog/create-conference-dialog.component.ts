@@ -2,7 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {NotificationService} from "../../service/notification.service";
-import {UserDisplay} from "../../model/User";
+import {User} from "../../model/User";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
 import {ClassroomInfo} from "../../model/ClassroomInfo";
 
@@ -48,9 +48,9 @@ export class CreateConferenceDialogComponent implements OnInit {
 
 export class CreateConferenceInputData {
   classroom: ClassroomInfo
-  currentUser: UserDisplay
+  currentUser: User
 
-  constructor(classroom: ClassroomInfo, currentUser: UserDisplay) {
+  constructor(classroom: ClassroomInfo, currentUser: User) {
     this.currentUser = currentUser;
     this.classroom = classroom;
   }

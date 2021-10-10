@@ -8,7 +8,7 @@ import {DOCUMENT} from '@angular/common';
 import {Subscription} from 'rxjs';
 import {ClassroomService} from '../../service/classroom.service';
 import {Ticket} from '../../model/Ticket';
-import {UserDisplay} from "../../model/User";
+import {User} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
 import {ConferenceService} from "../../service/conference.service";
@@ -21,8 +21,8 @@ import {ConferenceInfo} from "../../model/ConferenceInfo";
 })
 export class ClassroomComponent implements OnInit, OnDestroy {
 
-  currentUser: UserDisplay
-  users: UserDisplay[] = [];
+  currentUser: User
+  users: User[] = [];
   tickets: Ticket[] = [];
   conferences: ConferenceInfo[] = [];
   subscriptions: Subscription[] = [];

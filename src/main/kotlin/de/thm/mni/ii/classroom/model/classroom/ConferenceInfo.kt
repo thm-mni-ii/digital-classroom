@@ -11,7 +11,7 @@ class ConferenceInfo(
     override val classroomId: String,
     val conferenceId: String?,
     val conferenceName: String,
-    val creator: User?,
+    val creator: UserCredentials?,
     val visible: Boolean,
     @field:JsonSerialize(using = ZonedDateTimeMillisSerializer::class)
     @field:JsonDeserialize(using = ZonedDateTimeMillisDeserializer::class)

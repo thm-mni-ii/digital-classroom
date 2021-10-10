@@ -4,12 +4,14 @@ import de.thm.mni.ii.classroom.exception.api.ClassroomNotFoundException
 import de.thm.mni.ii.classroom.exception.api.NoPasswordSpecifiedException
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.util.toPair
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
+import reactor.util.function.Tuple2
 import java.net.URL
 import java.util.UUID
 import kotlin.collections.HashMap
@@ -62,10 +64,14 @@ class ClassroomInstanceService {
         return Mono.justOrEmpty(classrooms[classroomId]).switchIfEmpty(Mono.error(ClassroomNotFoundException(classroomId)))
     }
 
-    fun joinUser(classroomId: String, password: String, user: User): Mono<Pair<User, DigitalClassroom>> {
-        return getClassroomInstance(classroomId).flatMap { classroom ->
-            Mono.zip(classroom.authenticateAssignRole(password, user), Mono.just(classroom)).map { it.toPair() }
-        }
+    fun joinUser(classroomId: String, password: String, userCredentials: UserCredentials, avatarUrl: String?): Mono<Pair<User, DigitalClassroom>> {
+        return getClassroomInstance(classroomId)
+            .flatMap { classroom ->
+                Mono.zip(classroom.authenticateAssignRole(password, userCredentials), Mono.just(classroom))
+            }.map(Tuple2<UserCredentials, DigitalClassroom>::toPair)
+            .map { (user, classroom) ->
+                Pair(User(user, true, avatarUrl), classroom)
+            }
     }
 
     fun isRunning(classroomId: String) = Mono.just(classrooms.containsKey(classroomId))

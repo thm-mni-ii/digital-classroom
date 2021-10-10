@@ -2,9 +2,9 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {Observable, timer} from 'rxjs';
-import {catchError, map, tap} from 'rxjs/operators';
+import {map, tap} from 'rxjs/operators';
 import {Params} from "@angular/router";
-import {User} from "../model/User";
+import {UserCredentials} from "../model/User";
 
 const JWT_STORAGE = 'classroom-token';
 const REFRESH_STORAGE = 'classroom-refresh-token';
@@ -42,7 +42,7 @@ export class AuthService {
   /**
    * @return The lastly received token.
    */
-  public getToken(): User {
+  public getToken(): UserCredentials {
     const token = this.loadToken();
     const decodedToken = this.decodeToken(token);
     if (!decodedToken) {
@@ -53,8 +53,8 @@ export class AuthService {
     return decodedToken;
   }
 
-  private decodeToken(token: string): User {
-    return this.jwtHelper.decodeToken<User>(token);
+  private decodeToken(token: string): UserCredentials {
+    return this.jwtHelper.decodeToken<UserCredentials>(token);
   }
 
   /**

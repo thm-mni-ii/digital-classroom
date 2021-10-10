@@ -1,11 +1,11 @@
-import {User} from "./User";
+import {UserCredentials} from "./User";
 import {ClassroomDependent} from "../rsocket/event/ClassroomEvent";
 
 export class Ticket implements ClassroomDependent {
   classroomId: string
   ticketId: number;
-  creator: User
-  assignee?: User
+  creator: UserCredentials
+  assignee?: UserCredentials
   description: string
   createTime: number
 

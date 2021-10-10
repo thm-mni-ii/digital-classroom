@@ -8,23 +8,23 @@ import reactor.kotlin.core.publisher.toMono
 
 class ConferenceStorage {
 
-    private val usersConference = HashMap<User, HashSet<Conference>>()
+    private val usersConference = HashMap<UserCredentials, HashSet<Conference>>()
     private val conferences = HashMap<String, Conference>()
 
-    fun getConferencesOfUser(user: User) =
-        Flux.fromIterable(usersConference[user] ?: LinkedHashSet())
+    fun getConferencesOfUser(userCredentials: UserCredentials) =
+        Flux.fromIterable(usersConference[userCredentials] ?: LinkedHashSet())
 
-    fun getUsersOfConference(conference: Conference): Flux<User> {
+    fun getUsersOfConference(conference: Conference): Flux<UserCredentials> {
         return conferences[conference.conferenceId]?.attendees?.toFlux()
             ?: throw ConferenceNotFoundException(conference.conferenceId)
     }
 
-    fun joinUser(conference: Conference, user: User): Mono<Conference> {
-        return Mono.just(user).map {
-            usersConference.computeIfAbsent(user) { HashSet() }
+    fun joinUser(conference: Conference, userCredentials: UserCredentials): Mono<Conference> {
+        return Mono.just(userCredentials).map {
+            usersConference.computeIfAbsent(userCredentials) { HashSet() }
                 .also { it.add(conference) }
             conferences.computeIfAbsent(conference.conferenceId) { conference }
-                .also { it.attendees.add(user) }
+                .also { it.attendees.add(userCredentials) }
         }
     }
 
@@ -36,12 +36,12 @@ class ConferenceStorage {
         return conferences.values.toFlux()
     }
 
-    fun getUsersInConferences(): Flux<User> {
+    fun getUsersInConferences(): Flux<UserCredentials> {
         return Flux.fromIterable(usersConference.keys)
     }
 
-    fun isUserInConference(user: User): Mono<Boolean> {
-        return Mono.just(usersConference.containsKey(user))
+    fun isUserInConference(userCredentials: UserCredentials): Mono<Boolean> {
+        return Mono.just(usersConference.containsKey(userCredentials))
     }
 
     fun getConference(conferenceId: String): Mono<Conference> {
@@ -49,10 +49,10 @@ class ConferenceStorage {
             .switchIfEmpty(Mono.error(ConferenceNotFoundException(conferenceId)))
     }
 
-    fun leaveConference(user: User, conference: Conference): Mono<Conference> {
+    fun leaveConference(userCredentials: UserCredentials, conference: Conference): Mono<Conference> {
         return Mono.just(conference).map {
-            this.usersConference[user]?.remove(conference)
-            this.conferences[conference.conferenceId]!!.removeUser(user)
+            this.usersConference[userCredentials]?.remove(conference)
+            this.conferences[conference.conferenceId]!!.removeUser(userCredentials)
         }
     }
 
@@ -65,9 +65,9 @@ class ConferenceStorage {
         }
     }
 
-    fun removeFromConferences(user: User): Flux<Conference> {
-        return this.usersConference[user]?.toFlux()?.flatMap {
-            this.leaveConference(user, it)
+    fun removeFromConferences(userCredentials: UserCredentials): Flux<Conference> {
+        return this.usersConference[userCredentials]?.toFlux()?.flatMap {
+            this.leaveConference(userCredentials, it)
         } ?: Flux.empty()
     }
 

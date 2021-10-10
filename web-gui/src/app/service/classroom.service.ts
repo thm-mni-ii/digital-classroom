@@ -3,7 +3,7 @@ import {Observable, Subject, BehaviorSubject} from 'rxjs';
 import {AuthService} from './auth.service';
 import {MatDialog} from '@angular/material/dialog';
 import {IncomingCallDialogComponent} from '../dialogs/incoming-call-dialog/incoming-call-dialog.component';
-import {User, UserDisplay} from "../model/User";
+import {UserCredentials, User} from "../model/User";
 import {ConferenceService} from "./conference.service";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {Ticket} from "../model/Ticket";
@@ -39,13 +39,13 @@ export class ClassroomService {
   public conferencesObservable = this.conferenceService.conferencesObservable
   private conferences: ConferenceInfo[] = []
 
-  private users: UserDisplay[] = []
+  private users: User[] = []
 
   private classroomInfoSubject: Subject<ClassroomInfo> = new BehaviorSubject(new ClassroomInfo())
   classroomInfoObservable: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
 
   public classroomInfo: ClassroomInfo
-  public currentUser: UserDisplay
+  public currentUser: User
 
   public constructor(private router: Router,
                      private authService: AuthService,
@@ -78,7 +78,7 @@ export class ClassroomService {
     return this.rSocketService.isConnected()
   }
 
-  public isSelf(user: User) {
+  public isSelf(user: UserCredentials) {
     return user.userId === this.currentUser.userId
   }
 
@@ -105,7 +105,7 @@ export class ClassroomService {
    * @param conferenceInfo
    * @param ticket
    */
-  public inviteToConference(invitee: UserDisplay, conferenceInfo: ConferenceInfo = null, ticket: Ticket = null) {
+  public inviteToConference(invitee: User, conferenceInfo: ConferenceInfo = null, ticket: Ticket = null) {
     if (conferenceInfo !== null) {
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else if (ticket !== null) {
@@ -137,7 +137,7 @@ export class ClassroomService {
     return conferenceInfo
   }
 
-  public chooseConferenceToJoin(conferencingUser: User) {
+  public chooseConferenceToJoin(conferencingUser: UserCredentials) {
     this.dialog.open(JoinUserConferenceDialogComponent, {
       height: 'auto',
       width: 'auto',
@@ -185,9 +185,9 @@ export class ClassroomService {
     });
   }
 
-  public isInConference(user: User): boolean {
-    let userDisplay: UserDisplay
-    if (user instanceof UserDisplay)
+  public isInConference(user: UserCredentials): boolean {
+    let userDisplay: User
+    if (user instanceof User)
       userDisplay = user
     else {
       userDisplay = this.users.find(userDisplay => userDisplay.userId === user.userId)

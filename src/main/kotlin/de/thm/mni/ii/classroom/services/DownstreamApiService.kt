@@ -10,10 +10,11 @@ import de.thm.mni.ii.classroom.model.api.JoinRoomBBBResponse
 import de.thm.mni.ii.classroom.model.api.MeetingInfoBBBResponse
 import de.thm.mni.ii.classroom.model.api.MessageBBB
 import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.model.classroom.UserRole
 import de.thm.mni.ii.classroom.properties.ClassroomProperties
 import de.thm.mni.ii.classroom.security.jwt.ClassroomTokenRepository
-import de.thm.mni.ii.classroom.util.BbbApiQueryParamKeys
+import de.thm.mni.ii.classroom.util.BbbApiConstants
 import org.apache.commons.lang3.RandomStringUtils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -37,11 +38,11 @@ class DownstreamApiService(
             .onErrorResume {
                 classroomInstanceService.createNewClassroomInstance(
                     classroomId = classroomId,
-                    classroomName = param.getFirst(BbbApiQueryParamKeys.ClassroomName.key),
-                    studentPassword = param.getFirst(BbbApiQueryParamKeys.StudentPassword.key),
-                    tutorPassword = param.getFirst(BbbApiQueryParamKeys.TutorPassword.key),
-                    teacherPassword = param.getFirst(BbbApiQueryParamKeys.TeacherPassword.key),
-                    logoutUrl = param.getFirst(BbbApiQueryParamKeys.LogoutUrl.key)
+                    classroomName = param.getFirst(BbbApiConstants.classroomName),
+                    studentPassword = param.getFirst(BbbApiConstants.studentPassword),
+                    tutorPassword = param.getFirst(BbbApiConstants.tutorPassword),
+                    teacherPassword = param.getFirst(BbbApiConstants.teacherPassword),
+                    logoutUrl = param.getFirst(BbbApiConstants.logoutUrl)
                 )
             }.doOnNext {
                 logger.info("Classroom ${it.classroomName} created!")
@@ -51,11 +52,12 @@ class DownstreamApiService(
     fun joinClassroom(param: MultiValueMap<String, String>): Mono<JoinRoomBBBResponse> {
         val classroomId = getClassroomId(param)
         return Mono.defer {
-            val password: String = param.getFirst(BbbApiQueryParamKeys.Password.key) ?: error(NoPasswordSpecifiedException())
-            val userId = param.getFirst(BbbApiQueryParamKeys.UserId.key) ?: UUID.randomUUID().toString()
-            val fullName = param.getFirst(BbbApiQueryParamKeys.Username.key) ?: error(NoUsernameSpecifiedException())
-            val user = User(classroomId, userId, fullName, UserRole.STUDENT)
-            classroomInstanceService.joinUser(classroomId, password, user)
+            val password: String = getPassword(param)
+            val userId = param.getFirst(BbbApiConstants.userId) ?: UUID.randomUUID().toString()
+            val fullName = param.getFirst(BbbApiConstants.username) ?: error(NoUsernameSpecifiedException())
+            val userCredentials = UserCredentials(classroomId, userId, fullName, UserRole.STUDENT)
+            val avatarUrl = param.getFirst(BbbApiConstants.avatarUrl)
+            classroomInstanceService.joinUser(classroomId, password, userCredentials, avatarUrl)
                 .flatMap { (user, classroom) ->
                     createSessionToken(user).map { sessionToken ->
                         Triple(user, classroom, sessionToken)
@@ -78,10 +80,9 @@ class DownstreamApiService(
     }
 
     private fun createSessionToken(user: User): Mono<String> {
-        return Mono.just(RandomStringUtils.randomAlphanumeric(16))
-            .doOnNext { sessionToken ->
-                classroomTokenRepository.insertSessionToken(sessionToken, user)
-            }
+        val sessionToken = RandomStringUtils.randomAlphanumeric(16)
+        classroomTokenRepository.insertSessionToken(sessionToken, user)
+        return Mono.just(sessionToken)
     }
 
     fun isMeetingRunning(param: MultiValueMap<String, String>): Mono<IsMeetingRunningBBB> {
@@ -89,12 +90,8 @@ class DownstreamApiService(
             .map(::IsMeetingRunningBBB)
     }
 
-    private fun getClassroomId(param: MultiValueMap<String, String>): String {
-        return param.getFirst(BbbApiQueryParamKeys.ClassroomId.key) ?: throw MissingMeetingIDException()
-    }
-
     fun getMeetingInfo(param: MultiValueMap<String, String>): Mono<MeetingInfoBBBResponse> {
-        val classroomId = param.getFirst(BbbApiQueryParamKeys.ClassroomId.key) ?: throw MissingMeetingIDException()
+        val classroomId = getClassroomId(param)
         return classroomInstanceService
             .getClassroomInstance(classroomId)
             .map { classroom ->
@@ -112,10 +109,17 @@ class DownstreamApiService(
     }
 
     fun end(param: MultiValueMap<String, String>): Mono<MessageBBB> {
-        val classroomId = param.getFirst(BbbApiQueryParamKeys.ClassroomId.key) ?: throw MissingMeetingIDException()
-        val password = param.getFirst(BbbApiQueryParamKeys.Password.key) ?: throw NoPasswordSpecifiedException()
+        val classroomId = getClassroomId(param)
+        val password = getPassword(param)
         return classroomInstanceService
             .endClassroom(classroomId, password)
             .thenReturn(MessageBBB(true, "sentEndMeetingRequest", "A request to end the meeting was sent. Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended"))
     }
+
+    private fun getClassroomId(param: MultiValueMap<String, String>): String {
+        return param.getFirst(BbbApiConstants.classroomId) ?: throw MissingMeetingIDException()
+    }
+
+    private fun getPassword(param: MultiValueMap<String, String>) =
+        param.getFirst(BbbApiConstants.password) ?: throw NoPasswordSpecifiedException()
 }
