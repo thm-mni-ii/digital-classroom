@@ -33,9 +33,6 @@ export class NotificationService {
     config.backdropClass = "error-overlay-backdrop"
     config.panelClass = "error-overlay-panel"
     const overlayRef = this.overlay.create(config);
-    overlayRef.backdropClick().subscribe(() => {
-      overlayRef.dispose();
-    });
 
     const injector = Injector.create({
       providers: [
