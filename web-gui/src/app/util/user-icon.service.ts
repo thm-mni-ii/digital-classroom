@@ -9,8 +9,12 @@ export class UserIconService {
 
   constructor() { }
 
-  public calculateColorClass(name: string): string {
+  public calculateColorCode(name: string): string {
     return this.colors[UserIconService.hashCode(name) % this.colors.length];
+  }
+
+  public calculateColorNumber(name: string): number {
+    return UserIconService.hashCode(name) % this.colors.length;
   }
 
   private static hashCode(str: string) {
@@ -21,6 +25,6 @@ export class UserIconService {
       hash  = ((hash << 5) - hash) + chr;
       hash |= 0; // Convert to 32bit integer
     }
-    return hash;
+    return Math.abs(hash);
   };
 }

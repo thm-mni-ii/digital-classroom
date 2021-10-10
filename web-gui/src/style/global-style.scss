@@ -1,3 +1,13 @@
 .functional-icon {
   cursor: pointer;
 }
+
+
+$userIconColors: #FD9A63, #60CB7E, #26B8B8, #405E9A;
+
+@for $color from 1 through length($userIconColors) {
+  $n: nth($userIconColors, $color);
+  .icon#{$color} {
+    background-color: $color;
+  }
+}

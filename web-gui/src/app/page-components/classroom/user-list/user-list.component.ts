@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {parseCourseRole, User, UserRole} from "../../../model/User";
 import {ClassroomService} from "../../../service/classroom.service";
 
@@ -7,14 +7,20 @@ import {ClassroomService} from "../../../service/classroom.service";
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.scss']
 })
-export class UserListComponent {
+export class UserListComponent implements OnInit {
 
-  @Input() public users: User[]
   public parseCourseRole: Function = parseCourseRole
+  public users: User[]
 
   constructor(
     public classroomService: ClassroomService
   ) {
+  }
+
+  ngOnInit(): void {
+    this.classroomService.userDisplayObservable.subscribe(
+      users => this.users = users
+    )
   }
 
   public sortUsers(users: User[]) {

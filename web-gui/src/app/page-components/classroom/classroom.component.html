@@ -3,18 +3,7 @@
 </div>
 
 <div class="classroom-content">
-  <app-side-drawer-menu label="Teilnehmer" orientation="left"></app-side-drawer-menu>
-  <app-user-list [users]="this.users"
-                 class="classroom-column">
-  </app-user-list>
-  <app-ticket-list [currentUser]="currentUser"
-                   [tickets]="tickets"
-                   class="classroom-column">
-  </app-ticket-list>
-  <app-side-drawer-menu label="Konferenzen" orientation="right"></app-side-drawer-menu>
+  <app-side-drawer-menu label="Teilnehmer" orientation="left" [component]="userListComponent"></app-side-drawer-menu>
+  <app-ticket-list [currentUser]="currentUser" [tickets]="tickets" class="classroom-column"></app-ticket-list>
+  <app-side-drawer-menu label="Konferenzen" orientation="right" [component]="conferenceListComponent"></app-side-drawer-menu>
 </div>
-
-<app-conferences [conferences]="this.conferences"
-                 [currentUser]="this.currentUser"
-                 class="conferences classroom-bottom">
-</app-conferences>

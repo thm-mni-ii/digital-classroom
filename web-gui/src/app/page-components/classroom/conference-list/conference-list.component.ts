@@ -1,23 +1,31 @@
-import {Component, Input} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ConferenceInfo} from "../../../model/ConferenceInfo";
 import {User} from "../../../model/User";
+import {ClassroomService} from "../../../service/classroom.service";
 
 @Component({
   selector: 'app-conference-list',
   templateUrl: './conference-list.component.html',
   styleUrls: ['./conference-list.component.scss']
 })
-export class ConferenceListComponent {
+export class ConferenceListComponent implements OnInit {
 
-  @Input() conferences: ConferenceInfo[]
-  @Input() currentUser: User
+  conferences: ConferenceInfo[]
+  currentUser: User
 
-  constructor() { }
+  constructor(private classroomService: ClassroomService) { }
 
   isUserAttending(conference: ConferenceInfo): boolean {
     return conference.attendees.includes(this.currentUser.userId)
   }
 
-
+  ngOnInit(): void {
+    this.classroomService.currentUserObservable.subscribe(
+      currentUser => this.currentUser = currentUser
+    )
+    this.classroomService.conferencesObservable.subscribe(
+      conferences => this.conferences = conferences
+    )
+  }
 
 }

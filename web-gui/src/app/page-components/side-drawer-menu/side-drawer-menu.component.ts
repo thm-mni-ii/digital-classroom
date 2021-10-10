@@ -1,20 +1,19 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, Type} from '@angular/core';
 
 @Component({
   selector: 'app-side-drawer-menu',
   templateUrl: './side-drawer-menu.component.html',
   styleUrls: ['./side-drawer-menu.component.scss']
 })
-export class SideDrawerMenuComponent implements OnInit {
+export class SideDrawerMenuComponent {
 
   opened: boolean;
   innerWidth: number;
   @Input() label: string = "Teilnehmer";
   @Input() orientation: string = "left"
+  @Input() component: Type<any>
 
-  constructor() { }
-
-  ngOnInit(): void {
+  constructor() {
     this.opened = true;
     this.innerWidth = window.innerWidth;
   }

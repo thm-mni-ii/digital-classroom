@@ -88,7 +88,8 @@ import { SideDrawerMenuComponent } from './page-components/side-drawer-menu/side
     AvatarModule
   ],
   providers: [httpInterceptorProviders, {provide: ErrorHandler, useClass: GlobalErrorHandler}],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [UserListComponent, ConferenceListComponent]
 })
 export class AppModule { }
 

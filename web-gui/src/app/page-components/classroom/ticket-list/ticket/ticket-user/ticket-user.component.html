@@ -5,8 +5,8 @@
 <ng-template #displayUser>
   <div class="ticket-user">
     <ngx-avatar
+      [bgColor]="this.userIconService.calculateColorCode(this.userCredentials.fullName)"
       class="user-avatar"
-      [bgColor]="this.userIconService.calculateColorClass(this.userCredentials.fullName)"
       [name]="this.userCredentials.fullName"
       initialsSize="2"
       cornerRadius="4"

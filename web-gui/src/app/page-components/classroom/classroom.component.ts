@@ -1,18 +1,21 @@
-import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {MatDialog} from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {DomSanitizer, Title} from '@angular/platform-browser';
-import {DOCUMENT} from '@angular/common';
+import {
+  Component, ComponentFactory,
+  ComponentFactoryResolver,
+  Injector,
+  OnDestroy,
+  OnInit, Type
+} from '@angular/core';
+import {Title} from '@angular/platform-browser';
 import {Subscription} from 'rxjs';
 import {ClassroomService} from '../../service/classroom.service';
 import {Ticket} from '../../model/Ticket';
 import {User} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {UserService} from "../../service/user.service";
-import {ConferenceService} from "../../service/conference.service";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
 import {ClassroomInfo} from "../../model/ClassroomInfo";
+import {UserListComponent} from "./user-list/user-list.component";
+import {ConferenceListComponent} from "./conference-list/conference-list.component";
 
 @Component({
   selector: 'app-classroom',
@@ -27,18 +30,14 @@ export class ClassroomComponent implements OnInit, OnDestroy {
   conferences: ConferenceInfo[] = [];
   classroomInfo: ClassroomInfo
   subscriptions: Subscription[] = [];
+  userListComponent: Type<UserListComponent>
+  conferenceListComponent: Type<ConferenceListComponent>;
 
-  constructor(private route: ActivatedRoute,
-              public conferenceService: ConferenceService,
-              public classroomService: ClassroomService,
-              private dialog: MatDialog,
-              private snackbar: MatSnackBar,
-              private sanitizer: DomSanitizer,
-              private router: Router,
+  constructor(public classroomService: ClassroomService,
               private ticketService: TicketService,
               private userService: UserService,
               private title: Title,
-              @Inject(DOCUMENT) document) {
+              private resolver: ComponentFactoryResolver) {
   }
 
   ngOnInit(): void {
@@ -53,14 +52,25 @@ export class ClassroomComponent implements OnInit, OnDestroy {
       this.classroomService.userDisplayObservable.subscribe(
       users => this.users = users
       ),
-      this.classroomService.conferencesObservable.subscribe(
-        conferences => this.conferences = conferences
-      ),
       this.classroomService.classroomInfoObservable.subscribe(classroomInfo => {
           this.classroomInfo = classroomInfo
           this.title.setTitle("Classroom: " + classroomInfo.classroomName);
       })
     )
+    this.createUserList();
+    this.createConferenceList();
+  }
+
+  createUserList() {
+    const factory: ComponentFactory<UserListComponent> = this.resolver.resolveComponentFactory(UserListComponent)
+    const injector = Injector.create({providers: []});
+    this.userListComponent = factory.create(injector).componentType
+  }
+
+  createConferenceList() {
+    const factory: ComponentFactory<ConferenceListComponent> = this.resolver.resolveComponentFactory(ConferenceListComponent)
+    const injector = Injector.create({providers: []});
+    this.conferenceListComponent = factory.create(injector).componentType
   }
 
   ngOnDestroy(): void {

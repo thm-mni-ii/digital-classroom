@@ -2,11 +2,18 @@ h3 {
   text-align:center;
 }
 
+.sepa {
+  border: 1px dashed #B1B1B1;
+  width: 99%
+}
+
 .ticket-list {
   height: 90%;
   display: flex;
   flex-direction:column;
   flex-grow: 2;
+  margin-left: 5%;
+  margin-right: 5%;
 }
 
 .list-header {
