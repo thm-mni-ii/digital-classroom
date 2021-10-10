@@ -8,7 +8,7 @@ import reactor.kotlin.core.publisher.toMono
 
 class ConferenceStorage {
 
-    private val usersConference = HashMap<User, LinkedHashSet<Conference>>()
+    private val usersConference = HashMap<User, HashSet<Conference>>()
     private val conferences = HashMap<String, Conference>()
 
     fun getConferencesOfUser(user: User) =
@@ -21,7 +21,7 @@ class ConferenceStorage {
 
     fun joinUser(conference: Conference, user: User): Mono<Conference> {
         return Mono.just(user).map {
-            usersConference.computeIfAbsent(user) { LinkedHashSet() }
+            usersConference.computeIfAbsent(user) { HashSet() }
                 .also { it.add(conference) }
             conferences.computeIfAbsent(conference.conferenceId) { conference }
                 .also { it.attendees.add(user) }
@@ -33,7 +33,7 @@ class ConferenceStorage {
     }
 
     fun getConferences(): Flux<Conference> {
-        return Flux.fromIterable(conferences.values)
+        return conferences.values.toFlux()
     }
 
     fun getUsersInConferences(): Flux<User> {
@@ -75,5 +75,22 @@ class ConferenceStorage {
         val conference = this.conferences[conferenceInfo.conferenceId]
         conference!!.visible = conferenceInfo.visible
         return conference.toMono()
+    }
+
+    fun updateConferences(conferences: List<Conference>): Mono<Void> {
+        return conferences.toFlux().doOnNext { conference ->
+            this.conferences[conference.conferenceId] = conference
+        }.then(recomputeUsersConferences())
+    }
+
+    private fun recomputeUsersConferences(): Mono<Void> {
+        usersConference.clear()
+        conferences.values.forEach { conference ->
+            conference.attendees.forEach { user ->
+                usersConference.computeIfAbsent(user) { HashSet() }
+                    .also { it.add(conference) }
+            }
+        }
+        return Mono.empty()
     }
 }

@@ -30,8 +30,9 @@ class ClassroomUserService(
 
     fun userConnected(user: User, socketRequester: RSocketRequester): Mono<Void> {
         return classroomInstanceService.getClassroomInstance(user.classroomId)
-            .flatMap { classroom ->
-                Mono.zip(Mono.just(classroom), classroom.connectSocket(user, socketRequester))
+            .delayUntil { classroom -> this.conferenceService.updateConferences(classroom) }
+            .zipWhen { classroom ->
+                classroom.connectSocket(user, socketRequester)
             }.delayUntil { (classroom, userDisplay) ->
                 classroom.sendToAll(UserEvent(userDisplay, UserAction.JOIN))
             }.doOnSuccess {

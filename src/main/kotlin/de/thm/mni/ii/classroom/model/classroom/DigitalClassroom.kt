@@ -41,6 +41,7 @@ class DigitalClassroom(
     fun hasBeenForciblyEnded() = false
     fun getDuration() = ChronoUnit.MINUTES.between(creationTimestamp, ZonedDateTime.now())
     fun doesUserExist(user: User): Boolean = users.contains(user)
+    fun getUser(userId: String): User = users.keys.find { it.userId == userId }!!
 
     fun authenticateAssignRole(password: String, user: User): Mono<User> {
         return Mono.defer {

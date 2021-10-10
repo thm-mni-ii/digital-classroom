@@ -20,6 +20,8 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import reactor.util.function.Tuple2
 import java.time.Duration
+import java.util.Timer
+import kotlin.concurrent.schedule
 
 @Component
 class ConferenceService(
@@ -133,10 +135,19 @@ class ConferenceService(
             }.then()
     }
 
+    fun updateConferences(classroom: DigitalClassroom): Mono<Void> {
+        return classroom.conferences.getConferences()
+            .collectList()
+            .flatMapMany { conferences -> this.upstreamBBBService.syncMeetings(classroom, conferences) }
+            .collectList()
+            .flatMap(classroom.conferences::updateConferences)
+    }
+
     fun scheduleConferenceDeletion(classroom: DigitalClassroom, conference: Conference, delaySeconds: Long = 20) {
         logger.debug("Conference ${conference.conferenceId} scheduled for deletion if still empty in $delaySeconds seconds!")
         Mono.just(conference)
             .delayElement(Duration.ofSeconds(delaySeconds))
+            .delayUntil { this.updateConferences(classroom) }
             .flatMap { classroom.conferences.getUsersOfConference(it).hasElements() }
             // Stop if users rejoined the conference!
             .filter { usersJoined -> !usersJoined }
