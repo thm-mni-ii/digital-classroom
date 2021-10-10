@@ -1,7 +1,7 @@
 <div class="container">
-  <div class="dialogTitle" matDialogTitle>Konferenzeinladung versenden</div>
+  <div class="dialogTitle" matDialogTitle>Konferenz beitreten</div>
   <mat-dialog-content style="max-height: 100%; overflow: hidden;">
-    <p>Zu welcher Konferenz möchten Sie {{this.data.fullName}} einladen?</p>
+    <p>Welcher Konferenz von {{data.fullName}} möchten Sie beitreten?</p>
       <app-choose-conference-dialog
         [conferences]="this.data.conferences"
         [dialogRef]="this.dialogRef">

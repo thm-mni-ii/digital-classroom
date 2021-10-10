@@ -25,8 +25,7 @@ export class MessageEvent extends ClassroomEvent {
 export enum ConferenceAction {
   CREATE = "CREATE",
   CLOSE = "CLOSE",
-  PUBLISH = "PUBLISH",
-  HIDE = "HIDE",
+  VISIBILITY = "VISIBILITY",
   USER_CHANGE = "USER_CHANGE"
 }
 

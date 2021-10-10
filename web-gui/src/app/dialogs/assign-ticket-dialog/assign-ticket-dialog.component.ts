@@ -57,6 +57,6 @@ export class AssignTicketDialogComponent implements OnInit {
   }
 
   public joinConference(user: User) {
-    this.classroomService.joinConferenceOfUser(user);
+    this.classroomService.chooseConferenceToJoin(user);
   }
 }

@@ -8,15 +8,15 @@ import {ConferenceService} from "../../service/conference.service";
 
 @Component({
   selector: 'app-invite-to-conference-dialog',
-  templateUrl: './invite-to-conference-dialog.component.html',
-  styleUrls: ['./invite-to-conference-dialog.component.scss']
+  templateUrl: './join-user-conference-dialog.component.html',
+  styleUrls: ['./join-user-conference-dialog.component.scss']
 })
-export class InviteToConferenceDialogComponent implements OnInit {
+export class JoinUserConferenceDialogComponent implements OnInit {
   form: FormGroup;
   disabled: Boolean = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: UserDisplay,
-              public dialogRef: MatDialogRef<InviteToConferenceDialogComponent>,
+              public dialogRef: MatDialogRef<JoinUserConferenceDialogComponent>,
               private snackBar: MatSnackBar, private conferenceService: ConferenceService,
               public classroomService: ClassroomService, private _formBuilder: FormBuilder) {
   }

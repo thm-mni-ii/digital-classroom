@@ -24,10 +24,6 @@ export class ConferenceService {
   private conferenceWindowHandles: Map<string, Window> = new Map<string, Window>()
   private conferenceClosedSubject: Subject<ConferenceOpenInfo>
 
-  public isCurrentUserInConference(): boolean {
-    return this.conferenceWindowHandles.size !== 0
-  }
-
   constructor(
     private rSocketService: RSocketService,
     private eventListenerService: EventListenerService
@@ -51,8 +47,7 @@ export class ConferenceService {
     switch (conferenceEvent.conferenceAction) {
       case ConferenceAction.CREATE:      { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
       case ConferenceAction.CLOSE:       { this.conferences.delete(conferenceEvent.conferenceInfo.conferenceId); break; }
-      case ConferenceAction.PUBLISH:     { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
-      case ConferenceAction.HIDE:        { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
+      case ConferenceAction.VISIBILITY:  { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
       case ConferenceAction.USER_CHANGE: { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
     }
   }

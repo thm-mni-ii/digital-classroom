@@ -31,6 +31,8 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import { LogoutComponent } from './page-components/logout/logout.component';
 import {NotFoundComponent} from "./page-components/not-found/not-found.component";
 import { OverlayErrorComponent } from './page-components/overlay-error/overlay-error.component';
+import { ChooseConferenceDialogComponent } from './dialogs/choose-conference-dialog/choose-conference-dialog.component';
+import {JoinUserConferenceDialogComponent} from "./dialogs/join-user-conference-dialog/join-user-conference-dialog.component";
 
 @NgModule({
   declarations: [
@@ -52,7 +54,9 @@ import { OverlayErrorComponent } from './page-components/overlay-error/overlay-e
     CreateConferenceDialogComponent,
     LogoutComponent,
     CreateConferenceDialogComponent,
-    OverlayErrorComponent
+    OverlayErrorComponent,
+    ChooseConferenceDialogComponent,
+    JoinUserConferenceDialogComponent
   ],
   imports: [
     BrowserModule,

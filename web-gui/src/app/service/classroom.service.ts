@@ -22,6 +22,7 @@ import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
 import {InviteToConferenceDialogComponent} from "../dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component";
 import {Router} from "@angular/router";
 import {NotificationService} from "./notification.service";
+import {JoinUserConferenceDialogComponent} from "../dialogs/join-user-conference-dialog/join-user-conference-dialog.component";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and
@@ -57,7 +58,9 @@ export class ClassroomService {
     this.currentUserObservable.subscribe(currentUser => this.currentUser = currentUser)
     this.classroomInfoObservable.subscribe(info => this.classroomInfo = info)
     this.userDisplayObservable.subscribe(users => this.users = users)
-    this.conferencesObservable.subscribe(conferences => this.conferences = conferences)
+    this.conferencesObservable.subscribe(conferences =>
+      this.conferences = conferences.filter(conf => conf.visible || this.currentUser.userId === conf.creator.userId)
+    )
     this.conferenceService.invitationEvents.subscribe(invitation => {
       this.handleInviteMsg(invitation)
     })
@@ -115,7 +118,7 @@ export class ClassroomService {
       this.dialog.open(InviteToConferenceDialogComponent, {
         height: 'auto',
         width: 'auto',
-        data: invitee
+        data: this.currentUser
       }).beforeClosed().subscribe(conference => {
           if (conference !instanceof ConferenceInfo) throw new Error("Error in invite dialog!")
           this.conferenceService.inviteToConference(invitee, this.currentUser, conference)
@@ -134,8 +137,16 @@ export class ClassroomService {
     return conferenceInfo
   }
 
-  public joinConferenceOfUser(conferencingUser: User) {
-    this.conferenceService.joinConferenceOfUser(conferencingUser)
+  public chooseConferenceToJoin(conferencingUser: User) {
+    this.dialog.open(JoinUserConferenceDialogComponent, {
+      height: 'auto',
+      width: 'auto',
+      data: conferencingUser
+    }).beforeClosed().subscribe( conf => {
+        if (conf !== undefined) {
+          this.joinConference(conf)
+        }
+      })
   }
 
   public joinConference(conferenceInfo: ConferenceInfo) {
