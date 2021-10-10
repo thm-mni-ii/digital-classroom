@@ -71,9 +71,9 @@ class ConferenceService(
 
     fun getUsersInConferences(auth: ClassroomAuthentication): Flux<User> {
         return classroomInstanceService.getClassroomInstance(auth.getClassroomId())
-        .flatMapMany {
-            it.conferences.getUsersInConferences()
-        }
+            .flatMapMany {
+                it.conferences.getUsersInConferences()
+            }
     }
 
     fun endConference(user: User, conferenceInfo: ConferenceInfo) {
@@ -139,7 +139,7 @@ class ConferenceService(
             .delayElement(Duration.ofSeconds(delaySeconds))
             .flatMap { classroom.conferences.getUsersOfConference(it).hasElements() }
             // Stop if users rejoined the conference!
-            .filter {usersJoined -> !usersJoined}
+            .filter { usersJoined -> !usersJoined }
             .doOnTerminate {
                 logger.debug("Users rejoined to conference ${conference.conferenceId}. Abort deletion.")
             }.flatMap {

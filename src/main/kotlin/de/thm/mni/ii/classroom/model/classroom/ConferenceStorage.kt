@@ -51,9 +51,9 @@ class ConferenceStorage {
 
     fun leaveConference(user: User, conference: Conference): Mono<Conference> {
         return Mono.just(conference).map {
-                this.usersConference[user]?.remove(conference)
-                this.conferences[conference.conferenceId]!!.removeUser(user)
-            }
+            this.usersConference[user]?.remove(conference)
+            this.conferences[conference.conferenceId]!!.removeUser(user)
+        }
     }
 
     fun deleteConference(conference: Conference): Mono<Conference> {
