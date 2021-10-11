@@ -12,7 +12,7 @@ import {DomSanitizer} from "@angular/platform-browser";
 })
 export class AppComponent {
   constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer) {
-    this.matIconRegistry.addSvgIcon('add-ticket', this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/add-ticket.svg'));
-    this.matIconRegistry.addSvgIcon('invite', this.domSanitizer.bypassSecurityTrustResourceUrl('../assets/invite.svg'));
+    this.matIconRegistry.addSvgIcon('add-ticket', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/add-ticket.svg'));
+    this.matIconRegistry.addSvgIcon('invite', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/invite.svg'));
   }
 }

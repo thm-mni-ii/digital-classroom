@@ -8,8 +8,7 @@ import {NotFoundComponent} from "./page-components/full-page/not-found/not-found
 
 const routes: Routes = [
   {path: '', component: ClassroomComponent},
-  {path: 'classroom', component: ClassroomComponent},
-  {path: 'classroom/join', component: JoinComponent},
+  {path: 'join', component: JoinComponent},
   {path: 'logout', component: LogoutComponent},
   {path: 'unauthorized', component: UnauthorizedComponent},
   {path: '**', component: NotFoundComponent},

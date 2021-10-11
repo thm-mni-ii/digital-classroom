@@ -65,7 +65,7 @@ class SecurityConfiguration(
             .hasAnyAuthority("STUDENT", "TUTOR", "TEACHER")
             .and()
             .authorizeExchange()
-            .pathMatchers("/*", "/static/**", "/classroom/*", "/classroom", "/rsocket/**", "/rsocket")
+            .pathMatchers("/classroom/assets/*", "/classroom/*", "/classroom", "/rsocket/**", "/rsocket")
             .permitAll()
             .and()
             .build()

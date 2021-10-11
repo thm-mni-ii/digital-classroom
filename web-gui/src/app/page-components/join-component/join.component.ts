@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {DOCUMENT} from '@angular/common';
 import {MatDialog} from '@angular/material/dialog';
 import {AuthService} from '../../service/auth.service';
-import {mergeMap, tap} from "rxjs/operators";
+import {mergeMap} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 
 /**
@@ -27,14 +27,14 @@ export class JoinComponent implements OnInit {
       mergeMap(params => this.auth.useSessionToken(params)),
     ).subscribe( ok => {
       console.log(ok)
-        this.router.navigate(['/classroom']).then()
+        this.router.navigate(['/']).then()
       }, (error: HttpErrorResponse) => {
         if (error.status === 403 && this.auth.isAuthenticated()) {
           console.log("token invalid, valid jwt!")
-          this.router.navigate(['/classroom']).then()
+          this.router.navigate(['/']).then()
         } else {
           this.auth.logout()
-          this.router.navigate(['/classroom']).then()
+          this.router.navigate(['/']).then()
         }
       }
     )

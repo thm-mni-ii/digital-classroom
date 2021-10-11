@@ -39,7 +39,7 @@ spring:
   web:
     resources.static-locations: classpath:static/
   webflux:
-    static-path-pattern: /static/*
+    static-path-pattern: /classroom/**
   rsocket:
     server:
       mapping-path: /rsocket

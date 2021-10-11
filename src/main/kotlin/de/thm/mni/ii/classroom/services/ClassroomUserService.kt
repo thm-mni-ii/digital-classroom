@@ -30,7 +30,7 @@ class ClassroomUserService(
 
     fun userConnected(userCredentials: UserCredentials, socketRequester: RSocketRequester): Mono<Void> {
         return classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
-            .delayUntil { classroom -> this.conferenceService.updateConferences(classroom) }
+            .doOnNext { classroom -> this.conferenceService.updateConferences(classroom).subscribe() }
             .zipWhen { classroom ->
                 classroom.connectSocket(userCredentials, socketRequester)
             }.delayUntil { (classroom, userDisplay) ->
