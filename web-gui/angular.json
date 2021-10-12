@@ -30,7 +30,6 @@
               "src/favicon.ico",
               "src/assets",
               "src/assets/*"
-
             ],
             "styles": [
               "src/styles.scss"
