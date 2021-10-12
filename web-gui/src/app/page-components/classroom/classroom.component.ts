@@ -54,7 +54,7 @@ export class ClassroomComponent implements OnInit, OnDestroy {
       ),
       this.classroomService.classroomInfoObservable.subscribe(classroomInfo => {
           this.classroomInfo = classroomInfo
-          this.title.setTitle("Classroom: " + classroomInfo.classroomName);
+          this.title.setTitle(`${classroomInfo.classroomName} | Digital Classroom`);
       })
     )
     this.createUserList();
