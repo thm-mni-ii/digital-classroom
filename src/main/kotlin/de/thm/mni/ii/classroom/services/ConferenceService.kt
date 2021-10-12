@@ -122,6 +122,7 @@ class ConferenceService(
             }
     }
 
+    @Suppress("unused")
     fun removeUserFromAllConferences(classroom: DigitalClassroom, userCredentials: UserCredentials): Mono<Void> {
         return classroom.conferences.removeFromConferences(userCredentials)
             .doOnNext { conference ->
@@ -139,22 +140,27 @@ class ConferenceService(
             .publishOn(Schedulers.boundedElastic())
             .collectList()
             .flatMapMany { conferences -> this.upstreamBBBService.syncMeetings(classroom, conferences) }
+            .doOnNext { conference ->
+                if (conference.attendees.isEmpty()) {
+                    this.scheduleConferenceDeletion(classroom, conference, 10)
+                }
+            }
             .collectList()
             .flatMap(classroom.conferences::updateConferences)
     }
 
-    fun scheduleConferenceDeletion(classroom: DigitalClassroom, conference: Conference, delaySeconds: Long = 20) {
+    fun scheduleConferenceDeletion(classroom: DigitalClassroom, conference: Conference, delaySeconds: Long = 90) {
         logger.debug("Conference ${conference.conferenceId} scheduled for deletion if still empty in $delaySeconds seconds!")
         Mono.just(conference)
             .delayElement(Duration.ofSeconds(delaySeconds))
             .delayUntil { this.updateConferences(classroom) }
             .flatMap { classroom.conferences.getUsersOfConference(it).hasElements() }
             // Stop if users rejoined the conference!
-            .filter { usersJoined -> !usersJoined }
-            .doOnTerminate {
-                logger.debug("Users rejoined to conference ${conference.conferenceId}. Abort deletion.")
+            .filter { usersJoined ->
+                if (usersJoined) logger.debug("Users rejoined to conference ${conference.conferenceId}. Abort deletion.")
+                else logger.debug("Conference ${conference.conferenceId} is still empty. Deleting...")
+                !usersJoined
             }.flatMap {
-                logger.debug("Conference ${conference.conferenceId} is still empty. Deleting...")
                 upstreamBBBService.endConference(conference)
             }.flatMap {
                 classroom.conferences.deleteConference(conference)
