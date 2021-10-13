@@ -5,7 +5,7 @@ import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.model.classroom.UserDisplay
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.services.ClassroomEventReceiverService
 import de.thm.mni.ii.classroom.services.ClassroomUserService
 import org.springframework.messaging.handler.annotation.MessageMapping
@@ -23,32 +23,32 @@ class UserWebSocketController(
     private val classroomEventReceiverService: ClassroomEventReceiverService
 ) {
     @ConnectMapping
-    fun connect(@AuthenticationPrincipal user: User, requester: RSocketRequester): Mono<Void> {
-        return userService.userConnected(user, requester)
+    fun connect(@AuthenticationPrincipal userCredentials: UserCredentials, requester: RSocketRequester): Mono<Void> {
+        return userService.userConnected(userCredentials, requester)
     }
 
     @MessageMapping("socket/classroom-event")
-    fun receiveEvent(@AuthenticationPrincipal user: User, @Payload event: ClassroomEvent) {
-        classroomEventReceiverService.classroomEventReceived(user, event)
+    fun receiveEvent(@AuthenticationPrincipal userCredentials: UserCredentials, @Payload event: ClassroomEvent) {
+        classroomEventReceiverService.classroomEventReceived(userCredentials, event)
     }
 
     @MessageMapping("socket/init-classroom")
-    fun initClassroom(@AuthenticationPrincipal user: User): Mono<ClassroomInfo> {
-        return userService.getClassroomInfo(user)
+    fun initClassroom(@AuthenticationPrincipal userCredentials: UserCredentials): Mono<ClassroomInfo> {
+        return userService.getClassroomInfo(userCredentials)
     }
 
     @MessageMapping("socket/init-tickets")
-    fun initTickets(@AuthenticationPrincipal user: User): Flux<Ticket> {
-        return userService.getTickets(user)
+    fun initTickets(@AuthenticationPrincipal userCredentials: UserCredentials): Flux<Ticket> {
+        return userService.getTickets(userCredentials)
     }
 
     @MessageMapping("socket/init-users")
-    fun initUsers(@AuthenticationPrincipal user: User): Flux<UserDisplay> {
-        return userService.getUserDisplays(user)
+    fun initUsers(@AuthenticationPrincipal userCredentials: UserCredentials): Flux<User> {
+        return userService.getUserDisplays(userCredentials)
     }
 
     @MessageMapping("socket/init-conferences")
-    fun initConferences(@AuthenticationPrincipal user: User): Flux<ConferenceInfo> {
-        return userService.getConferences(user)
+    fun initConferences(@AuthenticationPrincipal userCredentials: UserCredentials): Flux<ConferenceInfo> {
+        return userService.getConferences(userCredentials)
     }
 }

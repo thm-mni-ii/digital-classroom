@@ -28,7 +28,7 @@ import {NotificationService} from "../service/notification.service";
 })
 export class RSocketService implements OnDestroy {
 
-  private readonly client: RSocketClient<Buffer, Buffer>;
+  private readonly client: RSocketClient<Buffer, Buffer> | undefined;
   private socketSubject: ReplaySubject<ReactiveSocket<Buffer, Buffer>>
     = new ReplaySubject<ReactiveSocket<Buffer, Buffer>>(1)
 
@@ -36,14 +36,14 @@ export class RSocketService implements OnDestroy {
     url: environment.wsUrl,
     debug: true
   }, BufferEncoders)
-  private connectionStatus: ConnectionStatus;
+  private connectionStatus: ConnectionStatus | undefined;
 
   constructor(private auth: AuthService,
               private notification: NotificationService,
               private responder: EventListenerService) {
     const token = auth.loadToken()
     if (!auth.isAuthenticated()) {
-      notification.showError("Sie sind nicht eingeloggt!")
+      notification.showOverlayError("Sie sind nicht eingeloggt!", "Fehler beim Verbinden!")
       return
     }
 
@@ -105,6 +105,7 @@ export class RSocketService implements OnDestroy {
         }))
       }),
       map((payload: Payload<Buffer, Buffer>) => {
+        if (payload.data === undefined) throw new Error("Response payload data is undefined!")
         return <T>JSON.parse(decodeToString(payload.data));
       })
     );
@@ -120,6 +121,7 @@ export class RSocketService implements OnDestroy {
         }))
       }),
       map((payload: Payload<Buffer, Buffer>) => {
+        if (payload.data === undefined) throw new Error("Stream element payload data is undefined!")
         return <T>JSON.parse(decodeToString(payload.data));
       })
     );

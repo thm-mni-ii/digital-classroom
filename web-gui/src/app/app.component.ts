@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {AssetManagerService} from "./util/asset-manager.service";
 
 /**
  * Component that routes from login to app
@@ -9,5 +10,8 @@ import {Component} from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  constructor() {}
+  constructor(
+    _assetManagerService: AssetManagerService
+  ) {
+  }
 }

@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {User, UserDisplay, userDisplayFromEvent} from "../model/User";
+import {UserCredentials, User} from "../model/User";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {BehaviorSubject, Observable, ReplaySubject, Subject} from "rxjs";
 import {EventListenerService} from "../rsocket/event-listener.service";
@@ -12,13 +12,15 @@ import {ConferenceService} from "./conference.service";
   providedIn: 'root'
 })
 export class UserService {
-  private users: Map<string, UserDisplay> = new Map<string, UserDisplay>()
-  private userSubject: Subject<UserDisplay[]> = new BehaviorSubject([])
-  userObservable: Observable<UserDisplay[]> = this.userSubject.asObservable()
 
-  private selfSubject: Subject<UserDisplay> = new ReplaySubject(1)
-  currentUserObservable: Observable<UserDisplay> = this.selfSubject.asObservable()
-  private currentUser: UserDisplay
+  private users: Map<string, User> = new Map<string, User>()
+  // @ts-ignore
+  private userSubject: Subject<User[]> = new BehaviorSubject([])
+  userObservable: Observable<User[]> = this.userSubject.asObservable()
+
+  private selfSubject: Subject<User> = new ReplaySubject(1)
+  currentUserObservable: Observable<User> = this.selfSubject.asObservable()
+  private currentUser?: User
 
   constructor(
     private rSocketService: RSocketService,
@@ -46,7 +48,7 @@ export class UserService {
   }
 
   private initUsers() {
-    this.rSocketService.requestStream<UserDisplay>("socket/init-users", "Init Users").pipe(
+    this.rSocketService.requestStream<User>("socket/init-users", "Init Users").pipe(
       tap(userDisplay => {
         if (userDisplay.userId === this.authService.getToken().userId) {
           this.selfSubject.next(userDisplay)
@@ -60,9 +62,12 @@ export class UserService {
   }
 
   private handleUserEvent(userEvent: UserEvent) {
+    if (userEvent.user === undefined) throw new Error("Received userEvent without user!")
+    if (userEvent.userAction === undefined) throw new Error("Received userEvent without action!")
+
     switch (userEvent.userAction) {
       case UserAction.JOIN: {
-        this.updateUser(userDisplayFromEvent(userEvent));
+        this.updateUser(userEvent.user);
         break;
       }
       case UserAction.LEAVE: {
@@ -76,21 +81,22 @@ export class UserService {
     }
   }
 
-  private updateUser(userDisplay: UserDisplay) {
+  private updateUser(userDisplay: User) {
     if (userDisplay.userId === this.authService.getToken().userId) {
       this.selfSubject.next(userDisplay)
     }
     this.users.set(userDisplay.userId, userDisplay)
   }
 
-  private updateVisibility(user: User, visible: boolean) {
-    const userDisplay = this.users.get(user.userId)
-    userDisplay.visible = visible
-    this.users.set(userDisplay.userId, userDisplay)
+  private updateVisibility(userCredentials: UserCredentials, visible: boolean) {
+    const user = this.users.get(userCredentials.userId)
+    if (user === undefined) throw new Error("User not found!")
+    user.visible = visible
+    this.users.set(user.userId, user)
   }
 
   private publish() {
-    const users: UserDisplay[] = []
+    const users: User[] = []
     this.users.forEach((user) => {
       users.push(user)
     })
@@ -98,14 +104,20 @@ export class UserService {
   }
 
   public changeVisibility(visible: boolean) {
-    const currentUser: UserDisplay = this.currentUser;
+    if (this.currentUser === undefined) throw new Error("Current user is undefined!")
+    const currentUser: User = this.currentUser;
     if (visible === currentUser.visible) return
     currentUser.visible = visible;
     this.selfSubject.next(currentUser);
     const event = new UserEvent();
     event.user = currentUser;
-    event.visible = visible;
     event.userAction = UserAction.VISIBILITY_CHANGE;
     this.rSocketService.fireAndForget("socket/classroom-event", event)
+  }
+
+  public getFullUser(userCredentials: UserCredentials): User | undefined {
+    const user: User | undefined = this.users.get(userCredentials?.userId)
+    if (user === undefined) return undefined
+    return user
   }
 }

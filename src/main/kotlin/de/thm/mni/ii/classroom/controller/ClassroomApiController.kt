@@ -1,10 +1,12 @@
 package de.thm.mni.ii.classroom.controller
 
 import de.thm.mni.ii.classroom.model.classroom.User
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
 import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import de.thm.mni.ii.classroom.security.jwt.ClassroomJwtService
 import de.thm.mni.ii.classroom.security.jwt.ClassroomTokenRepository
+import de.thm.mni.ii.classroom.services.ClassroomInstanceService
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import org.apache.commons.lang3.RandomStringUtils
@@ -20,17 +22,17 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.switchIfEmpty
 
 @RestController
 @RequestMapping("/classroom-api")
 @CrossOrigin
 class ClassroomApiController(
-    val classroomTokenRepository: ClassroomTokenRepository,
-    val jwtService: ClassroomJwtService
+    private val classroomTokenRepository: ClassroomTokenRepository,
+    private val jwtService: ClassroomJwtService,
+    private val classroomInstanceService: ClassroomInstanceService
 ) {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(ClassroomApiController::class.java)
 
     /**
      * Does not return any value. This route is called with sessionToken, which is exchanged to a JWT
@@ -40,8 +42,11 @@ class ClassroomApiController(
     @GetMapping("/join")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun joinClassroom(auth: ClassroomAuthentication, originalExchange: ServerWebExchange): Mono<ServerHttpResponse> {
-        return Mono.just(generateRefreshToken(auth.principal))
-            .map { refreshToken ->
+        return classroomInstanceService.getClassroomInstance(auth.getClassroomId())
+            .doOnNext { classroom ->
+                classroom.savePreAuthUserData(auth.principal as User)
+            }.map {
+                val refreshToken = generateRefreshToken(auth.principal)
                 // Set refresh_token header
                 val refreshTokenSet = setHeader("refresh_token", refreshToken, originalExchange)
                 // Set Authorization header
@@ -60,17 +65,11 @@ class ClassroomApiController(
     ): Mono<ServerHttpResponse> {
         return classroomTokenRepository
             .findRefreshToken(refreshToken)
-            .switchIfEmpty {
-                val ex = UnauthorizedException("Invalid refresh token provided by user ${auth.user?.fullName}")
-                logger.error("", ex)
-                Mono.error(ex)
-            }.filter { user ->
-                user == auth.user
-            }.switchIfEmpty {
-                val ex = UnauthorizedException("Owner of refresh token does not match requester!")
-                logger.error("", ex)
-                Mono.error(ex)
-            }.map { user ->
+            .switchIfEmpty(Mono.error(UnauthorizedException("Invalid refresh token provided by user ${auth.userCredentials?.fullName}")))
+            .filter { user ->
+                user == auth.userCredentials
+            }.switchIfEmpty(Mono.error(UnauthorizedException("Owner of refresh token does not match requester!")))
+            .map { user ->
                 val newRefreshToken = generateRefreshToken(user)
                 Pair(user, setHeader("refresh_token", newRefreshToken, originalExchange))
             }.flatMap { (user, exchange) ->
@@ -82,9 +81,9 @@ class ClassroomApiController(
             }
     }
 
-    private fun generateRefreshToken(user: User): String {
+    private fun generateRefreshToken(userCredentials: UserCredentials): String {
         val newRefreshToken = RandomStringUtils.randomAscii(30)
-        classroomTokenRepository.insertRefreshToken(newRefreshToken, user)
+        classroomTokenRepository.insertRefreshToken(newRefreshToken, userCredentials)
         return newRefreshToken
     }
 

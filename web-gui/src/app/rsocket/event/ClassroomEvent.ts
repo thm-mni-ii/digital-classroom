@@ -1,8 +1,8 @@
-import {User} from "../../model/User";
+import {UserCredentials} from "../../model/User";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
 
 export interface ClassroomDependent {
-  classroomId: string
+  classroomId: string | undefined
 }
 
 export abstract class ClassroomEvent {
@@ -25,14 +25,13 @@ export class MessageEvent extends ClassroomEvent {
 export enum ConferenceAction {
   CREATE = "CREATE",
   CLOSE = "CLOSE",
-  PUBLISH = "PUBLISH",
-  HIDE = "HIDE",
+  VISIBILITY = "VISIBILITY",
   USER_CHANGE = "USER_CHANGE"
 }
 
 export class ConferenceEvent extends ClassroomEvent {
-  conferenceInfo: ConferenceInfo
-  conferenceAction: ConferenceAction
+  conferenceInfo: ConferenceInfo | undefined
+  conferenceAction: ConferenceAction | undefined
 
   constructor() {
     super("ConferenceEvent");
@@ -40,9 +39,9 @@ export class ConferenceEvent extends ClassroomEvent {
 }
 
 export class InvitationEvent extends ClassroomEvent {
-  inviter: User
-  invitee: User
-  conferenceInfo: ConferenceInfo
+  inviter: UserCredentials | undefined
+  invitee: UserCredentials | undefined
+  conferenceInfo: ConferenceInfo | undefined
 
   constructor() {
     super("InvitationEvent");

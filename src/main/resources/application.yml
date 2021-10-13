@@ -37,9 +37,9 @@ logging:
 spring:
   autoconfigure.exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration, org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration, org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration
   web:
-    resources.static-locations: classpath:static/
+    resources.static-locations: classpath:/static/
   webflux:
-    static-path-pattern: /static/*
+    static-path-pattern: /classroom/**
   rsocket:
     server:
       mapping-path: /rsocket

@@ -1,0 +1,19 @@
+<mat-sidenav-container class="container">
+  <mat-sidenav
+    [ngClass]="assignClass()"
+    class="sidenav"
+    #sidenav
+    mode="side"
+    [position]="getPosition()"
+    [(opened)]="opened"
+    [style.width]="showSidebarMenu ? '100%' : null"
+    (window:resize)="onResize($event)">
+    <ng-container *ngComponentOutlet="component!!"></ng-container>
+  </mat-sidenav>
+  <mat-sidenav-content [ngClass]="assignClassContent()">
+    <mat-icon class="sidenav-toggle functional-icon" (click)="sidenav.toggle()">{{this.icon()}}</mat-icon>
+    <div class="sidenav-filler">
+      <span class="sidenav-label">{{this.label}}</span>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

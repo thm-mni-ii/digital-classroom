@@ -1,6 +1,8 @@
 .container {
   display: block;
   padding: 16px;
+  z-index: 2;
+  position: relative;
 }
 .actions {
   margin: -15px;

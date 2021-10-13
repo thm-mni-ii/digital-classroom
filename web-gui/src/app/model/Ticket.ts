@@ -1,19 +1,19 @@
-import {User} from "./User";
+import {UserCredentials} from "./User";
 import {ClassroomDependent} from "../rsocket/event/ClassroomEvent";
 
 export class Ticket implements ClassroomDependent {
-  classroomId: string
-  ticketId: number;
-  creator: User
-  assignee?: User
-  description: string
-  createTime: number
+  classroomId: string = "";
+  ticketId: number = 0;
+  creator?: UserCredentials;
+  assignee?: UserCredentials;
+  description: string = "";
+  createTime: number = 0;
 
   constructor(description: string) {
-    this.classroomId = null
-    this.ticketId = null
-    this.creator = null
-    this.assignee = null
+    this.classroomId = ""
+    this.ticketId = 0
+    this.creator = undefined
+    this.assignee = undefined
     this.description = description
     this.createTime = Date.now()
   }

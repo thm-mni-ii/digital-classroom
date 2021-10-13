@@ -1,8 +1,8 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {NotificationService} from "../../service/notification.service";
-import {UserDisplay} from "../../model/User";
+import {User} from "../../model/User";
 import {ConferenceInfo} from "../../model/ConferenceInfo";
 import {ClassroomInfo} from "../../model/ClassroomInfo";
 
@@ -11,7 +11,7 @@ import {ClassroomInfo} from "../../model/ClassroomInfo";
   templateUrl: './create-conference-dialog.component.html',
   styleUrls: ['./create-conference-dialog.component.scss']
 })
-export class CreateConferenceDialogComponent implements OnInit {
+export class CreateConferenceDialogComponent {
   form: FormGroup;
   conferenceSubject: FormControl
   conferenceVisible: FormControl
@@ -19,9 +19,8 @@ export class CreateConferenceDialogComponent implements OnInit {
   constructor(private fb: FormBuilder,
               @Inject(MAT_DIALOG_DATA) public data: CreateConferenceInputData,
               private notification: NotificationService,
-              private dialogRef: MatDialogRef<CreateConferenceDialogComponent>) {}
-
-  ngOnInit(): void {
+              private dialogRef: MatDialogRef<CreateConferenceDialogComponent>
+  ) {
     this.conferenceSubject = new FormControl('Konferenz von ' + this.data.currentUser.fullName)
     this.conferenceVisible = new FormControl(true)
 
@@ -48,9 +47,9 @@ export class CreateConferenceDialogComponent implements OnInit {
 
 export class CreateConferenceInputData {
   classroom: ClassroomInfo
-  currentUser: UserDisplay
+  currentUser: User
 
-  constructor(classroom: ClassroomInfo, currentUser: UserDisplay) {
+  constructor(classroom: ClassroomInfo, currentUser: User) {
     this.currentUser = currentUser;
     this.classroom = classroom;
   }

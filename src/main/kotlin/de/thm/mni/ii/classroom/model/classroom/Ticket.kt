@@ -10,8 +10,8 @@ import java.time.ZonedDateTime
 class Ticket(
     override val classroomId: String,
     var description: String,
-    val creator: User,
-    var assignee: User? = null
+    val creator: UserCredentials,
+    var assignee: UserCredentials? = null
 ) : Comparable<Ticket>, ClassroomDependent {
 
     var ticketId: Long? = null

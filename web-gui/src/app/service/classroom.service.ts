@@ -3,7 +3,7 @@ import {Observable, Subject, BehaviorSubject} from 'rxjs';
 import {AuthService} from './auth.service';
 import {MatDialog} from '@angular/material/dialog';
 import {IncomingCallDialogComponent} from '../dialogs/incoming-call-dialog/incoming-call-dialog.component';
-import {User, UserDisplay} from "../model/User";
+import {UserCredentials, User} from "../model/User";
 import {ConferenceService} from "./conference.service";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {Ticket} from "../model/Ticket";
@@ -22,6 +22,8 @@ import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
 import {InviteToConferenceDialogComponent} from "../dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component";
 import {Router} from "@angular/router";
 import {NotificationService} from "./notification.service";
+import {JoinUserConferenceDialogComponent} from "../dialogs/join-user-conference-dialog/join-user-conference-dialog.component";
+import {LogoutService} from "./logout.service";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and
@@ -35,16 +37,18 @@ export class ClassroomService {
   public tickets = this.ticketService.ticketObservable
   public userDisplayObservable = this.userService.userObservable
   public currentUserObservable = this.userService.currentUserObservable
-  public conferencesObservable = this.conferenceService.conferencesObservable
+  public conferencesObservable = this.conferenceService.conferencesObservable.pipe(
+    map(confs => confs.filter(conf => conf.visible || conf.creator!!.userId == this.currentUser?.userId))
+  )
   private conferences: ConferenceInfo[] = []
 
-  private users: UserDisplay[] = []
+  private users: User[] = []
 
   private classroomInfoSubject: Subject<ClassroomInfo> = new BehaviorSubject(new ClassroomInfo())
   classroomInfoObservable: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
 
-  public classroomInfo: ClassroomInfo
-  public currentUser: UserDisplay
+  public classroomInfo: ClassroomInfo | undefined
+  public currentUser: User | undefined
 
   public constructor(private router: Router,
                      private authService: AuthService,
@@ -53,11 +57,17 @@ export class ClassroomService {
                      private rSocketService: RSocketService,
                      private ticketService: TicketService,
                      private userService: UserService,
-                     private notification: NotificationService) {
+                     private notification: NotificationService,
+                     private logoutService: LogoutService) {
     this.currentUserObservable.subscribe(currentUser => this.currentUser = currentUser)
-    this.classroomInfoObservable.subscribe(info => this.classroomInfo = info)
+    this.classroomInfoObservable.subscribe(info => {
+      this.classroomInfo = info
+      this.logoutService.classroomInfo = info
+    })
     this.userDisplayObservable.subscribe(users => this.users = users)
-    this.conferencesObservable.subscribe(conferences => this.conferences = conferences)
+    this.conferencesObservable.subscribe(conferences =>
+      this.conferences = conferences.filter(conf => conf.visible || this.currentUser?.userId === conf.creator!!.userId)
+    )
     this.conferenceService.invitationEvents.subscribe(invitation => {
       this.handleInviteMsg(invitation)
     })
@@ -65,6 +75,7 @@ export class ClassroomService {
   }
 
   public isCurrentUserAuthorized(): boolean {
+    if (this.currentUser === undefined) return false
     return Roles.isPrivileged(this.currentUser.userRole)
   }
 
@@ -75,8 +86,8 @@ export class ClassroomService {
     return this.rSocketService.isConnected()
   }
 
-  public isSelf(user: User) {
-    return user.userId === this.currentUser.userId
+  public isSelf(user: UserCredentials) {
+    return user.userId === this.currentUser?.userId
   }
 
   /**
@@ -102,29 +113,32 @@ export class ClassroomService {
    * @param conferenceInfo
    * @param ticket
    */
-  public inviteToConference(invitee: UserDisplay, conferenceInfo: ConferenceInfo = null, ticket: Ticket = null) {
-    if (conferenceInfo !== null) {
+  public inviteToConference(invitee: UserCredentials, conferenceInfo?: ConferenceInfo, ticket?: Ticket) {
+    if (this.currentUser === undefined) throw new Error("Current user is undefined!")
+    if (conferenceInfo !== undefined) {
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
-    } else if (ticket !== null) {
+    } else if (ticket !== undefined) {
       const conferenceInfo = this.createConferenceInfo(ticket.description)
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
-    } else if (this.currentUser.conferences.length === 0) {
+    } else if (this.currentUser?.conferences.length === 0) {
       const conferenceInfo = this.createConferenceInfo("Meeting", false)
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else {
       this.dialog.open(InviteToConferenceDialogComponent, {
         height: 'auto',
         width: 'auto',
-        data: invitee
+        data: this.currentUser
       }).beforeClosed().subscribe(conference => {
-          if (conference !instanceof ConferenceInfo) throw new Error("Error in invite dialog!")
-          this.conferenceService.inviteToConference(invitee, this.currentUser, conference)
-        }
-      );
+        if (this.currentUser === undefined) throw new Error("Current user is undefined!")
+        if (conference !instanceof ConferenceInfo) throw new Error("Error in invite dialog!")
+        this.conferenceService.inviteToConference(invitee, this.currentUser, conference)
+      });
     }
   }
 
   private createConferenceInfo(conferenceName: string, visible: boolean = true): ConferenceInfo {
+    if (this.classroomInfo === undefined) throw new Error("ClassroomInfo is undefined!")
+    if (this.currentUser === undefined) throw new Error("Current user is undefined!")
     const conferenceInfo = new ConferenceInfo()
     conferenceInfo.classroomId = this.classroomInfo.classroomId
     conferenceInfo.creator = this.currentUser
@@ -134,8 +148,16 @@ export class ClassroomService {
     return conferenceInfo
   }
 
-  public joinConferenceOfUser(conferencingUser: User) {
-    this.conferenceService.joinConferenceOfUser(conferencingUser)
+  public chooseConferenceToJoin(conferencingUser: UserCredentials) {
+    this.dialog.open(JoinUserConferenceDialogComponent, {
+      height: 'auto',
+      width: 'auto',
+      data: conferencingUser
+    }).beforeClosed().subscribe( conf => {
+        if (conf !== undefined) {
+          this.joinConference(conf)
+        }
+      })
   }
 
   public joinConference(conferenceInfo: ConferenceInfo) {
@@ -165,6 +187,7 @@ export class ClassroomService {
     }).beforeClosed().pipe(
       filter(ticket => ticket),
       map((ticket: Ticket) => {
+        if (this.currentUser === undefined) throw new Error("Current user is undefined!")
         ticket.classroomId = this.currentUser.classroomId
         ticket.creator = this.currentUser
         return ticket
@@ -174,15 +197,21 @@ export class ClassroomService {
     });
   }
 
-  public isInConference(user: User): boolean {
-    let userDisplay: UserDisplay
-    if (user instanceof UserDisplay)
-      userDisplay = user
+  public closeTicket(ticket: Ticket) {
+    this.ticketService.removeTicket(ticket);
+    this.notification.show(`Das Ticket wurde geschlossen`);
+  }
+
+  public isInConference(userCredentials?: UserCredentials): boolean {
+    if (userCredentials === undefined) throw new Error("user is undefined!")
+    let user: User | undefined
+    if (userCredentials instanceof User)
+      user = userCredentials
     else {
-      userDisplay = this.users.find(userDisplay => userDisplay.userId === user.userId)
-      if (userDisplay === undefined) return false
+      user = this.users.find(userDisplay => userDisplay.userId === userCredentials.userId)
+      if (user === undefined) return false
     }
-    return userDisplay.conferences.length !== 0
+    return user.conferences.length !== 0
   }
 
   public leave() {

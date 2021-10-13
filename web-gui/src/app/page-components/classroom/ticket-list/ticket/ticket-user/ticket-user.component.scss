@@ -1,0 +1,48 @@
+.ticket-user {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  min-width: 132px;
+  height: 38px;
+  .user-avatar {
+    height: 32px;
+    margin-right: 5px;
+  }
+  .user-text {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: baseline;
+    .ticket-context {
+      text-align: left;
+      color: #B1B1B1;
+      font-size: 14px;
+    }
+    .user-name {
+      font-size: 16.4px;
+    }
+  }
+}
+
+.assign-user {
+  display: flex;
+  flex-flow: row nowrap;
+  //justify-content: space-evenly;
+  align-items: center;
+  align-content: space-around;
+  min-width: 132px;
+  height: 38px;
+  cursor: pointer;
+  .assign-icon {
+    padding: 5px;
+    font-size: 24px;
+    color: #6D6D6D;
+  }
+  .assign-text {
+    margin-left: 5px;
+    font-size: 16.4px;
+    color: #6D6D6D;
+  }
+
+}
+
+

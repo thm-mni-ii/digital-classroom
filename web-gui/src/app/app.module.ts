@@ -17,20 +17,27 @@ import {HttpClientModule} from "@angular/common/http";
 import {JwtModule} from "@auth0/angular-jwt";
 import {RouterModule} from "@angular/router";
 import {JoinComponent} from "./page-components/join-component/join.component";
-import { UnauthorizedComponent } from './page-components/unauthorized/unauthorized.component';
+import { UnauthorizedComponent } from './page-components/full-page/unauthorized/unauthorized.component';
 import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
 import {IsNotSelfPipe } from './pipes/is-not-self.pipe';
 import {IsPrivilegedPipe} from "./pipes/is-privileged-pipe";
 import {UserListComponent} from "./page-components/classroom/user-list/user-list.component";
 import {TicketListComponent} from "./page-components/classroom/ticket-list/ticket-list.component";
 import {GlobalErrorHandler} from "./util/GlobalErrorHandler";
-import { ConferencesComponent } from './page-components/classroom/conferences/conferences.component';
+import { ConferenceListComponent } from './page-components/classroom/conference-list/conference-list.component';
 import {CreateConferenceDialogComponent} from "./dialogs/create-conference-dialog/create-conference-dialog.component";
 import {MatInputModule} from "@angular/material/input";
 import {MatFormFieldModule} from "@angular/material/form-field";
-import { LogoutComponent } from './page-components/logout/logout.component';
-import {NotFoundComponent} from "./page-components/not-found/not-found.component";
+import { LogoutComponent } from './page-components/full-page/logout/logout.component';
+import {NotFoundComponent} from "./page-components/full-page/not-found/not-found.component";
 import { OverlayErrorComponent } from './page-components/overlay-error/overlay-error.component';
+import { ChooseConferenceDialogComponent } from './dialogs/choose-conference-dialog/choose-conference-dialog.component';
+import {JoinUserConferenceDialogComponent} from "./dialogs/join-user-conference-dialog/join-user-conference-dialog.component";
+import {AvatarModule} from "ngx-avatar";
+import { FullPageComponent } from './page-components/full-page/full-page.component';
+import { TicketComponent } from './page-components/classroom/ticket-list/ticket/ticket.component';
+import { TicketUserComponent } from './page-components/classroom/ticket-list/ticket/ticket-user/ticket-user.component';
+import { SideDrawerMenuComponent } from './page-components/side-drawer-menu/side-drawer-menu.component';
 
 @NgModule({
   declarations: [
@@ -48,11 +55,18 @@ import { OverlayErrorComponent } from './page-components/overlay-error/overlay-e
     UserListComponent,
     TicketListComponent,
     NotFoundComponent,
-    ConferencesComponent,
+    ConferenceListComponent,
     CreateConferenceDialogComponent,
     LogoutComponent,
     CreateConferenceDialogComponent,
-    OverlayErrorComponent
+    OverlayErrorComponent,
+    ChooseConferenceDialogComponent,
+    JoinUserConferenceDialogComponent,
+    OverlayErrorComponent,
+    FullPageComponent,
+    TicketComponent,
+    TicketUserComponent,
+    SideDrawerMenuComponent
   ],
   imports: [
     BrowserModule,
@@ -70,10 +84,12 @@ import { OverlayErrorComponent } from './page-components/overlay-error/overlay-e
       config: {
         tokenGetter: tokenGetter,
       }
-    })
+    }),
+    AvatarModule
   ],
   providers: [httpInterceptorProviders, {provide: ErrorHandler, useClass: GlobalErrorHandler}],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [UserListComponent, ConferenceListComponent]
 })
 export class AppModule { }
 

@@ -2,11 +2,10 @@
   <div class="dialogTitle" matDialogTitle>Konferenzeinladung versenden</div>
   <mat-dialog-content style="max-height: 100%; overflow: hidden;">
     <p>Zu welcher Konferenz möchten Sie {{this.data.fullName}} einladen?</p>
-      <mat-action-list *ngFor="let conference of this.classroomService.currentUser.conferences">
-        <mat-list-item>
-          <button mat-flat-button (click)="this.selectConference(conference)">{{conference.conferenceName}}</button>
-        </mat-list-item>
-      </mat-action-list>
+      <app-choose-conference-dialog
+        [conferences]="this.data.conferences"
+        [dialogRef]="this.dialogRef">
+      </app-choose-conference-dialog>
     <button color="warn" mat-flat-button (click)="close()">Abbrechen</button>
   </mat-dialog-content>
 </div>

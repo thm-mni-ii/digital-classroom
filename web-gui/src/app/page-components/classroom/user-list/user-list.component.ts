@@ -1,5 +1,5 @@
-import {Component, Input} from '@angular/core';
-import {parseCourseRole, UserDisplay, UserRole} from "../../../model/User";
+import {Component, OnInit} from '@angular/core';
+import {parseCourseRole, User, UserRole} from "../../../model/User";
 import {ClassroomService} from "../../../service/classroom.service";
 
 @Component({
@@ -7,23 +7,29 @@ import {ClassroomService} from "../../../service/classroom.service";
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.scss']
 })
-export class UserListComponent {
+export class UserListComponent implements OnInit {
 
-  @Input() public users: UserDisplay[]
   public parseCourseRole: Function = parseCourseRole
+  public users: User[] = []
 
   constructor(
     public classroomService: ClassroomService
   ) {
   }
 
-  public sortUsers(users: UserDisplay[]) {
+  ngOnInit(): void {
+    this.classroomService.userDisplayObservable.subscribe(
+      users => this.users = users
+    )
+  }
+
+  public sortUsers(users: User[]) {
     return users
       .filter(user => user.visible)
       .sort(UserListComponent.compareUsers);
   }
 
-  private static compareUsers(a: UserDisplay, b: UserDisplay) {
+  private static compareUsers(a: User, b: User) {
     if (UserListComponent.roleValue(a.userRole) > UserListComponent.roleValue(b.userRole)) {
       return 1;
     } else if (UserListComponent.roleValue(a.userRole) < UserListComponent.roleValue(b.userRole)) {

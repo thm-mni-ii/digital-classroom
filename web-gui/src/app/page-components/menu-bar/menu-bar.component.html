@@ -1,16 +1,40 @@
-<mat-card class="menu-bar">
-  {{currentUser?.fullName}} - {{parseCourseRole(currentUser?.userRole)}}
+<div class="menu-bar">
+  <div class="menu-bar-section">
+    <mat-icon>supervised_user_circle</mat-icon> {{parseCourseRole(currentUser?.userRole)}}
+  </div>
 
-  <span class="spacer"></span>
+  <div class="menu-bar-section">
+    <mat-icon>meeting_room</mat-icon> {{classroomInfo?.classroomName}}
+  </div>
 
-  <ng-container *ngIf="classroomService.isConnected()">
-    <button mat-icon-button color="primary" (click)="classroomService.createTicket()" matTooltip="Ticket erstellen"><mat-icon >live_help</mat-icon></button>
+  <div class="menu-bar-section" (click)="this.toggleMenu()">
+    <div class="user-info" *ngIf="currentUser !== undefined">
+      <ngx-avatar
+        class="user-avatar"
+        [bgColor]="this.userIconService.calculateColorCode(currentUser.fullName)"
+        [name]="currentUser.fullName"
+        [size]="32"
+        initialsSize="2"
+        cornerRadius="4"
+        [round]="false"
+        [textSizeRatio]="2.2"
+        [src]="currentUser?.avatarUrl"
+      ></ngx-avatar>
+      {{currentUser.fullName}}
+    </div>
+  </div>
+
+  <div class="menu-bubble" *ngIf="menuVisible">
+    <mat-divider></mat-divider>
     <!--<button mat-icon-button color="primary" *ngIf="isAuthorized() && classroomService.isJoined()" (click)="createConference()" matTooltip="Konferenzeinstellungen"><mat-icon >duo</mat-icon></button>-->
-    <button mat-icon-button color="primary" (click)="this.createConference()" matTooltip="Konferenz öffnen"><mat-icon >videocam</mat-icon></button>
-    <button mat-icon-button color="primary" *ngIf="!this.currentUser?.visible" (click)="this.classroomService.showUser()" matTooltip="Nutzer sichtbar machen"><mat-icon>visibility</mat-icon></button>
-    <button mat-icon-button color="primary" *ngIf="this.currentUser?.visible" (click)="this.classroomService.hideUser()" matTooltip="Nutzer unsichtbar machen"><mat-icon>visibility_off</mat-icon></button>
-    <button mat-icon-button color="primary" (click)="this.classroomService.leave()" matTooltip="Klassenraum verlassen!"><mat-icon>close</mat-icon></button>
+    <div (click)="this.createConference()" matTooltip="Konferenz öffnen"><mat-icon >videocam</mat-icon>Konferenz eröffnen</div>
+    <mat-divider></mat-divider>
+    <div *ngIf="!this.currentUser?.visible" (click)="this.classroomService.showUser()" matTooltip="Nutzer sichtbar machen"><mat-icon>visibility</mat-icon>Sichtbar werden</div>
+    <mat-divider></mat-divider>
+    <div *ngIf="this.currentUser?.visible" (click)="this.classroomService.hideUser()" matTooltip="Nutzer unsichtbar machen"><mat-icon>visibility_off</mat-icon>Unsichtbar werden</div>
+    <mat-divider></mat-divider>
+    <div (click)="this.classroomService.leave()" matTooltip="Klassenraum verlassen!"><mat-icon>close</mat-icon>Klassenraum verlassen</div>
+  </div>
 
-  </ng-container>
+</div>
 
-</mat-card>

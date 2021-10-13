@@ -2,6 +2,8 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {ClassroomService} from '../../service/classroom.service';
 import {InvitationEvent} from "../../rsocket/event/ClassroomEvent";
+import {AssetManagerService} from "../../util/asset-manager.service";
+import {Howl} from "howler";
 
 @Component({
   selector: 'app-incoming-call-dialog',
@@ -9,22 +11,30 @@ import {InvitationEvent} from "../../rsocket/event/ClassroomEvent";
   styleUrls: ['./incoming-call-dialog.component.scss']
 })
 export class IncomingCallDialogComponent implements OnInit {
-  audio: HTMLAudioElement;
-  constructor(public dialogRef: MatDialogRef<IncomingCallDialogComponent>, public classroomService: ClassroomService,
+
+  private sound = new Howl({
+    src: [this.assetManager.getAsset("ringtone")],
+    loop: true,
+    volume: 0.5
+  })
+
+  constructor(public dialogRef: MatDialogRef<IncomingCallDialogComponent>,
+              public classroomService: ClassroomService,
+              private assetManager: AssetManagerService,
               @Inject(MAT_DIALOG_DATA) public invitation: InvitationEvent) { }
 
   ngOnInit(): void {
+    if (this.invitation.inviter === undefined) throw new Error("Inviter is undefined!")
+    if (this.invitation.conferenceInfo === undefined) throw new Error("Conference invited to is undefined!")
+
     const notification = new Notification('Konferenzeinladung',
       {body: this.invitation.inviter.fullName + 'lädt Sie zur Konferenz ' + this.invitation.conferenceInfo.conferenceName + 'ein!'});
     notification.onclick = () => window.focus();
     notification.onclose = () => window.focus();
-    this.audio = new Audio();
-    this.audio.src = '../../../../assets/classic_phone.mp3';
-    this.audio.load();
-    this.audio.play().then();
+
+    this.sound.play()
     this.dialogRef.afterClosed().subscribe(() => {
-      this.audio.pause();
-      this.audio.currentTime = 0;
+      this.sound.stop();
     });
     document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible') {
@@ -32,12 +42,10 @@ export class IncomingCallDialogComponent implements OnInit {
         notification.close();
       }
     });
-
-
   }
-  // todo: fix string constants ( enum didnt work)
+
   public acceptCall() {
-    this.classroomService.joinConferenceOfUser(this.invitation.inviter);
+    this.classroomService.joinConference(this.invitation.conferenceInfo!!);
     this.dialogRef.close();
   }
 

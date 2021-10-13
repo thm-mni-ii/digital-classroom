@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {AuthService} from "../../service/auth.service";
-import {ClassroomService} from "../../service/classroom.service";
+import {AuthService} from "../../../service/auth.service";
+import {LogoutService} from "../../../service/logout.service";
 
 @Component({
   selector: 'app-logout',
@@ -11,12 +11,12 @@ export class LogoutComponent implements OnInit {
 
   constructor(
     private auth: AuthService,
-    private classroomService: ClassroomService
+    private logoutService: LogoutService
   ) { }
 
   ngOnInit(): void {
     this.auth.logout()
-    const logoutUrl = this.classroomService.classroomInfo.logoutUrl
+    const logoutUrl = this.logoutService.classroomInfo.logoutUrl
     if (logoutUrl !== null) {
       window.open(logoutUrl, "_self");
     }

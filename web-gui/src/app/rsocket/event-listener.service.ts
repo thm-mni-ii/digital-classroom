@@ -25,6 +25,7 @@ export class EventListenerService implements Responder<Buffer, Buffer> {
   invitationEvents: Observable<InvitationEvent> = this.invitationEventSubject.asObservable();
 
   fireAndForget(payload: Payload<Buffer, Buffer>): void {
+    if (payload.data === undefined) throw new Error("Received message with empty payload data!")
     const event = (JSON.parse(decodeToString(payload.data)))
     switch ((event as ClassroomEvent).eventName) {
       case "TicketEvent": { this.ticketEventSubject.next(event as TicketEvent); break; }
@@ -52,10 +53,6 @@ export class EventListenerService implements Responder<Buffer, Buffer> {
 
   requestStream(payload: Payload<Buffer, Buffer>): Flowable<Payload<Buffer, Buffer>> {
     return Flowable.never();
-  }
-
-  logRequest(type: string, payload: Payload<Buffer, Buffer>) {
-    console.log(`Responder response to ${type}, data: ${JSON.stringify(payload.data) || 'null'}`);
   }
 
 }

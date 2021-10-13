@@ -1,14 +1,14 @@
 <h3>Konferenzen</h3>
 
 <mat-list class="conference-list">
-  <mat-card class="conference" *ngFor="let conference of conferences;"
+  <mat-card class="conference" *ngFor="let conference of this.conferences;"
             [class.attended-conference] = "this.isUserAttending(conference)"
             [class.normal-conference] = "!this.isUserAttending(conference)"
   >
     <mat-card-content>
       <div class="grid-container">
         <div class="grid-item conference-name"><p>{{conference.conferenceName}}</p></div>
-        <div class="grid-item conference-creator"><p>{{conference.creator.fullName}}</p></div>
+        <div class="grid-item conference-creator"><p>{{conference.creator!!.fullName!!}}</p></div>
         <div class="grid-item conference-creation-time"><p>Seit: {{conference.creationTimestamp | date:"dd/MM/yyyy 'um' HH:mm"}}</p></div>
       </div>
     </mat-card-content>
