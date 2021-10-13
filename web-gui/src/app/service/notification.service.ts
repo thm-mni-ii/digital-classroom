@@ -15,14 +15,14 @@ export class NotificationService {
     ) { }
 
   show(message: string, action: string = 'OK', seconds: number = 3): void {
-    this.snackBar.open(message, null, { duration: seconds * 1000 });
+    this.snackBar.open(message, undefined, { duration: seconds * 1000 });
   }
 
   showError(message: string, action: string = 'X', seconds: number = 3): void {
     this.snackBar.open(message, action, {panelClass: ['error'], duration: seconds * 1000});
   }
 
-  public showOverlayError(message: string, heading: string = undefined) {
+  public showOverlayError(message: string, heading: string = "") {
     let config = new OverlayConfig();
 
     config.positionStrategy = this.overlay.position()

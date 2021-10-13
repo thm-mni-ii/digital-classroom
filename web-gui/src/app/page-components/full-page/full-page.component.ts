@@ -7,10 +7,10 @@ import {Component, Input} from '@angular/core';
 })
 export class FullPageComponent {
 
-  @Input() icon: string
-  @Input() title: string
-  @Input() message: string
-  @Input() footer: string
+  @Input() icon: string = ""
+  @Input() title: string = ""
+  @Input() message: string = ""
+  @Input() footer: string = ""
 
   constructor() {
   }

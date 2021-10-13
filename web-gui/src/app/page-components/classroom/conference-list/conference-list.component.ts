@@ -10,13 +10,14 @@ import {ClassroomService} from "../../../service/classroom.service";
 })
 export class ConferenceListComponent implements OnInit {
 
-  conferences: ConferenceInfo[]
-  currentUser: User
+  conferences: ConferenceInfo[] | undefined
+  currentUser: User | undefined
 
   constructor(private classroomService: ClassroomService) { }
 
   isUserAttending(conference: ConferenceInfo): boolean {
-    return conference.attendees.includes(this.currentUser.userId)
+    if (this.currentUser === undefined) return false;
+    return conference.attendees.includes(this.currentUser.userId);
   }
 
   ngOnInit(): void {

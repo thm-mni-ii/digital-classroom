@@ -14,12 +14,13 @@ import {ConferenceService} from "./conference.service";
 export class UserService {
 
   private users: Map<string, User> = new Map<string, User>()
+  // @ts-ignore
   private userSubject: Subject<User[]> = new BehaviorSubject([])
   userObservable: Observable<User[]> = this.userSubject.asObservable()
 
   private selfSubject: Subject<User> = new ReplaySubject(1)
   currentUserObservable: Observable<User> = this.selfSubject.asObservable()
-  private currentUser: User
+  private currentUser?: User
 
   constructor(
     private rSocketService: RSocketService,
@@ -61,6 +62,9 @@ export class UserService {
   }
 
   private handleUserEvent(userEvent: UserEvent) {
+    if (userEvent.user === undefined) throw new Error("Received userEvent without user!")
+    if (userEvent.userAction === undefined) throw new Error("Received userEvent without action!")
+
     switch (userEvent.userAction) {
       case UserAction.JOIN: {
         this.updateUser(userEvent.user);
@@ -84,10 +88,11 @@ export class UserService {
     this.users.set(userDisplay.userId, userDisplay)
   }
 
-  private updateVisibility(user: UserCredentials, visible: boolean) {
-    const userDisplay = this.users.get(user.userId)
-    userDisplay.visible = visible
-    this.users.set(userDisplay.userId, userDisplay)
+  private updateVisibility(userCredentials: UserCredentials, visible: boolean) {
+    const user = this.users.get(userCredentials.userId)
+    if (user === undefined) throw new Error("User not found!")
+    user.visible = visible
+    this.users.set(user.userId, user)
   }
 
   private publish() {
@@ -99,6 +104,7 @@ export class UserService {
   }
 
   public changeVisibility(visible: boolean) {
+    if (this.currentUser === undefined) throw new Error("Current user is undefined!")
     const currentUser: User = this.currentUser;
     if (visible === currentUser.visible) return
     currentUser.visible = visible;
@@ -109,7 +115,9 @@ export class UserService {
     this.rSocketService.fireAndForget("socket/classroom-event", event)
   }
 
-  public getFullUser(userCredentials: UserCredentials): User {
-    return this.users.get(userCredentials?.userId)
+  public getFullUser(userCredentials: UserCredentials): User | undefined {
+    const user: User | undefined = this.users.get(userCredentials?.userId)
+    if (user === undefined) return undefined
+    return user
   }
 }

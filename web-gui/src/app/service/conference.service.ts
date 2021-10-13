@@ -16,12 +16,14 @@ import {ConferenceInfo, JoinLink} from "../model/ConferenceInfo";
 export class ConferenceService {
 
   private conferences: Map<string, ConferenceInfo> = new Map<string, ConferenceInfo>()
-  private conferenceSubject: Subject<ConferenceInfo[]> = new BehaviorSubject([])
+  // @ts-ignore
+  private conferenceSubject: BehaviorSubject<ConferenceInfo[]> = new BehaviorSubject<ConferenceInfo>([])
   conferencesObservable: Observable<ConferenceInfo[]> = this.conferenceSubject.asObservable()
 
   invitationEvents: Observable<InvitationEvent> = this.eventListenerService.invitationEvents;
 
   private conferenceWindowHandles: Map<string, Window> = new Map<string, Window>()
+  // @ts-ignore
   private conferenceClosedSubject: Subject<ConferenceOpenInfo>
 
   constructor(
@@ -44,6 +46,7 @@ export class ConferenceService {
   }
 
   private handleConferenceEvent(conferenceEvent: ConferenceEvent) {
+    if (conferenceEvent.conferenceInfo === undefined) throw new Error("Event for undefined ConferenceInfo received!")
     switch (conferenceEvent.conferenceAction) {
       case ConferenceAction.CREATE:      { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
       case ConferenceAction.CLOSE:       { this.conferences.delete(conferenceEvent.conferenceInfo.conferenceId); break; }
@@ -76,29 +79,29 @@ export class ConferenceService {
         tap(_ => this.publish())
       ).subscribe()
     } else {
-      this.conferenceWindowHandles.get(conference.conferenceId).focus()
+      this.getConferenceHandle(conference).focus()
     }
-  }
-
-  public joinConferenceOfUser(conferencingUser: UserCredentials) {
-      this.rSocketService.requestResponse<JoinLink>("socket/conference/join-user", conferencingUser).pipe(
-        tap(joinLink => this.openConferenceWindow(joinLink)),
-        tap(_ => this.publish())
-      ).subscribe()
   }
 
   private openConferenceWindow(joinLink: JoinLink) {
     const conference = joinLink.conference
+    if (conference === undefined) throw new Error("JoinLink for undefined ConferenceInfo received!")
     if (this.conferenceWindowHandles.has(conference.conferenceId)) {
-      this.conferenceWindowHandles.get(conference.conferenceId).focus()
+      this.getConferenceHandle(conference).focus()
     } else {
       const conferenceWindow = window.open(joinLink.url)
       if (conferenceWindow === null) {
-        throw new Error("Window to conference " + joinLink.conference.conferenceName + " could not be opened!")
+        throw new Error("Window to conference " + conference.conferenceName + " could not be opened!")
       }
       this.conferenceWindowHandles.set(conference.conferenceId, conferenceWindow)
       conferenceWindow.focus()
     }
+  }
+
+  private getConferenceHandle(conference: ConferenceInfo) {
+    const handle = this.conferenceWindowHandles.get(conference.conferenceId);
+    if (handle === undefined) throw new Error("Window handle for conference " + conference.conferenceId + "not found!")
+    return handle;
   }
 
   public leaveConference(conference: ConferenceInfo) {

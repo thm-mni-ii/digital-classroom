@@ -19,6 +19,10 @@ export class AssetManagerService {
   }
 
   public getAsset(name: string): string {
-    return this.assets.get(name);
+    const asset = this.assets.get(name);
+    if (asset === undefined) {
+      throw Error('Asset ' + name + ' not found!')
+    }
+    return asset
   }
 }

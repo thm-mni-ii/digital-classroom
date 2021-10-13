@@ -10,7 +10,7 @@ import {ClassroomService} from "../../../service/classroom.service";
 export class UserListComponent implements OnInit {
 
   public parseCourseRole: Function = parseCourseRole
-  public users: User[]
+  public users: User[] = []
 
   constructor(
     public classroomService: ClassroomService

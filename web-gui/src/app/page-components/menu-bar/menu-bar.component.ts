@@ -21,8 +21,8 @@ import {UserIconService} from "../../util/user-icon.service";
 export class MenuBarComponent {
 
   public parseCourseRole: Function = parseCourseRole
-  @Input() public currentUser: User
-  @Input() public classroomInfo: ClassroomInfo
+  @Input() public currentUser: User | undefined
+  @Input() public classroomInfo: ClassroomInfo | undefined
   menuVisible: boolean = false;
 
   constructor(
@@ -37,7 +37,7 @@ export class MenuBarComponent {
       this.dialog.open(CreateConferenceDialogComponent, {
         height: 'auto',
         width: 'auto',
-        data: new CreateConferenceInputData(this.classroomService.classroomInfo, this.classroomService.currentUser)
+        data: new CreateConferenceInputData(this.classroomService.classroomInfo!!, this.classroomService.currentUser!!)
       }).beforeClosed().pipe(
         filter(conferenceInfo => conferenceInfo instanceof ConferenceInfo),
       ).subscribe((conferenceInfo: ConferenceInfo) => {

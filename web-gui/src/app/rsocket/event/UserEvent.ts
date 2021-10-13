@@ -2,8 +2,8 @@ import {User} from "../../model/User";
 import {ClassroomEvent} from "./ClassroomEvent";
 
 export class UserEvent extends ClassroomEvent {
-  user: User
-  userAction: UserAction
+  user?: User
+  userAction?: UserAction
 
   constructor() {
       super("UserEvent");

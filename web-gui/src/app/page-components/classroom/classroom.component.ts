@@ -24,14 +24,14 @@ import {ConferenceListComponent} from "./conference-list/conference-list.compone
 })
 export class ClassroomComponent implements OnInit, OnDestroy {
 
-  currentUser: User
+  currentUser: User | undefined
   users: User[] = [];
   tickets: Ticket[] = [];
   conferences: ConferenceInfo[] = [];
-  classroomInfo: ClassroomInfo
+  classroomInfo: ClassroomInfo | undefined;
   subscriptions: Subscription[] = [];
-  userListComponent: Type<UserListComponent>
-  conferenceListComponent: Type<ConferenceListComponent>;
+  userListComponent: Type<UserListComponent> | undefined
+  conferenceListComponent: Type<ConferenceListComponent> | undefined;
 
   constructor(public classroomService: ClassroomService,
               private ticketService: TicketService,

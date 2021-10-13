@@ -12,6 +12,7 @@ import {finalize, map, tap} from "rxjs/operators";
 export class TicketService {
 
   private tickets: Ticket[] = []
+  // @ts-ignore
   private ticketSubject: Subject<Ticket[]> = new BehaviorSubject([])
   ticketObservable: Observable<Ticket[]> = this.ticketSubject.asObservable()
 

@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {Observable, timer} from 'rxjs';
-import {map, tap} from 'rxjs/operators';
+import {tap} from 'rxjs/operators';
 import {Params} from "@angular/router";
 import {UserCredentials} from "../model/User";
 
@@ -22,13 +22,18 @@ export class AuthService {
   }
 
   private static extractJwtFromHeader(response: HttpResponse<any>): string {
-    const authHeader: string = response.headers.get('Authorization');
-    return authHeader ? authHeader.replace('Bearer ', '') : null;
+    if (!response.headers.has('Authorization')) {
+      throw Error("No Authorization token in HttpResponse!")
+    }
+    const authHeader: string = response.headers.get('Authorization')!!;
+    return authHeader.replace('Bearer ', '');
   }
 
   private static extractRefreshTokenFromHeader(response: HttpResponse<any>): string {
-    const refreshToken: string = response.headers.get('refresh_token');
-    return refreshToken ? refreshToken : null;
+    if (!response.headers.has('refresh_token')) {
+      throw Error("No refresh_token token in HttpResponse!")
+    }
+    return response.headers.get('refresh_token')!!;
   }
 
   /**
@@ -36,7 +41,7 @@ export class AuthService {
    */
   public isAuthenticated(): boolean {
     const token = this.loadToken();
-    return token && !this.jwtHelper.isTokenExpired(token);
+    return token !== null && !this.jwtHelper.isTokenExpired(token);
   }
 
   /**
@@ -44,6 +49,9 @@ export class AuthService {
    */
   public getToken(): UserCredentials {
     const token = this.loadToken();
+    if (token === null) {
+      throw new Error('No JWT stored!');
+    }
     const decodedToken = this.decodeToken(token);
     if (!decodedToken) {
       throw new Error('Decoding the token failed');
@@ -61,11 +69,15 @@ export class AuthService {
    * @return Get token as string or null if no token exists.
    */
   public loadToken(): string {
-    return localStorage.getItem(JWT_STORAGE);
+    const token = localStorage.getItem(JWT_STORAGE);
+    if (token === null) throw new Error('No JWT stored!');
+    return token
   }
 
   public loadRefreshToken(): string {
-    return localStorage.getItem(REFRESH_STORAGE);
+    const token = localStorage.getItem(REFRESH_STORAGE)
+    if (token === null) throw new Error('No refresh token stored!');
+    return token;
   }
 
   private static storeToken(token: string): void {
@@ -78,7 +90,7 @@ export class AuthService {
   }
 
   public requestNewToken() {
-    let headers = new HttpHeaders().set('refresh_token', this.loadRefreshToken())
+    const headers = new HttpHeaders().set('refresh_token', this.loadRefreshToken())
     return this.http.get<void>('/classroom-api/refresh', {headers: headers, observe: 'response'})
       .pipe(
         tap(res => AuthService.storeToken(AuthService.extractJwtFromHeader(res))),
@@ -111,7 +123,7 @@ export class AuthService {
       if (this.isAuthenticated()) {
         const token: string = this.loadToken();
         const now: Date = new Date()
-        const expDate: Date = this.jwtHelper.getTokenExpirationDate(token)
+        const expDate: Date | null = this.jwtHelper.getTokenExpirationDate(token)
         if (expDate === null) {
           console.warn("JWT has no expiration Date!")
           return

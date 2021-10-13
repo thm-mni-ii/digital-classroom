@@ -24,6 +24,9 @@ export class IncomingCallDialogComponent implements OnInit {
               @Inject(MAT_DIALOG_DATA) public invitation: InvitationEvent) { }
 
   ngOnInit(): void {
+    if (this.invitation.inviter === undefined) throw new Error("Inviter is undefined!")
+    if (this.invitation.conferenceInfo === undefined) throw new Error("Conference invited to is undefined!")
+
     const notification = new Notification('Konferenzeinladung',
       {body: this.invitation.inviter.fullName + 'lädt Sie zur Konferenz ' + this.invitation.conferenceInfo.conferenceName + 'ein!'});
     notification.onclick = () => window.focus();
@@ -42,7 +45,7 @@ export class IncomingCallDialogComponent implements OnInit {
   }
 
   public acceptCall() {
-    this.classroomService.joinConference(this.invitation.conferenceInfo);
+    this.classroomService.joinConference(this.invitation.conferenceInfo!!);
     this.dialogRef.close();
   }
 

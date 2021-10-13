@@ -8,7 +8,7 @@
     <mat-card-content>
       <div class="grid-container">
         <div class="grid-item conference-name"><p>{{conference.conferenceName}}</p></div>
-        <div class="grid-item conference-creator"><p>{{conference.creator.fullName}}</p></div>
+        <div class="grid-item conference-creator"><p>{{conference.creator!!.fullName!!}}</p></div>
         <div class="grid-item conference-creation-time"><p>Seit: {{conference.creationTimestamp | date:"dd/MM/yyyy 'um' HH:mm"}}</p></div>
       </div>
     </mat-card-content>

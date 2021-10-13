@@ -23,8 +23,7 @@ export class AssignTicketDialogComponent implements OnInit {
               public classroomService: ClassroomService,
               private conferenceService: ConferenceService,
               private ticketService: TicketService,
-              public auth: AuthService) {
-  }
+              public auth: AuthService) { }
 
   ngOnInit(): void {
     this.classroomService.userDisplayObservable.subscribe((users) => {
@@ -33,24 +32,28 @@ export class AssignTicketDialogComponent implements OnInit {
     this.dialogRef.afterOpened().subscribe(() => this.disabled = false);
   }
 
-  public assignTicket(assignee, ticket) {
-      this.data.assignee = assignee;
+  public assignTicket(assignee?: UserCredentials, ticket?: Ticket) {
+    if (assignee === undefined) throw new Error("assignee is undefined!")
+    if (ticket === undefined) throw new Error("ticket is undefined!")
+    this.data.assignee = assignee;
       this.ticketService.updateTicket(ticket);
       this.snackBar.open(`${assignee.fullName} wurde dem Ticket als Bearbeiter zugewiesen`, 'OK', {duration: 3000});
       this.dialogRef.close();
   }
 
-  public startCall(invitee) {
+  public startCall(invitee?: UserCredentials) {
+    if (invitee === undefined) throw new Error("invitee is undefined!")
     if (this.disabled) {
       return;
     }
     this.disabled = true;
-    this.classroomService.inviteToConference(invitee, null, this.data);
+    this.classroomService.inviteToConference(invitee, undefined, this.data);
     this.snackBar.open(`${invitee.fullName} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
     this.dialogRef.close();
   }
 
-  public joinConference(user: UserCredentials) {
+  public joinConference(user?: UserCredentials) {
+    if (user === undefined) throw new Error("user to join is undefined!")
     this.classroomService.chooseConferenceToJoin(user);
   }
 }

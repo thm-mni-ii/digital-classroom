@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Ticket} from "../../../../model/Ticket";
 import {TimeFormatterService} from "../../../../util/time-formatter.service";
 import {ClassroomService} from "../../../../service/classroom.service";
@@ -8,19 +8,23 @@ import {ClassroomService} from "../../../../service/classroom.service";
   templateUrl: './ticket.component.html',
   styleUrls: ['./ticket.component.scss']
 })
-export class TicketComponent {
+export class TicketComponent implements OnInit {
 
-  @Input() ticket: Ticket;
-  @Input() i: number;
+  @Input() ticket?: Ticket;
 
   constructor(
     private timeFormatterService: TimeFormatterService,
     private classroomService: ClassroomService
-  ) {
+  ) { }
+
+  ngOnInit(): void {
+    if (this.ticket === undefined) throw new Error("Ticket is undefined!")
+    if (this.ticket?.creator === undefined) throw new Error("Ticket " + this.ticket?.ticketId + " without creator")
   }
-    getTicketTime(ticket: Ticket): string {
-      return this.timeFormatterService.timeAgo(ticket.createTime)
-    }
+
+  getTicketTime(ticket: Ticket): string {
+    return this.timeFormatterService.timeAgo(ticket.createTime)
+  }
 
   inviteCreator() {
 
@@ -31,6 +35,6 @@ export class TicketComponent {
   }
 
   closeTicket() {
-    this.classroomService.closeTicket(this.ticket)
+    this.classroomService.closeTicket(this.ticket!!)
   }
 }

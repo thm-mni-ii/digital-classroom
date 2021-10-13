@@ -1,9 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
 import {ClassroomService} from '../../service/classroom.service';
-import {FormBuilder, FormGroup} from '@angular/forms';
-import {ConferenceService} from "../../service/conference.service";
 import {User} from "../../model/User";
 
 @Component({
@@ -12,13 +9,12 @@ import {User} from "../../model/User";
   styleUrls: ['./join-user-conference-dialog.component.scss']
 })
 export class JoinUserConferenceDialogComponent implements OnInit {
-  form: FormGroup;
   disabled: Boolean = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: User,
               public dialogRef: MatDialogRef<JoinUserConferenceDialogComponent>,
-              private snackBar: MatSnackBar, private conferenceService: ConferenceService,
-              public classroomService: ClassroomService, private _formBuilder: FormBuilder) {
+              public classroomService: ClassroomService
+  ) {
   }
 
   ngOnInit(): void {

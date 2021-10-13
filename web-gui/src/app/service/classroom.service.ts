@@ -38,7 +38,7 @@ export class ClassroomService {
   public userDisplayObservable = this.userService.userObservable
   public currentUserObservable = this.userService.currentUserObservable
   public conferencesObservable = this.conferenceService.conferencesObservable.pipe(
-    map(confs => confs.filter(conf => conf.visible || conf.creator.userId == this.currentUser.userId))
+    map(confs => confs.filter(conf => conf.visible || conf.creator!!.userId == this.currentUser?.userId))
   )
   private conferences: ConferenceInfo[] = []
 
@@ -47,8 +47,8 @@ export class ClassroomService {
   private classroomInfoSubject: Subject<ClassroomInfo> = new BehaviorSubject(new ClassroomInfo())
   classroomInfoObservable: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
 
-  public classroomInfo: ClassroomInfo
-  public currentUser: User
+  public classroomInfo: ClassroomInfo | undefined
+  public currentUser: User | undefined
 
   public constructor(private router: Router,
                      private authService: AuthService,
@@ -66,7 +66,7 @@ export class ClassroomService {
     })
     this.userDisplayObservable.subscribe(users => this.users = users)
     this.conferencesObservable.subscribe(conferences =>
-      this.conferences = conferences.filter(conf => conf.visible || this.currentUser.userId === conf.creator.userId)
+      this.conferences = conferences.filter(conf => conf.visible || this.currentUser?.userId === conf.creator!!.userId)
     )
     this.conferenceService.invitationEvents.subscribe(invitation => {
       this.handleInviteMsg(invitation)
@@ -75,6 +75,7 @@ export class ClassroomService {
   }
 
   public isCurrentUserAuthorized(): boolean {
+    if (this.currentUser === undefined) return false
     return Roles.isPrivileged(this.currentUser.userRole)
   }
 
@@ -86,7 +87,7 @@ export class ClassroomService {
   }
 
   public isSelf(user: UserCredentials) {
-    return user.userId === this.currentUser.userId
+    return user.userId === this.currentUser?.userId
   }
 
   /**
@@ -112,13 +113,14 @@ export class ClassroomService {
    * @param conferenceInfo
    * @param ticket
    */
-  public inviteToConference(invitee: User, conferenceInfo: ConferenceInfo = null, ticket: Ticket = null) {
-    if (conferenceInfo !== null) {
+  public inviteToConference(invitee: UserCredentials, conferenceInfo?: ConferenceInfo, ticket?: Ticket) {
+    if (this.currentUser === undefined) throw new Error("Current user is undefined!")
+    if (conferenceInfo !== undefined) {
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
-    } else if (ticket !== null) {
+    } else if (ticket !== undefined) {
       const conferenceInfo = this.createConferenceInfo(ticket.description)
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
-    } else if (this.currentUser.conferences.length === 0) {
+    } else if (this.currentUser?.conferences.length === 0) {
       const conferenceInfo = this.createConferenceInfo("Meeting", false)
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else {
@@ -127,14 +129,16 @@ export class ClassroomService {
         width: 'auto',
         data: this.currentUser
       }).beforeClosed().subscribe(conference => {
-          if (conference !instanceof ConferenceInfo) throw new Error("Error in invite dialog!")
-          this.conferenceService.inviteToConference(invitee, this.currentUser, conference)
-        }
-      );
+        if (this.currentUser === undefined) throw new Error("Current user is undefined!")
+        if (conference !instanceof ConferenceInfo) throw new Error("Error in invite dialog!")
+        this.conferenceService.inviteToConference(invitee, this.currentUser, conference)
+      });
     }
   }
 
   private createConferenceInfo(conferenceName: string, visible: boolean = true): ConferenceInfo {
+    if (this.classroomInfo === undefined) throw new Error("ClassroomInfo is undefined!")
+    if (this.currentUser === undefined) throw new Error("Current user is undefined!")
     const conferenceInfo = new ConferenceInfo()
     conferenceInfo.classroomId = this.classroomInfo.classroomId
     conferenceInfo.creator = this.currentUser
@@ -183,6 +187,7 @@ export class ClassroomService {
     }).beforeClosed().pipe(
       filter(ticket => ticket),
       map((ticket: Ticket) => {
+        if (this.currentUser === undefined) throw new Error("Current user is undefined!")
         ticket.classroomId = this.currentUser.classroomId
         ticket.creator = this.currentUser
         return ticket
@@ -192,20 +197,21 @@ export class ClassroomService {
     });
   }
 
-  public closeTicket(ticket) {
+  public closeTicket(ticket: Ticket) {
     this.ticketService.removeTicket(ticket);
     this.notification.show(`Das Ticket wurde geschlossen`);
   }
 
-  public isInConference(user: UserCredentials): boolean {
-    let userDisplay: User
-    if (user instanceof User)
-      userDisplay = user
+  public isInConference(userCredentials?: UserCredentials): boolean {
+    if (userCredentials === undefined) throw new Error("user is undefined!")
+    let user: User | undefined
+    if (userCredentials instanceof User)
+      user = userCredentials
     else {
-      userDisplay = this.users.find(userDisplay => userDisplay.userId === user.userId)
-      if (userDisplay === undefined) return false
+      user = this.users.find(userDisplay => userDisplay.userId === userCredentials.userId)
+      if (user === undefined) return false
     }
-    return userDisplay.conferences.length !== 0
+    return user.conferences.length !== 0
   }
 
   public leave() {

@@ -8,14 +8,13 @@ import {MatDialogRef} from "@angular/material/dialog";
   styleUrls: ['./choose-conference-dialog.component.scss']
 })
 export class ChooseConferenceDialogComponent {
-  @Input() conferences: ConferenceInfo[];
-  @Input() dialogRef: MatDialogRef<any>
-
-  constructor(
-  ) { }
-
+  @Input() conferences: ConferenceInfo[] | undefined;
+  @Input() dialogRef: MatDialogRef<any> | undefined
 
   chooseConference(conference: ConferenceInfo) {
+    if (this.dialogRef === undefined) {
+      throw new Error("Dialog ref on ChooseConferenceDialog is undefined!")
+    }
     this.dialogRef.close(conference)
   }
 }

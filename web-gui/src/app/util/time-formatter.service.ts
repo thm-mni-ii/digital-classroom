@@ -16,7 +16,7 @@ export class TimeFormatterService {
     'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
   ];
 
-
+  // @ts-ignore
   private getFormattedDate(date, prefomattedDate: string = undefined, hideYear = false) {
     const day = date.getDate();
     const month = this.months[date.getMonth()];
@@ -46,8 +46,10 @@ export class TimeFormatterService {
 
 
 // --- Main function
+// @ts-ignore
   public timeAgo(dateParam): string {
     if (!dateParam) {
+      // @ts-ignore
       return null;
     }
 

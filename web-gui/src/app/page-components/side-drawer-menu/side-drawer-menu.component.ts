@@ -11,7 +11,7 @@ export class SideDrawerMenuComponent {
   innerWidth: number;
   @Input() label: string = "Teilnehmer";
   @Input() orientation: string = "left"
-  @Input() component: Type<any>
+  @Input() component: Type<any> | undefined
 
   constructor() {
     this.opened = true;
@@ -22,8 +22,8 @@ export class SideDrawerMenuComponent {
     return this.innerWidth <= 400;
   }
 
-  onResize(event) {
-    this.innerWidth = event.target.innerWidth;
+  onResize(event: UIEvent) {
+    this.innerWidth = (event.target as Window).innerWidth;
   }
 
   icon() {

@@ -5,9 +5,9 @@
 <ng-template #displayUser>
   <div class="ticket-user">
     <ngx-avatar
-      [bgColor]="this.userIconService.calculateColorCode(this.userCredentials.fullName)"
+      [bgColor]="this.userIconService.calculateColorCode(this.userCredentials!!.fullName!!)"
       class="user-avatar"
-      [name]="this.userCredentials.fullName"
+      [name]="this.userCredentials!!.fullName!!"
       initialsSize="2"
       cornerRadius="4"
       size="32"
@@ -17,7 +17,7 @@
     ></ngx-avatar>
     <div class="user-text">
       <span class="ticket-context">{{this.ticketContext}}</span>
-      <span class="user-name">{{this.userCredentials.fullName}}</span>
+      <span class="user-name">{{this.userCredentials!!.fullName!!}}</span>
     </div>
   </div>
 </ng-template>

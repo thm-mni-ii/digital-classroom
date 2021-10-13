@@ -6,8 +6,8 @@
   </div>
   <hr class="sepa">
   <mat-list>
-    <mat-card class="ticket" *ngFor="let ticket of sortTickets(tickets); index as i">
-      <app-ticket [ticket]="ticket" [i]="i"></app-ticket>
+    <mat-card class="ticket" *ngFor="let ticket of sortTickets(tickets)">
+      <app-ticket [ticket]="ticket"></app-ticket>
     </mat-card>
   </mat-list>
 </div>

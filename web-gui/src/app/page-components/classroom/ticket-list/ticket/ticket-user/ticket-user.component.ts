@@ -13,9 +13,9 @@ import {UserService} from "../../../../../service/user.service";
 })
 export class TicketUserComponent {
 
-  @Input() userCredentials: UserCredentials;
-  @Input() ticket: Ticket;
-  @Input() ticketContext: string;
+  @Input() userCredentials?: UserCredentials;
+  @Input() ticket?: Ticket;
+  @Input() ticketContext?: string;
 
   constructor(
     public userIconService: UserIconService,
@@ -32,7 +32,8 @@ export class TicketUserComponent {
     });
   }
 
-  public fullUser(): User {
+  public fullUser(): User | undefined {
+    if (this.userCredentials === undefined) throw new Error("Cannot get full user of undefined!")
     return this.userService.getFullUser(this.userCredentials)
   }
 

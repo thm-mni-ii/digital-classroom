@@ -8,7 +8,7 @@
     [(opened)]="opened"
     [style.width]="showSidebarMenu ? '100%' : null"
     (window:resize)="onResize($event)">
-    <ng-container *ngComponentOutlet="component"></ng-container>
+    <ng-container *ngComponentOutlet="component!!"></ng-container>
   </mat-sidenav>
   <mat-sidenav-content [ngClass]="assignClassContent()">
     <mat-icon class="sidenav-toggle functional-icon" (click)="sidenav.toggle()">{{this.icon()}}</mat-icon>
