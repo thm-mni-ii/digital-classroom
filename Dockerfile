@@ -15,7 +15,7 @@ RUN npm run build
 FROM gradle:6.8.3-jdk11 AS build-gradle
 COPY . /build/
 COPY --from=cache-gradle /cache-gradle /home/gradle/.gradle
-COPY --from=build-node /web-gui/dist/web-gui/* /build/src/main/resources/static/
+COPY --from=build-node /web-gui/dist/web-gui/ /build/src/main/resources/static/
 WORKDIR /build/
 RUN gradle dist -i -x npm_run_clean -x npm_run_build
 
