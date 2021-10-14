@@ -40,7 +40,12 @@ export class AuthService {
    * Returns true only if a valid token exists.
    */
   public isAuthenticated(): boolean {
-    const token = this.loadToken();
+    let token = null
+    try {
+      token = this.loadToken();
+    } catch (error) {
+      return false;
+    }
     return token !== null && !this.jwtHelper.isTokenExpired(token);
   }
 
@@ -49,9 +54,6 @@ export class AuthService {
    */
   public getToken(): UserCredentials {
     const token = this.loadToken();
-    if (token === null) {
-      throw new Error('No JWT stored!');
-    }
     const decodedToken = this.decodeToken(token);
     if (!decodedToken) {
       throw new Error('Decoding the token failed');
