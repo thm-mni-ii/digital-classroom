@@ -11,7 +11,8 @@ class Conference(
     val creator: UserCredentials,
     var visible: Boolean,
     val attendees: MutableSet<UserCredentials>,
-    val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
+    val creationTimestamp: ZonedDateTime = ZonedDateTime.now(),
+    val ticketId: Long? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

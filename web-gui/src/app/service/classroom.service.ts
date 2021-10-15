@@ -118,7 +118,7 @@ export class ClassroomService {
     if (conferenceInfo !== undefined) {
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else if (ticket !== undefined) {
-      const conferenceInfo = this.createConferenceInfo(ticket.description)
+      const conferenceInfo = this.findOrCreateConferenceOfTicket(ticket);
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else if (this.currentUser?.conferences.length === 0) {
       const conferenceInfo = this.createConferenceInfo("Meeting", false)
@@ -136,7 +136,7 @@ export class ClassroomService {
     }
   }
 
-  private createConferenceInfo(conferenceName: string, visible: boolean = true): ConferenceInfo {
+  private createConferenceInfo(conferenceName: string, visible: boolean = true, ticketId: number | null = null): ConferenceInfo {
     if (this.classroomInfo === undefined) throw new Error("ClassroomInfo is undefined!")
     if (this.currentUser === undefined) throw new Error("Current user is undefined!")
     const conferenceInfo = new ConferenceInfo()
@@ -145,6 +145,7 @@ export class ClassroomService {
     conferenceInfo.visible = visible
     conferenceInfo.creationTimestamp = Date.now()
     conferenceInfo.conferenceName = conferenceName
+    conferenceInfo.ticketId = ticketId
     return conferenceInfo
   }
 
@@ -216,5 +217,13 @@ export class ClassroomService {
 
   public leave() {
     this.router.navigate(["/logout"], ).then()
+  }
+
+  private findOrCreateConferenceOfTicket(ticket: Ticket): ConferenceInfo {
+    let conference = this.conferences.find(conference => conference.ticketId === ticket.ticketId)
+    if (conference === undefined) {
+      conference = this.createConferenceInfo(ticket.description, true, ticket.ticketId)
+    }
+    return conference
   }
 }

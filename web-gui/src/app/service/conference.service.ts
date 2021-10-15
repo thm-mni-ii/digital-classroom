@@ -1,9 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
-import {
-  finalize,
-  tap
-} from "rxjs/operators";
+import {finalize, tap} from "rxjs/operators";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {EventListenerService} from "../rsocket/event-listener.service";
 import {ConferenceAction, ConferenceEvent, InvitationEvent} from "../rsocket/event/ClassroomEvent";
@@ -105,6 +102,8 @@ export class ConferenceService {
   }
 
   public leaveConference(conference: ConferenceInfo) {
+    const handle = this.conferenceWindowHandles.get(conference.conferenceId)
+    if (handle !== undefined && !handle.closed) handle.close()
     this.conferenceWindowHandles.delete(conference.conferenceId)
     this.rSocketService.fireAndForget("socket/conference/leave", conference)
   }
@@ -154,6 +153,14 @@ export class ConferenceService {
         })
       }
     }, 1000);
+  }
+
+  public changeVisibility(conference: ConferenceInfo, visible: boolean) {
+    if (conference.visible === visible) return
+    const conferenceEvent = new ConferenceEvent()
+    conferenceEvent.conferenceInfo = conference
+    conferenceEvent.conferenceAction = ConferenceAction.VISIBILITY
+    this.rSocketService.fireAndForget("socket/classroom-event", conferenceEvent)
   }
 }
 

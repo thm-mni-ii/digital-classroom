@@ -1,6 +1,6 @@
 <mat-card-content *ngIf="conference !== undefined"
-                  [class.attended-conference] = "this.isUserAttending(conference)"
-                  [class.normal-conference] = "!this.isUserAttending(conference)">
+                  [class.attended-conference] = "this.isUserAttending()"
+                  [class.normal-conference] = "!this.isUserAttending()">
   <div class="conference-row">
     <div class="conference-desc">
       <mat-icon class="conference-icon">videocam</mat-icon>
@@ -11,16 +11,29 @@
     <div class="conference-users">
       <span>Icons</span>
     </div>
-    <div class="conference-ref">
-      <mat-icon class="ticket-icon">local_offer</mat-icon><span class="ref-label">#22</span>
-    </div>
+    <ng-container *ngIf="conference.ticketId !== null; then ticketRef else userRef"></ng-container>
+
     <div class="conference-buttons">
-      <mat-icon class="open-icon functional-icon" (click)="{}">open_in_new</mat-icon>
-      <mat-icon class="visibility-icon functional-icon" (click)="{}">visibility_off</mat-icon>
-      <mat-icon class="delete-icon functional-icon" (click)="this.closeConference()">delete</mat-icon>
+      <mat-icon [matTooltip]="joinTooltip()" class="open-icon functional-icon" (click)="this.joinConference()">open_in_new</mat-icon>
+      <mat-icon *ngIf="this.conference.visible" class="visibility-icon functional-icon" (click)="this.changeVisibility()">visibility_off</mat-icon>
+      <mat-icon *ngIf="!this.conference.visible" class="visibility-icon functional-icon" (click)="this.changeVisibility()">visibility_on</mat-icon>
+      <mat-icon matTooltip="Konferenz verlassen" class="delete-icon functional-icon" (click)="this.closeConference()">delete</mat-icon>
     </div>
   </div>
 </mat-card-content>
 
 <hr class="sepa">
 
+<ng-template #ticketRef>
+<div class="conference-ref" *ngIf="conference!!.ticketId !== null">
+  <mat-icon class="ref-icon">local_offer</mat-icon>
+  <span class="ref-label">{{conference!!.ticketId}}</span>
+</div>
+</ng-template>
+
+<ng-template #userRef>
+<div class="conference-ref" *ngIf="conference!!.ticketId === null">
+  <mat-icon class="ref-icon">user</mat-icon>
+  <span class="ref-label">{{conference!!.creator!!.fullName.substr(0, 2)}}</span>
+</div>
+</ng-template>
