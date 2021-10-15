@@ -1,12 +1,14 @@
-<div class="list-header">
-  Konferenzen
-  <mat-icon class="invite-icon functional-icon" svgIcon="invite" (click)="this.createConference()"></mat-icon>
-</div>
+<div class="list-container">
+  <div class="list-header">
+    Konferenzen
+    <mat-icon class="invite-icon functional-icon" svgIcon="invite" (click)="this.createConference()"></mat-icon>
+  </div>
 
-<mat-list class="conference-list">
-  <app-conference
-    *ngFor="let conference of this.conferences;"
-    [conference]="conference"
-    [currentUser]="currentUser"
-  ></app-conference>
-</mat-list>
+  <mat-list class="conference-list">
+    <app-conference
+      *ngFor="let conference of this.conferences;"
+      [conference]="conference"
+      [currentUser]="currentUser"
+    ></app-conference>
+  </mat-list>
+</div>

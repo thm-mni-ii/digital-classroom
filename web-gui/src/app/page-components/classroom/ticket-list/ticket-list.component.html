@@ -4,7 +4,7 @@
     <h3>Tickets</h3>
     <mat-icon class="functional-icon">filter_list</mat-icon>
   </div>
-  <hr class="sepa">
+  <hr>
   <mat-list>
     <mat-card class="ticket" *ngFor="let ticket of sortTickets(tickets)">
       <app-ticket [ticket]="ticket"></app-ticket>

@@ -15,6 +15,7 @@ import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import reactor.core.Disposable
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
@@ -27,7 +28,7 @@ class ConferenceService(
     private val classroomInstanceService: ClassroomInstanceService,
     private val upstreamBBBService: UpstreamBBBService,
 ) {
-
+    private val waitingDeletions = mutableMapOf<Conference, Disposable>()
     private val logger = LoggerFactory.getLogger(ConferenceService::class.java)
 
     fun createConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<ConferenceInfo> {
@@ -151,7 +152,11 @@ class ConferenceService(
 
     fun scheduleConferenceDeletion(classroom: DigitalClassroom, conference: Conference, delaySeconds: Long = 90) {
         logger.debug("Conference ${conference.conferenceId} scheduled for deletion if still empty in $delaySeconds seconds!")
-        Mono.just(conference)
+        if (waitingDeletions.containsKey(conference)) {
+            waitingDeletions[conference]!!.dispose()
+            waitingDeletions.values.removeIf(Disposable::isDisposed)
+        }
+        val disposable = Mono.just(conference)
             .delayElement(Duration.ofSeconds(delaySeconds))
             .delayUntil { this.updateConferences(classroom) }
             .flatMap { classroom.conferences.getUsersOfConference(it).hasElements() }
@@ -168,5 +173,6 @@ class ConferenceService(
                 val conferenceEvent = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.CLOSE)
                 classroom.sendToAll(conferenceEvent)
             }.subscribe()
+        waitingDeletions[conference] = disposable
     }
 }

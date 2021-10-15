@@ -157,6 +157,7 @@ export class ConferenceService {
 
   public changeVisibility(conference: ConferenceInfo, visible: boolean) {
     if (conference.visible === visible) return
+    conference.visible = visible
     const conferenceEvent = new ConferenceEvent()
     conferenceEvent.conferenceInfo = conference
     conferenceEvent.conferenceAction = ConferenceAction.VISIBILITY

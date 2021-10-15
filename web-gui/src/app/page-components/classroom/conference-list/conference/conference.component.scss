@@ -26,10 +26,13 @@ mat-card-content {
   .conference-ref {
     display: flex;
     flex-flow: row nowrap;
-    justify-items: baseline;
+    align-items: center;
+    justify-items: center;
     .ref-label {
       position: relative;
       left: -10px;
+      background-color: white;
+      border-radius: 15px;
     }
   }
 }
@@ -57,11 +60,4 @@ mat-icon {
 
 .delete-icon {
   color: #D90C0C;
-}
-
-.sepa {
-  z-index: 0;
-  border: 1px dashed #B1B1B1;
-  width: 100%;
-  margin-left: -20px;
 }
