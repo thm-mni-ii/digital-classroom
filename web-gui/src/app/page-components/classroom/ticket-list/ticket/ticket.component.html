@@ -1,26 +1,24 @@
 <mat-card-content *ngIf="ticket !== undefined">
-  <div class="ticket-column">
-    <div class="ticket-row">
-      <div class="ticket-desc">
-        <mat-icon class="ticket-icon">local_offer</mat-icon>
-        <p>{{ticket.description}}</p>
-      </div>
-      <div class="ticket-meta">
-        <p class="ticket-num">#{{ticket.ticketId}}</p>
-        <p class="ticket-time">{{this.getTicketTime(ticket)}}</p>
-      </div>
+  <div class="ticket-row">
+    <div class="ticket-desc">
+      <mat-icon class="ticket-icon">local_offer</mat-icon>
+      <p>{{ticket.description}}</p>
     </div>
-    <div class="ticket-row ticket-details">{{ticket.description}}</div>
-    <div class="ticket-row">
-      <div class="ticket-users ticket-row">
-        <app-ticket-user ticketContext="zugewiesen" [userCredentials]="this.ticket.assignee" [ticket]="ticket"></app-ticket-user>
-        <app-ticket-user ticketContext="ersteller" [userCredentials]="this.ticket.creator" [ticket]="ticket"></app-ticket-user>
-      </div>
-      <div class="ticket-buttons">
-        <mat-icon class="invite-icon functional-icon" svgIcon="invite" (click)="this.inviteCreator()"></mat-icon>
-        <mat-icon class="edit-icon functional-icon" (click)="this.editTicket()">edit</mat-icon>
-        <mat-icon class="delete-icon functional-icon" (click)="this.closeTicket()">delete</mat-icon>
-      </div>
+    <div class="ticket-meta">
+      <p class="ticket-num">#{{ticket.ticketId}}</p>
+      <p class="ticket-time">{{this.getTicketTime(ticket)}}</p>
+    </div>
+  </div>
+  <div class="ticket-row ticket-details">{{ticket.description}}</div>
+  <div class="ticket-row">
+    <div class="ticket-users ticket-row">
+      <app-ticket-user ticketContext="zugewiesen" [userCredentials]="this.ticket.assignee" [ticket]="ticket"></app-ticket-user>
+      <app-ticket-user ticketContext="ersteller" [userCredentials]="this.ticket.creator" [ticket]="ticket"></app-ticket-user>
+    </div>
+    <div class="ticket-buttons">
+      <mat-icon class="invite-icon functional-icon" svgIcon="invite" (click)="this.inviteCreator()"></mat-icon>
+      <mat-icon class="edit-icon functional-icon" (click)="this.editTicket()">edit</mat-icon>
+      <mat-icon class="delete-icon functional-icon" (click)="this.closeTicket()">delete</mat-icon>
     </div>
   </div>
 </mat-card-content>

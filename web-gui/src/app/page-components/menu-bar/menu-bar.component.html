@@ -27,8 +27,6 @@
   <div class="menu-bubble" *ngIf="menuVisible">
     <mat-divider></mat-divider>
     <!--<button mat-icon-button color="primary" *ngIf="isAuthorized() && classroomService.isJoined()" (click)="createConference()" matTooltip="Konferenzeinstellungen"><mat-icon >duo</mat-icon></button>-->
-    <div (click)="this.createConference()" matTooltip="Konferenz öffnen"><mat-icon >videocam</mat-icon>Konferenz eröffnen</div>
-    <mat-divider></mat-divider>
     <div *ngIf="!this.currentUser?.visible" (click)="this.classroomService.showUser()" matTooltip="Nutzer sichtbar machen"><mat-icon>visibility</mat-icon>Sichtbar werden</div>
     <mat-divider></mat-divider>
     <div *ngIf="this.currentUser?.visible" (click)="this.classroomService.hideUser()" matTooltip="Nutzer unsichtbar machen"><mat-icon>visibility_off</mat-icon>Unsichtbar werden</div>

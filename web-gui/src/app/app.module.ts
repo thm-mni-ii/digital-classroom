@@ -38,6 +38,7 @@ import { FullPageComponent } from './page-components/full-page/full-page.compone
 import { TicketComponent } from './page-components/classroom/ticket-list/ticket/ticket.component';
 import { TicketUserComponent } from './page-components/classroom/ticket-list/ticket/ticket-user/ticket-user.component';
 import { SideDrawerMenuComponent } from './page-components/side-drawer-menu/side-drawer-menu.component';
+import { ConferenceComponent } from './page-components/classroom/conference-list/conference/conference.component';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import { SideDrawerMenuComponent } from './page-components/side-drawer-menu/side
     FullPageComponent,
     TicketComponent,
     TicketUserComponent,
-    SideDrawerMenuComponent
+    SideDrawerMenuComponent,
+    ConferenceComponent
   ],
   imports: [
     BrowserModule,

@@ -1,46 +1,44 @@
 mat-card-content {
   margin: 2px;
-  .ticket-column {
+  display: flex;
+  flex-flow: column nowrap;
+  .ticket-row {
     display: flex;
-    flex-flow: column nowrap;
-    .ticket-row {
-      display: flex;
-      flex-flow: row nowrap;
-      justify-content: space-between;
-      align-items: center;
-      padding-left: 5px;
-    }
-    .ticket-desc {
-      display: flex;
-      flex-flow: row nowrap;
-      align-items: center;
-      font-size: 20px;
-    }
-    .ticket-details {
-      margin-top: 5px;
-      padding-left: 10px;
-      height: 20px;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 5px;
+  }
+  .ticket-desc {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    font-size: 20px;
+  }
+  .ticket-details {
+    margin-top: 5px;
+    padding-left: 10px;
+    height: 20px;
+    font-size: 14px;
+    color: #6D6D6D;
+  }
+  .ticket-meta {
+    alignment: left;
+    width: 78px;
+    text-align: left;
+    border-left: solid 1px #B1B1B1;
+    padding-left: 2px;
+    .ticket-num {
       font-size: 14px;
+      color: #B1B1B1;
+    }
+    .ticket-time {
       color: #6D6D6D;
+      font-size: 11px;
     }
-    .ticket-meta {
-      alignment: left;
-      width: 78px;
-      text-align: left;
-      border-left: solid 1px #B1B1B1;
-      padding-left: 2px;
-      .ticket-num {
-        font-size: 14px;
-        color: #B1B1B1;
-      }
-      .ticket-time {
-        color: #6D6D6D;
-        font-size: 11px;
-      }
-    }
-    p {
-      margin: 2px;
-    }
+  }
+  p {
+    margin: 2px;
   }
 }
 

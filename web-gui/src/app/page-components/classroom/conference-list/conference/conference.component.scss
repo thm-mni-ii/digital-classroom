@@ -1,0 +1,67 @@
+mat-card-content {
+  margin: 2px;
+  display: flex;
+  flex-flow: column nowrap;
+  padding-right: 15px;
+
+  .conference-row {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 5px;
+  }
+
+  .conference-desc {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    font-size: 14px;
+  }
+
+  .conference-icon {
+    padding-right: 15px;
+  }
+
+  .conference-ref {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-items: baseline;
+    .ref-label {
+      position: relative;
+      left: -10px;
+    }
+  }
+}
+
+.attended-conference {
+  font-weight: bold;
+
+}
+
+.normal-conference {
+  background-color: #FFFFFF;
+}
+
+mat-icon {
+  margin-right: 3px;
+}
+
+.open-icon {
+  color: #6D6D6D;
+}
+
+.visibility-icon {
+  color: #6D6D6D;
+}
+
+.delete-icon {
+  color: #D90C0C;
+}
+
+.sepa {
+  z-index: 0;
+  border: 1px dashed #B1B1B1;
+  width: 100%;
+  margin-left: -20px;
+}

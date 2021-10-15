@@ -1,0 +1,26 @@
+<mat-card-content *ngIf="conference !== undefined"
+                  [class.attended-conference] = "this.isUserAttending(conference)"
+                  [class.normal-conference] = "!this.isUserAttending(conference)">
+  <div class="conference-row">
+    <div class="conference-desc">
+      <mat-icon class="conference-icon">videocam</mat-icon>
+      <p>{{this.conference.conferenceName}}</p>
+    </div>
+  </div>
+  <div class="conference-row">
+    <div class="conference-users">
+      <span>Icons</span>
+    </div>
+    <div class="conference-ref">
+      <mat-icon class="ticket-icon">local_offer</mat-icon><span class="ref-label">#22</span>
+    </div>
+    <div class="conference-buttons">
+      <mat-icon class="open-icon functional-icon" (click)="{}">open_in_new</mat-icon>
+      <mat-icon class="visibility-icon functional-icon" (click)="{}">visibility_off</mat-icon>
+      <mat-icon class="delete-icon functional-icon" (click)="this.closeConference()">delete</mat-icon>
+    </div>
+  </div>
+</mat-card-content>
+
+<hr class="sepa">
+
