@@ -14,7 +14,7 @@ export class TicketComponent implements OnInit {
 
   constructor(
     private timeFormatterService: TimeFormatterService,
-    private classroomService: ClassroomService
+    public classroomService: ClassroomService
   ) { }
 
   ngOnInit(): void {
@@ -26,9 +26,10 @@ export class TicketComponent implements OnInit {
     return this.timeFormatterService.timeAgo(ticket.createTime)
   }
 
-  inviteCreator() {
-    if (this.ticket?.creator?.userId !== this.classroomService.currentUser?.userId)
-      this.classroomService.inviteToConference(this.ticket?.creator!!, undefined, this.ticket)
+  public determineJoinButton(): "join" | "link" | "invite" {
+    if (this.ticket!!.conferenceId !== null && this.classroomService.isInConference(this.ticket!!.creator)) return "join"
+    else if (this.classroomService.isSelf(this.ticket!!.creator)) return "link"
+    else return "invite"
   }
 
   editTicket() {
@@ -37,5 +38,18 @@ export class TicketComponent implements OnInit {
 
   closeTicket() {
     this.classroomService.closeTicket(this.ticket!!)
+  }
+
+  inviteCreator() {
+    const conference = this.classroomService.findOrCreateConferenceOfTicket(this.ticket!!)
+    this.classroomService.inviteToConference(this.ticket!!.creator, conference)
+  }
+
+  linkConference() {
+
+  }
+
+  joinConference() {
+
   }
 }

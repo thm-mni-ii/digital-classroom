@@ -15,10 +15,24 @@
       <app-ticket-user ticketContext="zugewiesen" [userCredentials]="this.ticket.assignee" [ticket]="ticket"></app-ticket-user>
       <app-ticket-user ticketContext="ersteller" [userCredentials]="this.ticket.creator" [ticket]="ticket"></app-ticket-user>
     </div>
-    <div class="ticket-buttons">
-      <mat-icon class="invite-icon functional-icon" svgIcon="invite" (click)="this.inviteCreator()"></mat-icon>
+    <div class="ticket-buttons" [ngSwitch]="determineJoinButton()">
+      <ng-container *ngSwitchCase="'invite'" [ngTemplateOutlet]="inviteToConferenceTemplate"></ng-container>
+      <ng-container *ngSwitchCase="'join'" [ngTemplateOutlet]="joinConferenceTemplate"></ng-container>
+      <ng-container *ngSwitchCase="'link'" [ngTemplateOutlet]="linkConferenceTemplate"></ng-container>
       <mat-icon class="edit-icon functional-icon" (click)="this.editTicket()">edit</mat-icon>
       <mat-icon class="delete-icon functional-icon" (click)="this.closeTicket()">delete</mat-icon>
     </div>
   </div>
 </mat-card-content>
+
+<ng-template #inviteToConferenceTemplate>
+  <mat-icon class="invite-icon functional-icon" svgIcon="invite-conference" matTooltip="Zu Konferenz einladen" (click)="this.inviteCreator()"></mat-icon>
+</ng-template>
+
+<ng-template #joinConferenceTemplate>
+  <mat-icon class="join-icon functional-icon" svgIcon="join-conference" matTooltip="Konferenz beitreten" (click)="this.joinConference()"></mat-icon>
+</ng-template>
+
+<ng-template #linkConferenceTemplate>
+  <mat-icon class="visibility-icon functional-icon" svgIcon="link-conference" matTooltip="Konferenz verlinken" (click)="this.linkConference()"></mat-icon>
+</ng-template>

@@ -54,6 +54,6 @@ export class AssignTicketDialogComponent implements OnInit {
 
   public joinConference(user?: UserCredentials) {
     if (user === undefined) throw new Error("user to join is undefined!")
-    this.classroomService.chooseConferenceToJoin(user);
+    this.classroomService.chooseConferenceOfUser(user);
   }
 }
