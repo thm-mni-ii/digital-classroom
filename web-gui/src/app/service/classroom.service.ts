@@ -15,7 +15,7 @@ import {
 } from "rxjs/operators";
 import {UserService} from "./user.service";
 import {Roles} from "../model/Roles";
-import {NewTicketDialogComponent} from "../dialogs/new-ticket-dialog/new-ticket-dialog.component";
+import {CreateEditTicketComponent, TicketEditData} from "../dialogs/create-edit-ticket/create-edit-ticket.component";
 import {ConferenceInfo} from "../model/ConferenceInfo";
 import {ClassroomInfo} from "../model/ClassroomInfo";
 import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
@@ -24,6 +24,10 @@ import {Router} from "@angular/router";
 import {NotificationService} from "./notification.service";
 import {JoinUserConferenceDialogComponent} from "../dialogs/join-user-conference-dialog/join-user-conference-dialog.component";
 import {LogoutService} from "./logout.service";
+import {
+  CreateConferenceDialogComponent,
+  CreateConferenceInputData
+} from "../dialogs/create-conference-dialog/create-conference-dialog.component";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and
@@ -163,14 +167,16 @@ export class ClassroomService {
         height: 'auto',
         width: 'auto',
         data: invitationEvent
-      });
+      }).beforeClosed().subscribe((acceptCall: boolean) => {
+        if (acceptCall) this.conferenceService.joinConference(invitationEvent.conferenceInfo!!)
+    });
   }
 
-  public createTicket() {
-    this.dialog.open(NewTicketDialogComponent, {
+  public createOrEditTicket(originalTicket?: Ticket) {
+    this.dialog.open(CreateEditTicketComponent, {
       height: 'auto',
       width: 'auto',
-      data: this.currentUser
+      data: new TicketEditData(this.currentUser!!, originalTicket)
     }).beforeClosed().pipe(
       filter(ticket => ticket),
       map((ticket: Ticket) => {
@@ -180,7 +186,11 @@ export class ClassroomService {
         return ticket
       })
     ).subscribe((ticket: Ticket) => {
-      this.ticketService.createTicket(ticket)
+      if (ticket.ticketId === 0) {
+        this.ticketService.createTicket(ticket)
+      } else {
+        this.ticketService.updateTicket(ticket)
+      }
     });
   }
 
@@ -189,8 +199,7 @@ export class ClassroomService {
     this.notification.show(`Das Ticket wurde geschlossen`);
   }
 
-  public isInConference(userCredentials?: UserCredentials): boolean {
-    if (userCredentials === undefined) throw new Error("user is undefined!")
+  public isInConference(userCredentials: UserCredentials): boolean {
     let user: User | undefined
     if (userCredentials instanceof User)
       user = userCredentials
@@ -219,5 +228,17 @@ export class ClassroomService {
 
   public logout() {
     this.router.navigate(["/logout"], ).then()
+  }
+
+  public createConference() {
+    this.dialog.open(CreateConferenceDialogComponent, {
+      height: 'auto',
+      width: 'auto',
+      data: new CreateConferenceInputData(this.classroomInfo!!, this.currentUser!!)
+    }).beforeClosed().pipe(
+      filter(conferenceInfo => conferenceInfo instanceof ConferenceInfo),
+    ).subscribe((conferenceInfo: ConferenceInfo) => {
+      this.conferenceService.createConference(conferenceInfo)
+    });
   }
 }

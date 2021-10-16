@@ -7,12 +7,5 @@
       </mat-list-item>
     </mat-action-list>
    </mat-dialog-content>
-  <mat-dialog-actions>
-    <button mat-flat-button *ngIf="this.classroomService.isCurrentUserPrivileged() && !classroomService.isSelf(data.creator!!)"
-            color="accent" (click)="startCall(data.creator)">Zu Konferenz einladen</button>
-    <button mat-flat-button *ngIf="this.classroomService.isInConference(data.creator)"
-            color="accent" (click)="this.joinConference(data.creator)">Konferenz beitreten</button>
-    <button mat-flat-button color="warn" *ngIf="this.classroomService.isCurrentUserPrivileged() || this.classroomService.isSelf(data.creator!!)">Ticket Schliessen</button>
-  </mat-dialog-actions>
 </div>
 

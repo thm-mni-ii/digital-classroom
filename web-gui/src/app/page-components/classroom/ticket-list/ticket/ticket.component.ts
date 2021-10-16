@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Ticket} from "../../../../model/Ticket";
 import {TimeFormatterService} from "../../../../util/time-formatter.service";
 import {ClassroomService} from "../../../../service/classroom.service";
+import {ConferenceInfo} from "../../../../model/ConferenceInfo";
 
 @Component({
   selector: 'app-ticket',
@@ -11,6 +12,7 @@ import {ClassroomService} from "../../../../service/classroom.service";
 export class TicketComponent implements OnInit {
 
   @Input() ticket?: Ticket;
+  conference?: ConferenceInfo;
 
   constructor(
     private timeFormatterService: TimeFormatterService,
@@ -27,13 +29,14 @@ export class TicketComponent implements OnInit {
   }
 
   public determineJoinButton(): "join" | "link" | "invite" {
-    if (this.ticket!!.conferenceId !== null && this.classroomService.isInConference(this.ticket!!.creator)) return "join"
+    this.conference = this.classroomService.findConferenceOfTicket(this.ticket!!)
+    if (this.conference !== undefined && this.classroomService.isInConference(this.ticket!!.creator)) return "join"
     else if (this.classroomService.isSelf(this.ticket!!.creator)) return "link"
     else return "invite"
   }
 
   editTicket() {
-
+    this.classroomService.createOrEditTicket(this.ticket)
   }
 
   closeTicket() {

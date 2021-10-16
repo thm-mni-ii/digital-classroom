@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import {ClassroomComponent} from "./page-components/classroom/classroom.component";
 import {MenuBarComponent} from "./page-components/menu-bar/menu-bar.component";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {NewTicketDialogComponent} from "./dialogs/new-ticket-dialog/new-ticket-dialog.component";
+import {CreateEditTicketComponent} from "./dialogs/create-edit-ticket/create-edit-ticket.component";
 import {InviteToConferenceDialogComponent} from "./dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component";
 import {AssignTicketDialogComponent} from "./dialogs/assign-ticket-dialog/assign-ticket-dialog.component";
 import {MaterialComponentsModule} from "./modules/material-components/material-components.module";
@@ -46,7 +46,7 @@ import { ConferenceAttendeesComponent } from './page-components/classroom/confer
     AppComponent,
     ClassroomComponent,
     MenuBarComponent,
-    NewTicketDialogComponent,
+    CreateEditTicketComponent,
     InviteToConferenceDialogComponent,
     AssignTicketDialogComponent,
     IsPrivilegedPipe,
