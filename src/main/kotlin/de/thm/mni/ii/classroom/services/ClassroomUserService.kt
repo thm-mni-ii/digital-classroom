@@ -6,6 +6,7 @@ import de.thm.mni.ii.classroom.event.UserAction
 import de.thm.mni.ii.classroom.event.UserEvent
 import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
+import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.model.classroom.UserCredentials
@@ -109,13 +110,23 @@ class ClassroomUserService(
                     (userCredentials.isPrivileged() || ticket.creator == userCredentials)
             }.switchIfEmpty {
                 Mono.error(UnauthorizedException("User not authorized to delete ticket!"))
-            }.flatMap { classroom ->
+            }.delayUntil { classroom ->
                 classroom.deleteTicket(ticket)
-            }.delayUntil { (ticket, classroom) ->
+            }.delayUntil { classroom ->
                 classroom.sendToAll(TicketEvent(ticket, TicketAction.CLOSE))
-            }.doOnSuccess { (ticket, classroom) ->
+            }.flatMap { classroom ->
                 logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee?.fullName ?: "N/A"}!")
+                closeConferenceOfClosedTicket(ticket, classroom)
             }.subscribe()
+    }
+
+    private fun closeConferenceOfClosedTicket(ticket: Ticket, classroom: DigitalClassroom): Mono<Void> {
+        return classroom.conferences.getConferenceOfTicket(ticket.ticketId)
+            .filter { conference ->
+                conference.attendees.isEmpty()
+            }.doOnNext { conference ->
+                this.conferenceService.scheduleConferenceDeletion(classroom, conference, 10)
+            }.then()
     }
 
     fun getUsers(userCredentials: UserCredentials): Flux<UserCredentials> {
