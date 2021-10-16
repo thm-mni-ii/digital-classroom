@@ -116,6 +116,10 @@ class DigitalClassroom(
         return getUsers().toFlux()
     }
 
+    fun getOfflineUsers(): Flux<User> {
+        return this.preAuthUserData.values.toFlux()
+    }
+
     fun getSockets(): Flux<Pair<User, RSocketRequester?>> = Flux.fromIterable(users.toList())
 
     private fun getSocketOfUser(userCredentials: UserCredentials): Mono<RSocketRequester> = Mono.just(users[userCredentials]!!)

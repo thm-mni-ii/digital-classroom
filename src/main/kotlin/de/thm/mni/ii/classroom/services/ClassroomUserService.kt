@@ -88,10 +88,11 @@ class ClassroomUserService(
 
     fun updateTicket(userCredentials: UserCredentials, receivedTicket: Ticket) {
         if (!userCredentials.isPrivileged()) {
-            throw UnauthorizedException("User ${userCredentials.fullName} is not authorized to assign ticket!")
-        }
-        if (receivedTicket.assignee != null && !receivedTicket.assignee!!.isPrivileged()) {
-            throw UnauthorizedException("User ${receivedTicket.assignee} may not be assigned to a ticket!")
+            logger.warn("User ${userCredentials.fullName} is not authorized to assign ticket!")
+            return
+        } else if (receivedTicket.assignee != null && !receivedTicket.assignee!!.isPrivileged()) {
+            logger.warn("User ${receivedTicket.assignee} may not be assigned to a ticket!")
+            return
         }
         classroomInstanceService
             .getClassroomInstance(userCredentials.classroomId)
@@ -105,14 +106,12 @@ class ClassroomUserService(
     }
 
     fun closeTicket(userCredentials: UserCredentials, ticket: Ticket) {
-        classroomInstanceService
-            .getClassroomInstance(userCredentials.classroomId)
-            .filter {
-                ticket.classroomId == userCredentials.classroomId &&
-                    (userCredentials.isPrivileged() || ticket.creator == userCredentials)
-            }.switchIfEmpty {
-                Mono.error(UnauthorizedException("User not authorized to delete ticket!"))
-            }.delayUntil { classroom ->
+        if (!userCredentials.isPrivileged() && ticket.creator != userCredentials) {
+            logger.warn("User ${userCredentials.fullName} not authorized to delete ticket #${ticket.ticketId}!")
+            return
+        }
+        classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+            .delayUntil { classroom ->
                 classroom.deleteTicket(ticket)
             }.delayUntil { classroom ->
                 classroom.sendToAll(TicketEvent(ticket, TicketAction.CLOSE))
@@ -131,13 +130,13 @@ class ClassroomUserService(
             }.then()
     }
 
-    fun getUsers(userCredentials: UserCredentials): Flux<UserCredentials> {
+    fun getOfflineUsers(userCredentials: UserCredentials): Flux<User> {
         return classroomInstanceService
             .getClassroomInstance(userCredentials.classroomId)
-            .flatMapMany { it.getUsersFlux() }
+            .flatMapMany { it.getOfflineUsers() }
     }
 
-    fun getUserDisplays(userCredentials: UserCredentials): Flux<User> {
+    fun getUsers(userCredentials: UserCredentials): Flux<User> {
         return classroomInstanceService
             .getClassroomInstance(userCredentials.classroomId)
             .flatMapMany { it.getUsersFlux() }
