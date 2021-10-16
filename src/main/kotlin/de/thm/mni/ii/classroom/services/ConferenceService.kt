@@ -59,7 +59,9 @@ class ConferenceService(
     }
 
     private fun joinUser(userCredentials: UserCredentials, conference: Conference, classroom: DigitalClassroom): Mono<JoinLink> {
-        return upstreamBBBService.joinConference(conference, userCredentials, true)
+        val user = classroom.getUser(userCredentials.userId)
+        val asModerator = user.isPrivileged() || conference.creator == user
+        return upstreamBBBService.joinConference(conference, user, asModerator)
             .zipWith(classroom.conferences.joinUser(conference, userCredentials))
             .doOnNext { (_, conference) ->
                 logger.info("${userCredentials.fullName} joins conference ${conference.conferenceId}!")

@@ -7,8 +7,10 @@ import de.thm.mni.ii.classroom.model.classroom.Conference
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.JoinLink
+import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.properties.UpstreamBBBProperties
+import de.thm.mni.ii.classroom.util.BbbApiConstants
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import org.apache.commons.codec.digest.DigestUtils
@@ -45,6 +47,8 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 Pair("name", conference.conferenceName),
                 Pair("attendeePW", conference.attendeePassword),
                 Pair("moderatorPW", conference.moderatorPassword),
+                Pair("breakoutRoomsEnabled", false.toString()),
+                Pair("lockSettingsLockOnJoin", false.toString()),
                 Pair("meta_classroomId", userCredentials.classroomId),
                 Pair("meta_creatorId", userCredentials.userId),
                 Pair("meta_ticketid", conference.ticketId.toString())
@@ -57,13 +61,16 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
         }
     }
 
-    fun joinConference(conference: Conference, userCredentials: UserCredentials, asModerator: Boolean): Mono<JoinLink> {
-        val queryParams = mapOf(
+    fun joinConference(conference: Conference, user: User, asModerator: Boolean): Mono<JoinLink> {
+        val queryParams = mutableMapOf(
             Pair("meetingID", conference.conferenceId),
-            Pair("fullName", userCredentials.fullName),
-            Pair("userID", userCredentials.userId),
-            Pair("password", if (asModerator) conference.moderatorPassword else conference.attendeePassword)
+            Pair("fullName", user.fullName),
+            Pair("userID", user.userId),
+            Pair("password", if (asModerator) conference.moderatorPassword else conference.attendeePassword),
         )
+        if (user.avatarUrl != null) {
+            queryParams[BbbApiConstants.avatarUrl] = user.avatarUrl.toString()
+        }
         return Mono.just(buildApiRequest("join", queryParams)).map { JoinLink(ConferenceInfo(conference), it) }
     }
 
