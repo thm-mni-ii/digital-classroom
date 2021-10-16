@@ -90,13 +90,13 @@ class ClassroomUserService(
         classroomInstanceService
             .getClassroomInstance(userCredentials.classroomId)
             .filter {
-                userCredentials.isPrivileged() && receivedTicket.assignee!!.isPrivileged() && receivedTicket.classroomId == userCredentials.classroomId
+                userCredentials.isPrivileged() && receivedTicket.assignee!!.isPrivileged()
             }.switchIfEmpty {
                 Mono.error(UnauthorizedException("User not authorized to assign ticket!"))
             }.flatMap {
                 it.assignTicket(receivedTicket, receivedTicket.assignee!!)
             }.delayUntil { (ticket, classroom) ->
-                classroom.sendToAll(TicketEvent(ticket, TicketAction.ASSIGN))
+                classroom.sendToAll(TicketEvent(ticket, TicketAction.UPDATE))
             }.doOnSuccess { (ticket, classroom) ->
                 logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee!!.fullName}!")
             }.subscribe()

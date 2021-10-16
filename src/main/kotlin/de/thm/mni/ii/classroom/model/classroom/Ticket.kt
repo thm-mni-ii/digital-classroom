@@ -29,11 +29,10 @@ class Ticket(
         if (javaClass != other?.javaClass) return false
 
         other as Ticket
-
-        if (creator != other.creator) return false
-        if (ticketId != other.ticketId) return false
-        if (createTime != other.createTime) return false
         if (classroomId != other.classroomId) return false
+        if (ticketId != other.ticketId) return false
+        if (creator != other.creator) return false
+        if (createTime != other.createTime) return false
 
         return true
     }
