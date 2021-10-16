@@ -98,11 +98,11 @@ class DigitalClassroom(
             .map { Pair(it, this) }
     }
 
-    fun deleteTicket(ticket: Ticket): Mono<Pair<Ticket, DigitalClassroom>> {
+    fun deleteTicket(ticket: Ticket): Mono<Void> {
         return Mono.justOrEmpty(tickets.find { it == ticket })
             .switchIfEmpty(Mono.error(TicketNotFoundException(ticket)))
             .doOnNext { tickets.remove(it) }
-            .map { Pair(it, this) }
+            .then()
     }
 
     fun getUsers(): Set<User> {
@@ -115,7 +115,7 @@ class DigitalClassroom(
 
     fun getSockets(): Flux<Pair<User, RSocketRequester?>> = Flux.fromIterable(users.toList())
 
-    fun getSocketOfUser(userCredentials: UserCredentials): Mono<RSocketRequester> = Mono.just(users[userCredentials]!!)
+    private fun getSocketOfUser(userCredentials: UserCredentials): Mono<RSocketRequester> = Mono.just(users[userCredentials]!!)
 
     fun isUserInConference(user: User): Mono<Boolean> {
         return conferences.isUserInConference(user)

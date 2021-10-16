@@ -5,11 +5,12 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
+import java.util.concurrent.ConcurrentHashMap
 
 class ConferenceStorage {
 
-    private val usersConference = HashMap<UserCredentials, HashSet<Conference>>()
-    private val conferences = HashMap<String, Conference>()
+    private val usersConference = ConcurrentHashMap<UserCredentials, LinkedHashSet<Conference>>()
+    private val conferences = ConcurrentHashMap<String, Conference>()
 
     fun getConferencesOfUser(userCredentials: UserCredentials) =
         Flux.fromIterable(usersConference[userCredentials] ?: LinkedHashSet())
@@ -21,7 +22,7 @@ class ConferenceStorage {
 
     fun joinUser(conference: Conference, userCredentials: UserCredentials): Mono<Conference> {
         return Mono.just(userCredentials).map {
-            usersConference.computeIfAbsent(userCredentials) { HashSet() }
+            usersConference.computeIfAbsent(userCredentials) { LinkedHashSet() }
                 .also { it.add(conference) }
             conferences.computeIfAbsent(conference.conferenceId) { conference }
                 .also { it.attendees.add(userCredentials) }
@@ -87,10 +88,14 @@ class ConferenceStorage {
         usersConference.clear()
         conferences.values.forEach { conference ->
             conference.attendees.forEach { user ->
-                usersConference.computeIfAbsent(user) { HashSet() }
+                usersConference.computeIfAbsent(user) { LinkedHashSet() }
                     .also { it.add(conference) }
             }
         }
         return Mono.empty()
+    }
+
+    fun getConferenceOfTicket(ticketId: Long?): Mono<Conference> {
+        return conferences.values.toFlux().filter { it.ticketId == ticketId }.last()
     }
 }
