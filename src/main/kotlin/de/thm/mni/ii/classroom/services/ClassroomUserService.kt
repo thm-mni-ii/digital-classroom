@@ -86,18 +86,20 @@ class ClassroomUserService(
             }.subscribe()
     }
 
-    fun assignTicket(userCredentials: UserCredentials, receivedTicket: Ticket) {
+    fun updateTicket(userCredentials: UserCredentials, receivedTicket: Ticket) {
+        if (!userCredentials.isPrivileged()) {
+            throw UnauthorizedException("User ${userCredentials.fullName} is not authorized to assign ticket!")
+        }
+        if (receivedTicket.assignee != null && !receivedTicket.assignee!!.isPrivileged()) {
+            throw UnauthorizedException("User ${receivedTicket.assignee} may not be assigned to a ticket!")
+        }
         classroomInstanceService
             .getClassroomInstance(userCredentials.classroomId)
-            .filter {
-                userCredentials.isPrivileged() && receivedTicket.assignee!!.isPrivileged()
-            }.switchIfEmpty {
-                Mono.error(UnauthorizedException("User not authorized to assign ticket!"))
-            }.flatMap {
-                it.assignTicket(receivedTicket, receivedTicket.assignee!!)
-            }.delayUntil { (ticket, classroom) ->
+            .zipWhen { classroom ->
+                classroom.updateTicket(receivedTicket)
+            }.delayUntil { (classroom, ticket) ->
                 classroom.sendToAll(TicketEvent(ticket, TicketAction.UPDATE))
-            }.doOnSuccess { (ticket, classroom) ->
+            }.doOnSuccess { (classroom, ticket) ->
                 logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee!!.fullName}!")
             }.subscribe()
     }

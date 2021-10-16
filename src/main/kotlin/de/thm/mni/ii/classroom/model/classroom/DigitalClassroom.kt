@@ -91,11 +91,14 @@ class DigitalClassroom(
         }.map { Pair(it, this) }
     }
 
-    fun assignTicket(ticket: Ticket, newAssignee: UserCredentials): Mono<Pair<Ticket, DigitalClassroom>> {
-        return Mono.justOrEmpty(tickets.find { it == ticket })
-            .switchIfEmpty(Mono.error(TicketNotFoundException(ticket)))
-            .map { it.apply { assignee = newAssignee } }
-            .map { Pair(it, this) }
+    fun updateTicket(receivedTicket: Ticket): Mono<Ticket> {
+        return Mono.justOrEmpty(tickets.find { it == receivedTicket })
+            .switchIfEmpty(Mono.error(TicketNotFoundException(receivedTicket)))
+            .map { ticket ->
+                ticket.assignee = receivedTicket.assignee
+                ticket.description = receivedTicket.description
+                ticket
+            }
     }
 
     fun deleteTicket(ticket: Ticket): Mono<Void> {
