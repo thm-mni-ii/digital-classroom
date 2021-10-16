@@ -15,6 +15,7 @@ import reactor.kotlin.core.publisher.toMono
 import java.net.URL
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -31,8 +32,8 @@ class DigitalClassroom(
 
     private val logger = LoggerFactory.getLogger(DigitalClassroom::class.java)
 
-    private val preAuthUserData = HashMap<UserCredentials, User>()
-    private val users = HashMap<User, RSocketRequester?>()
+    private val preAuthUserData = ConcurrentHashMap<UserCredentials, User>()
+    private val users = ConcurrentHashMap<User, RSocketRequester?>()
     private val tickets = HashSet<Ticket>()
     private val nextTicketId = AtomicLong(1L)
     val conferences = ConferenceStorage()
@@ -58,16 +59,18 @@ class DigitalClassroom(
     }
 
     fun connectSocket(userCredentials: UserCredentials, socketRequester: RSocketRequester): Mono<User> {
-        val user = this.preAuthUserData.remove(userCredentials)!!
-        users[user] = socketRequester
-        return Mono.just(user)
+        return this.preAuthUserData.remove(userCredentials).toMono().doOnNext {
+            users[it] = socketRequester
+        }
     }
 
     fun disconnectSocket(userCredentials: UserCredentials): Mono<User> {
-        val user = users.keys.find { it == userCredentials }!!
-        users.remove(userCredentials)
-        this.preAuthUserData[userCredentials] = user
-        return Mono.just(user)
+        return users.keys.toFlux().filter {
+            it == userCredentials
+        }.last().doOnNext { user ->
+            users.remove(userCredentials).toMono()
+            this.preAuthUserData[userCredentials] = user
+        }
     }
 
     fun getTickets(): Flux<Ticket> {
