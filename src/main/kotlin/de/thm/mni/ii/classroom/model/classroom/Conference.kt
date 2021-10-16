@@ -1,5 +1,6 @@
 package de.thm.mni.ii.classroom.model.classroom
 
+import de.thm.mni.ii.classroom.model.api.Attendee
 import java.time.ZonedDateTime
 
 class Conference(

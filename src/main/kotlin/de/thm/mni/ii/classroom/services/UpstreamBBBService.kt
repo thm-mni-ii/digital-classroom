@@ -38,7 +38,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 UUID.randomUUID().toString(),
                 creator = userCredentials,
                 visible = conferenceInfo.visible,
-                attendees = mutableSetOf(),
+                attendees = LinkedHashSet(),
                 ticketId = conferenceInfo.ticketId
             )
         ).flatMap { conference ->
@@ -111,9 +111,9 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 }
             }.map { (conference, meeting) ->
                 val attendingUsers = meeting.attendees.attendees
-                    ?.mapTo(mutableSetOf()) {
+                    ?.mapTo(LinkedHashSet()) {
                         classroom.getUser(it.userID!!).getCredentials()
-                    } ?: mutableSetOf()
+                    } ?: LinkedHashSet()
                 Conference(
                     conference.classroomId,
                     meeting!!.meetingID!!,
