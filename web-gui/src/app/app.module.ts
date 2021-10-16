@@ -39,6 +39,7 @@ import { TicketComponent } from './page-components/classroom/ticket-list/ticket/
 import { TicketUserComponent } from './page-components/classroom/ticket-list/ticket/ticket-user/ticket-user.component';
 import { SideDrawerMenuComponent } from './page-components/side-drawer-menu/side-drawer-menu.component';
 import { ConferenceComponent } from './page-components/classroom/conference-list/conference/conference.component';
+import { ConferenceAttendeesComponent } from './page-components/classroom/conference-list/conference/conference-attendees/conference-attendees.component';
 
 @NgModule({
   declarations: [
@@ -68,7 +69,8 @@ import { ConferenceComponent } from './page-components/classroom/conference-list
     TicketComponent,
     TicketUserComponent,
     SideDrawerMenuComponent,
-    ConferenceComponent
+    ConferenceComponent,
+    ConferenceAttendeesComponent
   ],
   imports: [
     BrowserModule,

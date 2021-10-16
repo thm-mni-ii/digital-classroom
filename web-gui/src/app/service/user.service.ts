@@ -115,8 +115,8 @@ export class UserService {
     this.rSocketService.fireAndForget("socket/classroom-event", event)
   }
 
-  public getFullUser(userCredentials: UserCredentials): User | undefined {
-    const user: User | undefined = this.users.get(userCredentials?.userId)
+  public getFullUser(userId: string): User | undefined {
+    const user: User | undefined = this.users.get(userId)
     if (user === undefined) return undefined
     return user
   }

@@ -13,7 +13,9 @@ export class ConferenceComponent {
   @Input() conference?: ConferenceInfo
   @Input() currentUser?: User
 
-  constructor(private conferenceService: ConferenceService) { }
+  constructor(
+    private conferenceService: ConferenceService
+  ) { }
 
   public isUserAttending(): boolean {
     if (this.currentUser === undefined) return false;

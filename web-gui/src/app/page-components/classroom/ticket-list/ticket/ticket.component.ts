@@ -27,7 +27,8 @@ export class TicketComponent implements OnInit {
   }
 
   inviteCreator() {
-
+    if (this.ticket?.creator?.userId !== this.classroomService.currentUser?.userId)
+      this.classroomService.inviteToConference(this.ticket?.creator!!, undefined, this.ticket)
   }
 
   editTicket() {

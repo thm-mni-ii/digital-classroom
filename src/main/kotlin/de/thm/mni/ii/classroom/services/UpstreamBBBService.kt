@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import java.io.Serializable
 import java.util.UUID
 
 @Component
@@ -36,7 +37,8 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 UUID.randomUUID().toString(),
                 creator = userCredentials,
                 visible = conferenceInfo.visible,
-                attendees = mutableSetOf()
+                attendees = mutableSetOf(),
+                ticketId = conferenceInfo.ticketId
             )
         ).flatMap { conference ->
             val queryParams = mapOf(
@@ -45,7 +47,8 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 Pair("attendeePW", conference.attendeePassword),
                 Pair("moderatorPW", conference.moderatorPassword),
                 Pair("meta_classroomId", userCredentials.classroomId),
-                Pair("meta_creatorId", userCredentials.userId)
+                Pair("meta_creatorId", userCredentials.userId),
+                Pair("meta_ticketid", conference.ticketId.toString())
             )
             val request = buildApiRequest("create", queryParams)
             Mono.zip(Mono.just(conference), WebClient.create(request).get().retrieve().toEntity(MessageBBB::class.java))
@@ -93,7 +96,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 Flux.fromIterable(getMeetings.meetings.meetings ?: listOf())
             }.flatMap { meeting ->
                 val conference = conferences.find { conference ->
-                    conference.conferenceId == meeting.meetingID
+                    classroom.classroomId == meeting.metadata.classroomid && conference.conferenceId == meeting.meetingID
                 }
                 if (conference == null) {
                     Mono.empty()
@@ -114,7 +117,8 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                     conference.creator,
                     conference.visible,
                     attendingUsers,
-                    conference.creationTimestamp
+                    conference.creationTimestamp,
+                    meeting.metadata.ticketid
                 )
             }
     }

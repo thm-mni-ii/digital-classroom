@@ -103,10 +103,12 @@ class Meeting(digitalClassroom: DigitalClassroom? = null) {
     name = "metadata",
     propOrder = [
         "classroomid",
-        "creatorid"
+        "creatorid",
+        "ticketid"
     ]
 )
 class MeetingMetaData {
     @XmlElement val classroomid: String = ""
     @XmlElement val creatorid: String = ""
+    @XmlElement val ticketid: Long? = null
 }

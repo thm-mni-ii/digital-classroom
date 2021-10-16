@@ -34,7 +34,7 @@ export class TicketUserComponent {
 
   public fullUser(): User | undefined {
     if (this.userCredentials === undefined) throw new Error("Cannot get full user of undefined!")
-    return this.userService.getFullUser(this.userCredentials)
+    return this.userService.getFullUser(this.userCredentials.userId)
   }
 
 }

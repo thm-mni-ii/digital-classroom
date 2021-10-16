@@ -28,7 +28,6 @@ class ConferenceService(
     private val classroomInstanceService: ClassroomInstanceService,
     private val upstreamBBBService: UpstreamBBBService,
 ) {
-    private val waitingDeletions = mutableMapOf<Conference, Disposable>()
     private val logger = LoggerFactory.getLogger(ConferenceService::class.java)
 
     fun createConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<ConferenceInfo> {
@@ -82,8 +81,8 @@ class ConferenceService(
         TODO("Not yet implemented")
     }
 
-    fun changeVisibility(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<Void> {
-        return classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+    fun changeVisibility(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo) {
+        classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
             .map {
                 if (userCredentials != conferenceInfo.creator) {
                     throw UnauthorizedException("Only the creator may hide or publish a conference!")
@@ -95,7 +94,7 @@ class ConferenceService(
             }.flatMap { (classroom, conference) ->
                 val event = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.VISIBILITY)
                 classroom.sendToAll(event)
-            }
+            }.subscribe()
     }
 
     fun forwardInvitation(userCredentials: UserCredentials, invitationEvent: InvitationEvent): Mono<Void> {
@@ -152,11 +151,7 @@ class ConferenceService(
 
     fun scheduleConferenceDeletion(classroom: DigitalClassroom, conference: Conference, delaySeconds: Long = 90) {
         logger.debug("Conference ${conference.conferenceId} scheduled for deletion if still empty in $delaySeconds seconds!")
-        if (waitingDeletions.containsKey(conference)) {
-            waitingDeletions[conference]!!.dispose()
-            waitingDeletions.values.removeIf(Disposable::isDisposed)
-        }
-        val disposable = Mono.just(conference)
+        Mono.just(conference)
             .delayElement(Duration.ofSeconds(delaySeconds))
             .delayUntil { this.updateConferences(classroom) }
             .flatMap { classroom.conferences.getUsersOfConference(it).hasElements() }
@@ -173,6 +168,5 @@ class ConferenceService(
                 val conferenceEvent = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.CLOSE)
                 classroom.sendToAll(conferenceEvent)
             }.subscribe()
-        waitingDeletions[conference] = disposable
     }
 }

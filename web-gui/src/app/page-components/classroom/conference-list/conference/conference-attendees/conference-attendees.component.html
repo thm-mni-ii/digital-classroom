@@ -1,0 +1,19 @@
+<div class="attendee-container">
+  <div class="conference-attendees" #attendees>
+    <div class="conference-attendee" *ngFor="let attendee of getAttendees()" [matTooltip]="attendee.fullName">
+      <ngx-avatar
+        [bgColor]="this.userIconService.calculateColorCode(attendee.fullName!!)"
+        class="user-avatar"
+        [name]="attendee.fullName!!"
+        initialsSize="2"
+        cornerRadius="4"
+        size="24"
+        [round]="false"
+        [textSizeRatio]="1.8"
+        [src]="attendee.avatarUrl"
+      ></ngx-avatar>
+    </div>
+  </div>
+  <div [ngClass]="getClassOfNumAttendees(attendees)" class="num-attendees">{{this.conference?.attendees?.length}}</div>
+</div>
+

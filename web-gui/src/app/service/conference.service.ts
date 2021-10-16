@@ -37,7 +37,7 @@ export class ConferenceService {
 
   private initConferences() {
     this.rSocketService.requestStream<ConferenceInfo>("socket/init-conferences", "Init Conferences").pipe(
-      tap(conf => { this.conferences.set(conf.conferenceId, conf) }),
+      tap(conf => { this.conferences.set(conf.conferenceId!!, conf) }),
       finalize(() => this.publish())
     ).subscribe()
   }
@@ -45,10 +45,10 @@ export class ConferenceService {
   private handleConferenceEvent(conferenceEvent: ConferenceEvent) {
     if (conferenceEvent.conferenceInfo === undefined) throw new Error("Event for undefined ConferenceInfo received!")
     switch (conferenceEvent.conferenceAction) {
-      case ConferenceAction.CREATE:      { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
-      case ConferenceAction.CLOSE:       { this.conferences.delete(conferenceEvent.conferenceInfo.conferenceId); break; }
-      case ConferenceAction.VISIBILITY:  { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
-      case ConferenceAction.USER_CHANGE: { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId, conferenceEvent.conferenceInfo); break; }
+      case ConferenceAction.CREATE:      { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId!!, conferenceEvent.conferenceInfo); break; }
+      case ConferenceAction.CLOSE:       { this.conferences.delete(conferenceEvent.conferenceInfo.conferenceId!!); break; }
+      case ConferenceAction.VISIBILITY:  { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId!!, conferenceEvent.conferenceInfo); break; }
+      case ConferenceAction.USER_CHANGE: { this.conferences.set(conferenceEvent.conferenceInfo.conferenceId!!, conferenceEvent.conferenceInfo); break; }
     }
   }
 
@@ -58,19 +58,23 @@ export class ConferenceService {
 
   public createConference(conferenceInfo: ConferenceInfo): Observable<ConferenceInfo> {
     const subject = new Subject<ConferenceInfo>()
+    if (conferenceInfo.conferenceId !== null) {
+      subject.complete()
+      return subject
+    }
     this.rSocketService.requestResponse<ConferenceInfo>("socket/conference/create", conferenceInfo).pipe(
-      tap(conference => this.conferences.set(conference.conferenceId, conference)),
-      tap(conference => this.joinConference(conference)),
-      tap(_ => this.publish()),
-      tap(conference => {
-        subject.next(conference)
-        subject.complete()
-      })).subscribe()
+    tap(conference => this.conferences.set(conference.conferenceId!!, conference)),
+    tap(conference => this.joinConference(conference)),
+    tap(_ => this.publish()),
+    tap(conference => {
+      subject.next(conference)
+      subject.complete()
+    })).subscribe()
     return subject
   }
 
   public joinConference(conference: ConferenceInfo) {
-    if (this.conferenceWindowHandles.size === 0 || !this.conferenceWindowHandles.has(conference.conferenceId)) {
+    if (this.conferenceWindowHandles.size === 0 || !this.conferenceWindowHandles.has(conference.conferenceId!!)) {
       this.rSocketService.requestResponse<JoinLink>("socket/conference/join", conference).pipe(
         tap(joinLink => this.openConferenceWindow(joinLink)),
         tap(_ => this.publish())
@@ -83,28 +87,28 @@ export class ConferenceService {
   private openConferenceWindow(joinLink: JoinLink) {
     const conference = joinLink.conference
     if (conference === undefined) throw new Error("JoinLink for undefined ConferenceInfo received!")
-    if (this.conferenceWindowHandles.has(conference.conferenceId)) {
+    if (this.conferenceWindowHandles.has(conference.conferenceId!!)) {
       this.getConferenceHandle(conference).focus()
     } else {
       const conferenceWindow = window.open(joinLink.url)
       if (conferenceWindow === null) {
         throw new Error("Window to conference " + conference.conferenceName + " could not be opened!")
       }
-      this.conferenceWindowHandles.set(conference.conferenceId, conferenceWindow)
+      this.conferenceWindowHandles.set(conference.conferenceId!!, conferenceWindow)
       conferenceWindow.focus()
     }
   }
 
   private getConferenceHandle(conference: ConferenceInfo) {
-    const handle = this.conferenceWindowHandles.get(conference.conferenceId);
+    const handle = this.conferenceWindowHandles.get(conference.conferenceId!!);
     if (handle === undefined) throw new Error("Window handle for conference " + conference.conferenceId + "not found!")
     return handle;
   }
 
   public leaveConference(conference: ConferenceInfo) {
-    const handle = this.conferenceWindowHandles.get(conference.conferenceId)
+    const handle = this.conferenceWindowHandles.get(conference.conferenceId!!)
     if (handle !== undefined && !handle.closed) handle.close()
-    this.conferenceWindowHandles.delete(conference.conferenceId)
+    this.conferenceWindowHandles.delete(conference.conferenceId!!)
     this.rSocketService.fireAndForget("socket/conference/leave", conference)
   }
 
@@ -126,7 +130,8 @@ export class ConferenceService {
   }
 
   private sendInvitation(invitationEvent: InvitationEvent) {
-    this.rSocketService.fireAndForget("socket/conference/invite", invitationEvent)
+    if (invitationEvent.inviter?.userId !== invitationEvent.invitee?.userId)
+      this.rSocketService.fireAndForget("socket/conference/invite", invitationEvent)
   }
 
   private initWindowHandle() {

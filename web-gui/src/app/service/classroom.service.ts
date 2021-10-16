@@ -219,6 +219,10 @@ export class ClassroomService {
     this.router.navigate(["/logout"], ).then()
   }
 
+  public createNewConferenceForTicket(ticket: Ticket) {
+
+  }
+
   private findOrCreateConferenceOfTicket(ticket: Ticket): ConferenceInfo {
     let conference = this.conferences.find(conference => conference.ticketId === ticket.ticketId)
     if (conference === undefined) {

@@ -9,7 +9,7 @@
   </div>
   <div class="conference-row">
     <div class="conference-users">
-      <span>Icons</span>
+      <app-conference-attendees [conference]="this.conference"></app-conference-attendees>
     </div>
     <ng-container *ngIf="conference.ticketId !== null; then ticketRef else userRef"></ng-container>
 
@@ -40,7 +40,7 @@
 </ng-template>
 
 <ng-template #userRef>
-<div class="conference-ref" *ngIf="conference!!.ticketId === null" matTooltip="Ersteller">
+<div class="conference-ref" *ngIf="conference!!.ticketId === null" matTooltip="Ersteller: {{conference!!.creator!!.fullName}}">
   <mat-icon class="ref-icon">person</mat-icon>
   <span class="ref-label">{{conference!!.creator!!.fullName.substr(0, 2)}}</span>
 </div>
