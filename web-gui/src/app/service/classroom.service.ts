@@ -38,7 +38,13 @@ export class ClassroomService {
   public userDisplayObservable = this.userService.userObservable
   public currentUserObservable = this.userService.currentUserObservable
   public conferencesObservable = this.conferenceService.conferencesObservable.pipe(
-    map(confs => confs.filter(conf => conf.visible || conf.creator!!.userId == this.currentUser?.userId))
+    map(conferences =>
+      conferences.filter(
+        conf => conf.visible ||
+          conf.creator!!.userId == this.currentUser?.userId ||
+          conf.attendees.includes(this.currentUser?.userId!!)
+      )
+    )
   )
   private conferences: ConferenceInfo[] = []
 
