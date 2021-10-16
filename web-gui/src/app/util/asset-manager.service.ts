@@ -14,7 +14,11 @@ export class AssetManagerService {
     private domSanitizer: DomSanitizer
   ) {
     this.matIconRegistry.addSvgIcon('add-ticket', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/add-ticket.svg'));
-    this.matIconRegistry.addSvgIcon('invite', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/invite.svg'));
+    this.matIconRegistry.addSvgIcon('create-conference', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/create-conference.svg'));
+    this.matIconRegistry.addSvgIcon('link-conference', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/link-conference.svg'));
+    this.matIconRegistry.addSvgIcon('join-conference', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/join-conference.svg'));
+    this.matIconRegistry.addSvgIcon('invite-conference', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/invite-conference.svg'));
+
     this.assets.set("ringtone", 'assets/classic_phone.mp3')
   }
 
