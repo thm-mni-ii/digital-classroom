@@ -1,13 +1,13 @@
 import {Pipe, PipeTransform} from '@angular/core';
 import {Roles} from "../model/Roles";
-import {UserCredentials} from "../model/User";
+import {User} from "../model/User";
 
 @Pipe({
   name: 'isPrivileged',
   pure: false
 })
 export class IsPrivilegedPipe implements PipeTransform {
-  transform(users: UserCredentials[]): UserCredentials[] {
+  transform(users: User[]): User[] {
     if (!users) {
       return users;
     }
