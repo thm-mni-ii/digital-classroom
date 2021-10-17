@@ -35,7 +35,7 @@ class ConferenceController(private val conferenceService: ConferenceService) {
     @MessageMapping("socket/conference/end")
     fun endConference(@AuthenticationPrincipal userCredentials: UserCredentials, @Payload conferenceInfo: ConferenceInfo): Mono<Void> {
         assert(userCredentials.classroomId == conferenceInfo.classroomId)
-        return conferenceService.endConference(userCredentials, conferenceInfo)
+        return conferenceService.endConferenceManually(userCredentials, conferenceInfo)
     }
 
     @MessageMapping("socket/conference/invite")

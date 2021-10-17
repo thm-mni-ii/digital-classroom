@@ -60,20 +60,26 @@ class ConferenceService(
             }.map(Tuple2<JoinLink, Conference>::getT1)
     }
 
-    fun endConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<Void> {
-        if (!userCredentials.isPrivileged() && userCredentials != conferenceInfo.creator) {
+    fun endConferenceManually(userCredentials: UserCredentials?, conferenceInfo: ConferenceInfo): Mono<Void> {
+        if (userCredentials != null && !userCredentials.isPrivileged() && userCredentials != conferenceInfo.creator) {
             logger.warn("User ${userCredentials.fullName} is not authorized to end ${conferenceInfo.conferenceName}!")
             return Mono.empty()
         }
-        return this.classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+        return endConference(conferenceInfo)
+    }
+
+    private fun endConference(conferenceInfo: ConferenceInfo): Mono<Void> {
+        return this.classroomInstanceService.getClassroomInstance(conferenceInfo.classroomId)
             .zipWhen { classroom ->
                 classroom.conferences.getConference(conferenceInfo.conferenceId!!)
             }.delayUntil { (_, conference) ->
                 this.upstreamBBBService.endConference(conference)
+            }.delayUntil { (classroom, conference) ->
+                classroom.conferences.deleteConference(conference)
             }.flatMap { (classroom, conference) ->
-                classroom.conferences.removeConference(conference)
+                val conferenceEvent = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.CLOSE)
+                classroom.sendToAll(conferenceEvent)
             }
-
     }
 
     fun changeVisibility(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo) {
@@ -156,12 +162,7 @@ class ConferenceService(
                 else logger.debug("Conference ${conference.conferenceId} is still empty. Deleting...")
                 !usersJoined
             }.flatMap {
-                upstreamBBBService.endConference(conference)
-            }.flatMap {
-                classroom.conferences.deleteConference(conference)
-            }.flatMap {
-                val conferenceEvent = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.CLOSE)
-                classroom.sendToAll(conferenceEvent)
+                this.endConference(conference.toConferenceInfo())
             }.subscribe()
     }
 }

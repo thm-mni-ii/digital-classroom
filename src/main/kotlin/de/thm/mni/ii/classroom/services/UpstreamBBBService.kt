@@ -86,7 +86,8 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 if (it.returncode == "SUCCESS") {
                     it
                 } else {
-                    error(ClassroomException("Error from upstream BBB: ${it.message}"))
+                    logger.warn("Error from upstream BBB: ${it.message}")
+                    it
                 }
             }
     }
