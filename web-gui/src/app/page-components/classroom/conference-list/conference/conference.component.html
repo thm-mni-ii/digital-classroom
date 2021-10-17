@@ -17,7 +17,9 @@
     <div class="conference-buttons">
       <mat-icon [matTooltip]="joinTooltip()" class="open-icon functional-icon" (click)="this.joinConference()">open_in_new</mat-icon>
       <ng-container *ngIf="this.conference.visible; then hide else show"></ng-container>
-      <mat-icon matTooltip="Konferenz verlassen" class="delete-icon functional-icon" (click)="this.closeConference()">delete</mat-icon>
+      <mat-icon matTooltip="Konferenz verlassen" class="leave-icon functional-icon" (click)="this.leaveConference()">logout</mat-icon>
+      <mat-icon *ngIf="this.classroomService.isSelf(this.conference!!.creator!!) || this.classroomService.isCurrentUserPrivileged()"
+                matTooltip="Konferenz beenden!" class="delete-icon functional-icon" (click)="this.endConference()">delete</mat-icon>
     </div>
   </div>
   <hr>

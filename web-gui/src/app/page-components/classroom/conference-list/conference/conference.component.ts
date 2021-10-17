@@ -2,6 +2,7 @@ import {Component, Input} from '@angular/core';
 import {ConferenceInfo} from "../../../../model/ConferenceInfo";
 import {User} from "../../../../model/User";
 import {ConferenceService} from "../../../../service/conference.service";
+import {ClassroomService} from "../../../../service/classroom.service";
 
 @Component({
   selector: 'app-conference',
@@ -14,7 +15,8 @@ export class ConferenceComponent {
   @Input() currentUser?: User
 
   constructor(
-    private conferenceService: ConferenceService
+    public conferenceService: ConferenceService,
+    public classroomService: ClassroomService
   ) { }
 
   public isUserAttending(): boolean {
@@ -26,12 +28,16 @@ export class ConferenceComponent {
     this.conferenceService.changeVisibility(this.conference!!, !this.conference!!.visible);
   }
 
-  public closeConference() {
+  public joinConference() {
+    this.conferenceService.joinConference(this.conference!!)
+  }
+
+  public leaveConference() {
     this.conferenceService.leaveConference(this.conference!!)
   }
 
-  public joinConference() {
-    this.conferenceService.joinConference(this.conference!!)
+  public endConference() {
+    this.conferenceService.endConference(this.conference!!)
   }
 
   public joinTooltip(): string {

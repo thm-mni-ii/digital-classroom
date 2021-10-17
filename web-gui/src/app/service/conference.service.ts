@@ -168,6 +168,10 @@ export class ConferenceService {
     conferenceEvent.conferenceAction = ConferenceAction.VISIBILITY
     this.rSocketService.fireAndForget("socket/classroom-event", conferenceEvent)
   }
+
+  public endConference(conferenceInfo: ConferenceInfo) {
+    this.rSocketService.fireAndForget("socket/conference/end", conferenceInfo)
+  }
 }
 
 class ConferenceOpenInfo {
