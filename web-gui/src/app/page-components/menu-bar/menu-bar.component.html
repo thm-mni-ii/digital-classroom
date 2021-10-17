@@ -23,16 +23,7 @@
       {{currentUser.fullName}}
     </div>
   </div>
-
-  <div class="menu-bubble" *ngIf="menuVisible">
-    <mat-divider></mat-divider>
-    <!--<button mat-icon-button color="primary" *ngIf="isAuthorized() && classroomService.isJoined()" (click)="createConference()" matTooltip="Konferenzeinstellungen"><mat-icon >duo</mat-icon></button>-->
-    <div *ngIf="!this.currentUser?.visible" (click)="this.classroomService.userService.changeVisibility(true)" matTooltip="Nutzer sichtbar machen"><mat-icon>visibility</mat-icon>Sichtbar werden</div>
-    <mat-divider></mat-divider>
-    <div *ngIf="this.currentUser?.visible" (click)="this.classroomService.userService.changeVisibility(false)" matTooltip="Nutzer unsichtbar machen"><mat-icon>visibility_off</mat-icon>Unsichtbar werden</div>
-    <mat-divider></mat-divider>
-    <div (click)="this.classroomService.logout()" matTooltip="Klassenraum verlassen!"><mat-icon>close</mat-icon>Klassenraum verlassen</div>
-  </div>
-
 </div>
+
+<app-dropdown-menu *ngIf="menuVisible" [currentUser]="this.currentUser"></app-dropdown-menu>
 
