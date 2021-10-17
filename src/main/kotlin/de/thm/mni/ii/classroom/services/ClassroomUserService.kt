@@ -24,20 +24,21 @@ import java.lang.IllegalArgumentException
 @Service
 class ClassroomUserService(
     private val classroomInstanceService: ClassroomInstanceService,
-    private val conferenceService: ConferenceService
+    private val conferenceService: ConferenceService,
 ) {
 
     private val logger = LoggerFactory.getLogger(ClassroomUserService::class.java)
 
     fun userConnected(userCredentials: UserCredentials, socketRequester: RSocketRequester): Mono<Void> {
         return classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
-            .doOnNext { classroom -> this.conferenceService.updateConferences(classroom).subscribe() }
-            .zipWhen { classroom ->
+            .doOnNext { classroom ->
+                this.classroomInstanceService.abortDeletion(classroom)
+            }.zipWhen { classroom ->
                 classroom.connectSocket(userCredentials, socketRequester)
             }.delayUntil { (classroom, userDisplay) ->
                 classroom.sendToAll(UserEvent(userDisplay, UserAction.JOIN))
             }.doOnSuccess {
-                logger.info("$userCredentials connected to ${userCredentials.classroomId}!")
+                logger.debug("$userCredentials connected to ${userCredentials.classroomId}!")
             }.map {
                 socketRequester.rsocket()!!
             }.doOnNext { socket ->
@@ -57,9 +58,13 @@ class ClassroomUserService(
                 classroom.sendToAll(UserEvent(user, userAction = UserAction.LEAVE))
             }.doOnNext {
                 if (throwable == null) {
-                    logger.info("$userCredentials disconnected from ${userCredentials.classroomId}!")
+                    logger.debug("$userCredentials disconnected from ${userCredentials.classroomId}!")
                 } else {
                     logger.error("$userCredentials disconnected from ${userCredentials.classroomId} with error {}!", throwable.message)
+                }
+            }.doOnNext { (classroom, _) ->
+                if (!classroom.hasUserJoined()) {
+                    this.classroomInstanceService.scheduleClassroomDeletion(classroom)
                 }
             }.subscribe()
     }

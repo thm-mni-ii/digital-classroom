@@ -13,16 +13,17 @@ import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
+import org.springframework.context.annotation.Lazy
+import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.scheduler.Schedulers
 import reactor.kotlin.core.publisher.toMono
 import reactor.util.function.Tuple2
 import java.time.Duration
 import java.time.ZonedDateTime
 
-@Component
+@Service
+@Lazy
 class ConferenceService(
     private val classroomInstanceService: ClassroomInstanceService,
     private val upstreamBBBService: UpstreamBBBService,
@@ -125,22 +126,9 @@ class ConferenceService(
             }
     }
 
-    @Suppress("unused")
-    fun removeUserFromAllConferences(classroom: DigitalClassroom, userCredentials: UserCredentials): Mono<Void> {
-        return classroom.conferences.removeFromConferences(userCredentials)
-            .doOnNext { conference ->
-                if (conference.attendees.isEmpty()) {
-                    scheduleConferenceDeletion(classroom, conference)
-                }
-            }.flatMap { conference ->
-                val confEvent = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.USER_CHANGE)
-                classroom.sendToAll(confEvent)
-            }.then()
-    }
-
-    fun updateConferences(classroom: DigitalClassroom): Mono<Void> {
-        return classroom.conferences.getConferences()
-            .publishOn(Schedulers.boundedElastic())
+    fun updateConferences(classroom: DigitalClassroom) {
+        logger.info("Updating conferences of ${classroom.classroomName}.")
+        classroom.conferences.getConferences()
             .collectList()
             .zipWhen { conferences -> this.upstreamBBBService.syncMeetings(classroom, conferences) }
             .delayUntil { (original, syncedConferences) ->
@@ -156,6 +144,7 @@ class ConferenceService(
                 }
                 syncedConferences
             }.flatMap(classroom.conferences::updateConferences)
+            .subscribe()
     }
 
     fun scheduleConferenceDeletion(classroom: DigitalClassroom, conference: Conference, delaySeconds: Long = 90) {

@@ -95,6 +95,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
         classroom: DigitalClassroom,
         conferences: List<Conference>
     ): Mono<List<Conference>> {
+        if (conferences.isEmpty()) return Mono.empty()
         val request = buildApiRequest("getMeetings", mapOf())
         return WebClient.create(request).get().retrieve()
             .bodyToMono(GetMeetingsBBBResponse::class.java)
@@ -138,12 +139,12 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
         val checksum = calculateChecksum(method, query, upstreamBBBProperties.sharedSecret)
         uriBuilder.queryParam("checksum", checksum)
         val queryWithChecksum = uriBuilder.encode().build().query!!
-        return "${upstreamBBBProperties.serviceUrl}/api/$method?$queryWithChecksum"
+        val request = "${upstreamBBBProperties.serviceUrl}/api/$method?$queryWithChecksum"
+        logger.trace("BBB API call: {}", request)
+        return request
     }
 
     private fun calculateChecksum(method: String, query: String, secret: String): String {
-        logger.debug("String: $method$query$secret")
-        logger.debug("Checksum: ${DigestUtils.sha1Hex("$method$query$secret")}")
         return DigestUtils.sha1Hex("$method$query$secret")
     }
 }
