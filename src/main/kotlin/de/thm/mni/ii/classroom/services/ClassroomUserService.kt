@@ -93,7 +93,8 @@ class ClassroomUserService(
 
     fun updateTicket(userCredentials: UserCredentials, receivedTicket: Ticket) {
         if (!userCredentials.isPrivileged()) {
-            logger.warn("User ${userCredentials.fullName} is not authorized to assign ticket!")
+            logger.warn("User ${userCredentials.fullName} is not authorized " +
+                    "to change ticket #${receivedTicket.ticketId}!")
             return
         } else if (receivedTicket.assignee != null && !receivedTicket.assignee!!.isPrivileged()) {
             logger.warn("User ${receivedTicket.assignee} may not be assigned to a ticket!")
@@ -127,7 +128,7 @@ class ClassroomUserService(
     }
 
     private fun closeConferenceOfClosedTicket(ticket: Ticket, classroom: DigitalClassroom): Mono<Void> {
-        return classroom.conferences.getConferenceOfTicket(ticket.ticketId)
+        return classroom.conferences.getConferenceOfTicket(ticket.conferenceId)
             .filter { conference ->
                 conference.attendees.isEmpty()
             }.doOnNext { conference ->

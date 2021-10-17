@@ -98,6 +98,7 @@ class DigitalClassroom(
             .map { ticket ->
                 ticket.assignee = receivedTicket.assignee
                 ticket.description = receivedTicket.description
+                ticket.conferenceId = receivedTicket.conferenceId
                 ticket
             }
     }

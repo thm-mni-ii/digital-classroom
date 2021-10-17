@@ -114,7 +114,6 @@ export class ClassroomService {
   public configureConference(
     conferenceName: string,
     visible: boolean = true,
-    ticketId: number | null = null
   ): ConferenceInfo {
     const conferenceInfo = new ConferenceInfo()
     conferenceInfo.classroomId = this.classroomInfo!!.classroomId
@@ -122,7 +121,6 @@ export class ClassroomService {
     conferenceInfo.visible = visible
     conferenceInfo.creationTimestamp = Date.now()
     conferenceInfo.conferenceName = conferenceName
-    conferenceInfo.ticketId = ticketId
     return conferenceInfo
   }
 
@@ -154,7 +152,7 @@ export class ClassroomService {
     }
   }
 
-  public chooseConferenceOfUser(conferencingUser: UserCredentials): Observable<ConferenceInfo> {
+  public chooseConferenceOfUser(conferencingUser: UserCredentials = this.currentUser!!): Observable<ConferenceInfo> {
     return this.dialog.open(JoinUserConferenceDialogComponent, {
       height: 'auto',
       width: 'auto',
@@ -219,11 +217,7 @@ export class ClassroomService {
   }
 
   public createNewConferenceForTicket(ticket: Ticket): ConferenceInfo {
-    return this.configureConference(ticket.description, true, ticket.ticketId)
-  }
-
-  public findConferenceOfTicket(ticket: Ticket): ConferenceInfo | undefined {
-    return this.conferences.find(conference => conference.ticketId === ticket.ticketId)
+    return this.configureConference(ticket.description, true)
   }
 
   public logout() {
@@ -240,5 +234,18 @@ export class ClassroomService {
     ).subscribe((conferenceInfo: ConferenceInfo) => {
       this.conferenceService.createConference(conferenceInfo)
     });
+  }
+
+  public linkTicketToConference(ticket: Ticket, conference: ConferenceInfo) {
+    ticket.conferenceId = conference.conferenceId
+    this.ticketService.updateTicket(ticket)
+  }
+
+  public findTicketOfConference(conferenceInfo: ConferenceInfo): Ticket | null {
+    return this.ticketService.getTicketOfConference(conferenceInfo)
+  }
+
+  public findConferenceOfTicket(ticket: Ticket): ConferenceInfo | undefined {
+    return this.conferences.find(conference => conference.conferenceId === ticket.conferenceId)
   }
 }

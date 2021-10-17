@@ -5,6 +5,7 @@ import {ClassroomService} from "../../../../service/classroom.service";
 import {ConferenceInfo} from "../../../../model/ConferenceInfo";
 import {User, UserCredentials} from "../../../../model/User";
 import {UserService} from "../../../../service/user.service";
+import {filter, tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-ticket',
@@ -53,7 +54,10 @@ export class TicketComponent implements OnInit {
   }
 
   linkConference() {
-
+    this.classroomService.chooseConferenceOfUser().pipe(
+      filter(conf => conf !== undefined),
+      tap(conf => this.classroomService.linkTicketToConference(this.ticket!!, conf!!))
+    ).subscribe()
   }
 
   joinConference() {

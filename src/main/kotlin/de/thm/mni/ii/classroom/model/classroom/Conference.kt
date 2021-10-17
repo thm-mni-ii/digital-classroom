@@ -13,7 +13,6 @@ class Conference(
     var visible: Boolean,
     val attendees: LinkedHashSet<UserCredentials>,
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now(),
-    val ticketId: Long?
 ) : ClassroomDependent {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

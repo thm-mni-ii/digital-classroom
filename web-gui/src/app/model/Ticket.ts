@@ -8,6 +8,7 @@ export class Ticket implements ClassroomDependent {
   assignee?: UserCredentials;
   description: string = "";
   createTime: number = 0;
+  conferenceId: string | null = null;
 
   constructor(description: string, creator: UserCredentials) {
     this.classroomId = ""

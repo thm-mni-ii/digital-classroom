@@ -38,7 +38,6 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 creator = userCredentials,
                 visible = conferenceInfo.visible,
                 attendees = LinkedHashSet(),
-                ticketId = conferenceInfo.ticketId
             )
         ).flatMap { conference ->
             val queryParams = mapOf(
@@ -49,8 +48,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 Pair("breakoutRoomsEnabled", false.toString()),
                 Pair("lockSettingsLockOnJoin", false.toString()),
                 Pair("meta_classroomId", userCredentials.classroomId),
-                Pair("meta_creatorId", userCredentials.userId),
-                Pair("meta_ticketid", conference.ticketId.toString())
+                Pair("meta_creatorId", userCredentials.userId)
             )
             val request = buildApiRequest("create", queryParams)
             Mono.zip(Mono.just(conference), WebClient.create(request).get().retrieve().toEntity(MessageBBB::class.java))
@@ -125,7 +123,6 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                     conference.visible,
                     attendingUsers,
                     conference.creationTimestamp,
-                    meeting.metadata.ticketid
                 )
             }.collectList()
     }

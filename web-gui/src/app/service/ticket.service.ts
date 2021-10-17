@@ -5,6 +5,7 @@ import {BehaviorSubject, Observable, Subject} from "rxjs";
 import {TicketAction, TicketEvent} from "../rsocket/event/TicketEvent";
 import {EventListenerService} from "../rsocket/event-listener.service";
 import {finalize, map, tap} from "rxjs/operators";
+import {ConferenceInfo} from "../model/ConferenceInfo";
 
 @Injectable({
   providedIn: 'root'
@@ -82,5 +83,11 @@ export class TicketService {
   public removeTicket(ticket: Ticket) {
     const ticketEvent = new TicketEvent(ticket, TicketAction.CLOSE)
     return this.rSocketService.fireAndForget("socket/classroom-event", ticketEvent)
+  }
+
+  public getTicketOfConference(conferenceInfo: ConferenceInfo): Ticket | null {
+    const ticket = this.tickets.find(ticket => ticket.conferenceId === conferenceInfo.conferenceId)
+    if (ticket === undefined) return null
+    else return ticket
   }
 }

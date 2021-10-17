@@ -12,7 +12,7 @@
     <div class="conference-users">
       <app-conference-attendees [conference]="this.conference"></app-conference-attendees>
     </div>
-    <ng-container *ngIf="conference.ticketId !== null; then ticketRef else userRef"></ng-container>
+    <ng-container *ngIf="hasTicketRef(); then ticketRef else userRef"></ng-container>
 
     <div class="conference-buttons">
       <mat-icon [matTooltip]="joinTooltip()" class="open-icon functional-icon" (click)="this.joinConference()">open_in_new</mat-icon>
@@ -36,14 +36,14 @@
 
 
 <ng-template #ticketRef>
-<div class="conference-ref" *ngIf="conference!!.ticketId !== null" matTooltip="Ticket">
+<div class="conference-ref" matTooltip="Ticket">
   <mat-icon class="ref-icon">local_offer</mat-icon>
-  <span class="ref-label">{{conference!!.ticketId}}</span>
+  <span class="ref-label">{{ticket!!.ticketId}}</span>
 </div>
 </ng-template>
 
 <ng-template #userRef>
-<div class="conference-ref" *ngIf="conference!!.ticketId === null" matTooltip="Ersteller: {{conference!!.creator!!.fullName}}">
+<div class="conference-ref" matTooltip="Ersteller: {{conference!!.creator!!.fullName}}">
   <mat-icon class="ref-icon">person</mat-icon>
   <span class="ref-label">{{conference!!.creator!!.fullName.substr(0, 2)}}</span>
 </div>

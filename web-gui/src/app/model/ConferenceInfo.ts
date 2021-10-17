@@ -9,7 +9,6 @@ export class ConferenceInfo implements ClassroomDependent {
   visible: boolean = true
   creationTimestamp: number = Date.now()
   attendeeIds: string[] = []
-  ticketId: number | null = null
 }
 
 export class JoinLink {

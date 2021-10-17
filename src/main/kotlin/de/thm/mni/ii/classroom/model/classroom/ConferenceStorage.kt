@@ -88,7 +88,7 @@ class ConferenceStorage {
         return Mono.empty()
     }
 
-    fun getConferenceOfTicket(ticketId: Long?): Mono<Conference> {
-        return conferences.values.toFlux().filter { it.ticketId == ticketId }.last()
+    fun getConferenceOfTicket(conferenceId: String?): Mono<Conference> {
+        return conferences[conferenceId].toMono()
     }
 }

@@ -15,6 +15,7 @@ class Ticket(
 ) : Comparable<Ticket>, ClassroomDependent {
 
     var ticketId: Long? = null
+    var conferenceId: String? = null
 
     @JsonSerialize(using = ZonedDateTimeMillisSerializer::class)
     @JsonDeserialize(using = ZonedDateTimeMillisDeserializer::class)

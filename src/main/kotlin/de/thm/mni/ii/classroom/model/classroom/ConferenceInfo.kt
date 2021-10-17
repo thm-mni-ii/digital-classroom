@@ -18,7 +18,6 @@ open class ConferenceInfo(
     @field:JsonDeserialize(using = ZonedDateTimeMillisDeserializer::class)
     val creationTimestamp: ZonedDateTime,
     var attendeeIds: List<String>,
-    val ticketId: Long?
 ) : ClassroomDependent {
 
     constructor(conference: Conference) : this(
@@ -29,7 +28,6 @@ open class ConferenceInfo(
         conference.visible,
         conference.creationTimestamp,
         conference.attendees.map { it.userId },
-        conference.ticketId
     )
 
     override fun equals(other: Any?): Boolean {

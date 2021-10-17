@@ -3,6 +3,7 @@ import {ConferenceInfo} from "../../../../model/ConferenceInfo";
 import {User} from "../../../../model/User";
 import {ConferenceService} from "../../../../service/conference.service";
 import {ClassroomService} from "../../../../service/classroom.service";
+import {Ticket} from "../../../../model/Ticket";
 
 @Component({
   selector: 'app-conference',
@@ -14,10 +15,14 @@ export class ConferenceComponent {
   @Input() conference?: ConferenceInfo
   @Input() currentUser?: User
 
+  ticket: Ticket | null = null
+
   constructor(
     public conferenceService: ConferenceService,
     public classroomService: ClassroomService
-  ) { }
+  ) {
+
+  }
 
   public isUserAttending(): boolean {
     if (this.currentUser === undefined) return false;
@@ -43,5 +48,10 @@ export class ConferenceComponent {
   public joinTooltip(): string {
     if (this.isUserAttending()) return "Tab fokussieren"
     else return "Beitreten"
+  }
+
+  public hasTicketRef(): boolean {
+    this.ticket = this.classroomService.findTicketOfConference(this.conference!!)
+    return this.ticket !== null
   }
 }
