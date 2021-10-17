@@ -28,12 +28,15 @@ mat-card-content {
     flex-flow: row nowrap;
     align-items: center;
     justify-items: center;
+    color: #405E9A;
     .ref-label {
       position: relative;
       left: -10px;
       background-color: white;
-      border-radius: 30px;
+      border-radius: 20%;
       line-height: 12px;
+      color: black;
+      font-weight: normal;
     }
   }
 }
