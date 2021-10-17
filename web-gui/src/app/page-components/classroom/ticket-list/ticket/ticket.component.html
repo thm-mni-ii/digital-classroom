@@ -12,8 +12,8 @@
   <div class="ticket-row ticket-details">{{ticket.description}}</div>
   <div class="ticket-row">
     <div class="ticket-users ticket-row">
-      <app-ticket-user ticketContext="zugewiesen" [userCredentials]="this.ticket.assignee" [ticket]="ticket"></app-ticket-user>
-      <app-ticket-user ticketContext="ersteller" [userCredentials]="this.ticket.creator" [ticket]="ticket"></app-ticket-user>
+      <app-ticket-assign label="zugewiesen" [ticket]="ticket" [users]="this.users"></app-ticket-assign>
+      <app-ticket-user-display label="ersteller" [user]="this.fullUser(this.ticket.creator)"></app-ticket-user-display>
     </div>
     <div class="ticket-buttons" [ngSwitch]="determineJoinButton()">
       <ng-container *ngSwitchCase="'invite'" [ngTemplateOutlet]="inviteToConferenceTemplate"></ng-container>

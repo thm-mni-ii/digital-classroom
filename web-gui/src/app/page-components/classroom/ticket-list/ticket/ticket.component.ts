@@ -3,6 +3,8 @@ import {Ticket} from "../../../../model/Ticket";
 import {TimeFormatterService} from "../../../../util/time-formatter.service";
 import {ClassroomService} from "../../../../service/classroom.service";
 import {ConferenceInfo} from "../../../../model/ConferenceInfo";
+import {User, UserCredentials} from "../../../../model/User";
+import {UserService} from "../../../../service/user.service";
 
 @Component({
   selector: 'app-ticket',
@@ -12,11 +14,13 @@ import {ConferenceInfo} from "../../../../model/ConferenceInfo";
 export class TicketComponent implements OnInit {
 
   @Input() ticket?: Ticket;
+  @Input() users: User[] = []
   conference?: ConferenceInfo;
 
   constructor(
     private timeFormatterService: TimeFormatterService,
-    public classroomService: ClassroomService
+    public classroomService: ClassroomService,
+    public userService: UserService
   ) { }
 
   ngOnInit(): void {
@@ -54,5 +58,9 @@ export class TicketComponent implements OnInit {
 
   joinConference() {
 
+  }
+
+  public fullUser(user: UserCredentials): User | undefined {
+    return this.userService.getFullUser(user.userId)
   }
 }

@@ -7,7 +7,7 @@
   <hr>
   <mat-list>
     <mat-card class="ticket" *ngFor="let ticket of sortTickets(tickets)">
-      <app-ticket [ticket]="ticket"></app-ticket>
+      <app-ticket [ticket]="ticket" [users]="users"></app-ticket>
     </mat-card>
   </mat-list>
 </div>
