@@ -42,7 +42,7 @@ export class UserService {
         this.users.forEach((user, userId, map) => {
           user.conferences = conferences
             .filter(conference => conference.visible)
-            .filter(conference => conference.attendees.includes(userId))
+            .filter(conference => conference.attendeeIds.includes(userId))
           map.set(userId, user)
         })
       })

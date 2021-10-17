@@ -1,9 +1,11 @@
 package de.thm.mni.ii.classroom.model.classroom
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import de.thm.mni.ii.classroom.model.ClassroomDependent
 import java.time.ZonedDateTime
 
 class Conference(
-    val classroomId: String,
+    override val classroomId: String,
     val conferenceId: String,
     val conferenceName: String,
     val attendeePassword: String,
@@ -13,7 +15,7 @@ class Conference(
     val attendees: LinkedHashSet<UserCredentials>,
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now(),
     val ticketId: Long?
-) {
+): ClassroomDependent {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -32,7 +34,9 @@ class Conference(
         return result
     }
 
-    fun toConferenceInfo() = ConferenceInfo(this)
+    fun toConferenceInfo(): ConferenceInfo {
+        return ConferenceInfo(this)
+    }
 
     fun removeUser(userCredentials: UserCredentials): Conference {
         this.attendees.remove(userCredentials)

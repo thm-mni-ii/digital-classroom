@@ -1,6 +1,5 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.exception.classroom.ClassroomException
 import de.thm.mni.ii.classroom.model.api.GetMeetingsBBBResponse
 import de.thm.mni.ii.classroom.model.api.MessageBBB
 import de.thm.mni.ii.classroom.model.classroom.Conference
@@ -71,7 +70,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
         if (user.avatarUrl != null) {
             queryParams[BbbApiConstants.avatarUrl] = user.avatarUrl.toString()
         }
-        return Mono.just(buildApiRequest("join", queryParams)).map { JoinLink(ConferenceInfo(conference), it) }
+        return Mono.just(buildApiRequest("join", queryParams)).map { JoinLink(conference.toConferenceInfo(), it) }
     }
 
     fun endConference(conference: Conference): Mono<MessageBBB> {
@@ -95,7 +94,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
     fun syncMeetings(
         classroom: DigitalClassroom,
         conferences: List<Conference>
-    ): Flux<Conference> {
+    ): Mono<List<Conference>> {
         val request = buildApiRequest("getMeetings", mapOf())
         return WebClient.create(request).get().retrieve()
             .bodyToMono(GetMeetingsBBBResponse::class.java)
@@ -127,7 +126,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                     conference.creationTimestamp,
                     meeting.metadata.ticketid
                 )
-            }
+            }.collectList()
     }
 
     private fun buildApiRequest(method: String, queryParams: Map<String, String>): String {

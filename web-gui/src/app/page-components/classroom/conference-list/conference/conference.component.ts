@@ -21,7 +21,7 @@ export class ConferenceComponent {
 
   public isUserAttending(): boolean {
     if (this.currentUser === undefined) return false;
-    return this.conference!!.attendees.includes(this.currentUser.userId);
+    return this.conference!!.attendeeIds.includes(this.currentUser.userId);
   }
 
   public changeVisibility() {

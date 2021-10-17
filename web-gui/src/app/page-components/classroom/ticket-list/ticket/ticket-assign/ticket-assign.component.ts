@@ -5,6 +5,7 @@ import {Ticket} from "../../../../../model/Ticket";
 import {UserService} from "../../../../../service/user.service";
 import {TicketService} from "../../../../../service/ticket.service";
 import {NotificationService} from "../../../../../service/notification.service";
+import {ClassroomService} from "../../../../../service/classroom.service";
 
 @Component({
   selector: 'app-ticket-assign',
@@ -22,7 +23,8 @@ export class TicketAssignComponent implements OnInit {
     public userIconService: UserIconService,
     private ticketService: TicketService,
     public userService: UserService,
-    private notification: NotificationService
+    private notification: NotificationService,
+    public classroomService: ClassroomService
   ) {
     this.assigneeId = "†none"
   }

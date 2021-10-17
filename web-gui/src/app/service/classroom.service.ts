@@ -46,7 +46,7 @@ export class ClassroomService {
       conferences.filter(
         conf => conf.visible ||
           conf.creator!!.userId == this.currentUser?.userId ||
-          conf.attendees.includes(this.currentUser?.userId!!)
+          conf.attendeeIds.includes(this.currentUser?.userId!!)
       )
     )
   )

@@ -8,7 +8,7 @@ export class ConferenceInfo implements ClassroomDependent {
   creator?: UserCredentials
   visible: boolean = true
   creationTimestamp: number = Date.now()
-  attendees: string[] = []
+  attendeeIds: string[] = []
   ticketId: number | null = null
 }
 

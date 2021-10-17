@@ -14,11 +14,13 @@ import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import reactor.kotlin.core.publisher.toMono
 import reactor.util.function.Tuple2
 import java.time.Duration
+import java.time.ZonedDateTime
 
 @Component
 class ConferenceService(
@@ -32,10 +34,10 @@ class ConferenceService(
             .zipWith(upstreamBBBService.createConference(userCredentials, conferenceInfo))
             .doOnNext { (classroom, conference) ->
                 logger.info("Created conference ${conference.conferenceId} in classroom ${classroom.classroomName}!")
-                classroom.sendToAll(ConferenceEvent(ConferenceInfo(conference), ConferenceAction.CREATE)).subscribe()
+                classroom.sendToAll(ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.CREATE)).subscribe()
             }.flatMap { (classroom, conference) ->
                 classroom.conferences.createConference(conference)
-            }.map(::ConferenceInfo)
+            }.map(Conference::toConferenceInfo)
     }
 
     fun joinConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<JoinLink> {
@@ -140,21 +142,26 @@ class ConferenceService(
         return classroom.conferences.getConferences()
             .publishOn(Schedulers.boundedElastic())
             .collectList()
-            .flatMapMany { conferences -> this.upstreamBBBService.syncMeetings(classroom, conferences) }
-            .doOnNext { conference ->
-                if (conference.attendees.isEmpty()) {
-                    this.scheduleConferenceDeletion(classroom, conference, 10)
+            .zipWhen { conferences -> this.upstreamBBBService.syncMeetings(classroom, conferences) }
+            .delayUntil { (original, syncedConferences) ->
+                // End all conferences (delete from local storage) that were stored, but are not known by BBB.
+                Flux.concat(original.minus(syncedConferences).filter { conference ->
+                    ZonedDateTime.now().isAfter(conference.creationTimestamp.plusSeconds(30))
+                }.map(Conference::toConferenceInfo)
+                    .map(this::endConference))
+            }.map { (_, syncedConferences) ->
+                // Schedule deletion if conference is empty.
+                syncedConferences.filter { it.attendees.isEmpty() }.forEach { conference ->
+                    this.scheduleConferenceDeletion(classroom, conference, 30)
                 }
-            }
-            .collectList()
-            .flatMap(classroom.conferences::updateConferences)
+                syncedConferences
+            }.flatMap(classroom.conferences::updateConferences)
     }
 
     fun scheduleConferenceDeletion(classroom: DigitalClassroom, conference: Conference, delaySeconds: Long = 90) {
         logger.debug("Conference ${conference.conferenceId} scheduled for deletion if still empty in $delaySeconds seconds!")
         Mono.just(conference)
             .delayElement(Duration.ofSeconds(delaySeconds))
-            .delayUntil { this.updateConferences(classroom) }
             .flatMap { classroom.conferences.getUsersOfConference(it).hasElements() }
             // Stop if users rejoined the conference!
             .filter { usersJoined ->

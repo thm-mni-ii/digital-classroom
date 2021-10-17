@@ -22,13 +22,13 @@ import java.util.concurrent.atomic.AtomicLong
  * Class representing a digital classroom instance.
  */
 class DigitalClassroom(
-    classroomId: String,
+    val classroomId: String,
     val studentPassword: String,
     val tutorPassword: String,
     val teacherPassword: String,
-    classroomName: String,
-    logoutUrl: URL?
-) : ClassroomInfo(classroomId, classroomName, logoutUrl) {
+    val classroomName: String,
+    val logoutUrl: URL?
+) {
 
     private val logger = LoggerFactory.getLogger(DigitalClassroom::class.java)
 
@@ -40,6 +40,7 @@ class DigitalClassroom(
 
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
 
+    fun getClassroomInfo() = ClassroomInfo(classroomId, classroomName, logoutUrl)
     fun hasUserJoined() = users.isNotEmpty()
     fun hasBeenForciblyEnded() = false
     fun getDuration() = ChronoUnit.MINUTES.between(creationTimestamp, ZonedDateTime.now())

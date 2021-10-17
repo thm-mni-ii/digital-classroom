@@ -1,8 +1,8 @@
-<mat-select [(ngModel)]="assigneeId" class="user-select" (ngModelChange)="assignUser()">
+<mat-select [disabled]="!classroomService.isCurrentUserPrivileged()" [(ngModel)]="assigneeId" class="user-select" (ngModelChange)="assignUser()">
   <mat-select-trigger class="user-select">
     <ng-container *ngIf="this.assigneeId !== '†none'; then userDisplay else assign"></ng-container>
   </mat-select-trigger>
-  <mat-option value="none">
+  <mat-option value="†none">
     <ng-container *ngTemplateOutlet="assign"></ng-container>
   </mat-option>
   <mat-option *ngFor="let supervisor of this.users" [value]="supervisor.userId">
@@ -11,9 +11,13 @@
 </mat-select>
 
 <ng-template #assign>
-  <div class="assign-user" >
+  <div class="assign-user" *ngIf="this.classroomService.isCurrentUserPrivileged()">
     <mat-icon class="assign-icon">add_circle_outline</mat-icon>&nbsp;
     <span class="assign-text">zuweisen</span>
+  </div>
+  <div class="assign-user" *ngIf="!this.classroomService.isCurrentUserPrivileged()">
+    <mat-icon class="assign-icon">person_off</mat-icon>&nbsp;
+    <span class="assign-text"> n/a </span>
   </div>
 </ng-template>
 

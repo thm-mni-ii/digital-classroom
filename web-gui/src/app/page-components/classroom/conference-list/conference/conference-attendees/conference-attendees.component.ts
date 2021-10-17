@@ -19,7 +19,7 @@ export class ConferenceAttendeesComponent {
   }
 
   public getAttendees() {
-    return this.conference!!.attendees.map((userId) => this.userService.getFullUser(userId)!!).filter(user => user !== undefined)
+    return this.conference!!.attendeeIds.map((userId) => this.userService.getFullUser(userId)!!).filter(user => user !== undefined)
   }
 
   public getClassOfNumAttendees(element: HTMLDivElement): string {

@@ -5,6 +5,7 @@ import de.thm.mni.ii.classroom.event.TicketEvent
 import de.thm.mni.ii.classroom.event.UserAction
 import de.thm.mni.ii.classroom.event.UserEvent
 import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
+import de.thm.mni.ii.classroom.model.classroom.Conference
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.Ticket
@@ -144,7 +145,7 @@ class ClassroomUserService(
     fun getClassroomInfo(userCredentials: UserCredentials): Mono<ClassroomInfo> {
         return classroomInstanceService
             .getClassroomInstance(userCredentials.classroomId)
-            .cast(ClassroomInfo::class.java)
+            .map(DigitalClassroom::getClassroomInfo)
     }
 
     fun getConferences(userCredentials: UserCredentials): Flux<ConferenceInfo> {
@@ -152,7 +153,7 @@ class ClassroomUserService(
             .getClassroomInstance(userCredentials.classroomId)
             .flatMapMany { classroom ->
                 classroom.conferences.getConferences()
-            }.map(::ConferenceInfo)
+            }.map(Conference::toConferenceInfo)
     }
 
     fun changeVisibility(userCredentials: UserCredentials, event: UserEvent) {
