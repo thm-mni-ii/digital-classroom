@@ -17,6 +17,6 @@ import java.io.Serializable
 )
 abstract class ClassroomEvent(
     private val eventName: String
-    ) : Serializable {
+) : Serializable {
     @JsonIgnore abstract fun getClassroomId(): String
-    }
+}
