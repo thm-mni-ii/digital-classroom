@@ -133,10 +133,11 @@ class ConferenceService(
             .zipWhen { conferences -> this.upstreamBBBService.syncMeetings(classroom, conferences) }
             .delayUntil { (original, syncedConferences) ->
                 // End all conferences (delete from local storage) that were stored, but are not known by BBB.
-                Flux.concat(original.minus(syncedConferences).filter { conference ->
-                    ZonedDateTime.now().isAfter(conference.creationTimestamp.plusSeconds(30))
-                }.map(Conference::toConferenceInfo)
-                    .map(this::endConference))
+                Flux.fromIterable(original.minus(syncedConferences))
+                    .filter { conference ->
+                        ZonedDateTime.now().isAfter(conference.creationTimestamp.plusSeconds(30))
+                    }.map(Conference::toConferenceInfo)
+                    .map(this::endConference)
             }.map { (_, syncedConferences) ->
                 // Schedule deletion if conference is empty.
                 syncedConferences.filter { it.attendees.isEmpty() }.forEach { conference ->

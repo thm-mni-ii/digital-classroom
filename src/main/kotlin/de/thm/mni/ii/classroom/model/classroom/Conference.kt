@@ -1,6 +1,5 @@
 package de.thm.mni.ii.classroom.model.classroom
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import de.thm.mni.ii.classroom.model.ClassroomDependent
 import java.time.ZonedDateTime
 
@@ -15,7 +14,7 @@ class Conference(
     val attendees: LinkedHashSet<UserCredentials>,
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now(),
     val ticketId: Long?
-): ClassroomDependent {
+) : ClassroomDependent {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
