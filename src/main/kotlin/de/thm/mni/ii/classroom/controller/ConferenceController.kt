@@ -16,31 +16,31 @@ class ConferenceController(private val conferenceService: ConferenceService) {
 
     @MessageMapping("socket/conference/create")
     fun createConference(@AuthenticationPrincipal userCredentials: UserCredentials, @Payload conferenceInfo: ConferenceInfo): Mono<ConferenceInfo> {
+        assert(userCredentials.classroomId == conferenceInfo.classroomId)
         return conferenceService.createConference(userCredentials, conferenceInfo)
     }
 
     @MessageMapping("socket/conference/join")
     fun joinConference(@AuthenticationPrincipal userCredentials: UserCredentials, @Payload conferenceInfo: ConferenceInfo): Mono<JoinLink> {
+        assert(userCredentials.classroomId == conferenceInfo.classroomId)
         return conferenceService.joinConference(userCredentials, conferenceInfo)
-    }
-
-    @MessageMapping("socket/conference/join-user")
-    fun joinConferenceOfUser(@AuthenticationPrincipal joiningUserCredentials: UserCredentials, @Payload conferencingUserCredentials: UserCredentials): Mono<JoinLink> {
-        return conferenceService.joinConferenceOfUser(joiningUserCredentials, conferencingUserCredentials)
     }
 
     @MessageMapping("socket/conference/leave")
     fun leaveConference(@AuthenticationPrincipal userCredentials: UserCredentials, @Payload conferenceInfo: ConferenceInfo): Mono<Void> {
+        assert(userCredentials.classroomId == conferenceInfo.classroomId)
         return conferenceService.leaveConference(userCredentials, conferenceInfo)
     }
 
     @MessageMapping("socket/conference/end")
     fun endConference(@AuthenticationPrincipal userCredentials: UserCredentials, @Payload conferenceInfo: ConferenceInfo): Mono<Void> {
-        TODO("NOT YET IMPLEMENTED")
+        assert(userCredentials.classroomId == conferenceInfo.classroomId)
+        return conferenceService.endConference(userCredentials, conferenceInfo)
     }
 
     @MessageMapping("socket/conference/invite")
     fun inviteToConference(@AuthenticationPrincipal userCredentials: UserCredentials, @Payload invitationEvent: InvitationEvent): Mono<Void> {
+        assert(userCredentials.classroomId == invitationEvent.getClassroomId())
         return conferenceService.forwardInvitation(userCredentials, invitationEvent)
     }
 }

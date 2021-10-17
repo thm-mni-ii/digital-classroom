@@ -10,12 +10,10 @@ import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.JoinLink
 import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
-import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import reactor.kotlin.core.publisher.toMono
@@ -49,15 +47,6 @@ class ConferenceService(
             }
     }
 
-    fun joinConferenceOfUser(joiningUserCredentials: UserCredentials, conferencingUserCredentials: UserCredentials): Mono<JoinLink> {
-        return classroomInstanceService.getClassroomInstance(joiningUserCredentials.classroomId)
-            .zipWhen { classroom ->
-                classroom.conferences.getConferencesOfUser(conferencingUserCredentials).last()
-            }.flatMap { (classroom, conference) ->
-                joinUser(joiningUserCredentials, conference!!, classroom)
-            }
-    }
-
     private fun joinUser(userCredentials: UserCredentials, conference: Conference, classroom: DigitalClassroom): Mono<JoinLink> {
         val user = classroom.getUser(userCredentials.userId)
         val asModerator = user.isPrivileged() || conference.creator == user
@@ -71,15 +60,20 @@ class ConferenceService(
             }.map(Tuple2<JoinLink, Conference>::getT1)
     }
 
-    fun getUsersInConferences(auth: ClassroomAuthentication): Flux<UserCredentials> {
-        return classroomInstanceService.getClassroomInstance(auth.getClassroomId())
-            .flatMapMany {
-                it.conferences.getUsersInConferences()
+    fun endConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<Void> {
+        if (!userCredentials.isPrivileged() && userCredentials != conferenceInfo.creator) {
+            logger.warn("User ${userCredentials.fullName} is not authorized to end ${conferenceInfo.conferenceName}!")
+            return Mono.empty()
+        }
+        return this.classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+            .zipWhen { classroom ->
+                classroom.conferences.getConference(conferenceInfo.conferenceId!!)
+            }.delayUntil { (_, conference) ->
+                this.upstreamBBBService.endConference(conference)
+            }.flatMap { (classroom, conference) ->
+                classroom.conferences.removeConference(conference)
             }
-    }
 
-    fun endConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo) {
-        TODO("Not yet implemented")
     }
 
     fun changeVisibility(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo) {
