@@ -4,8 +4,11 @@
     <p>Zu welcher Konferenz möchten Sie {{this.data.fullName}} einladen?</p>
       <app-choose-conference-dialog
         [conferences]="this.data.conferences"
-        [dialogRef]="this.dialogRef">
+        [dialogRef]="this.dialogRef"
+      (conference)="getConference($event)">
       </app-choose-conference-dialog>
-    <button color="warn" mat-flat-button (click)="close()">Abbrechen</button>
   </mat-dialog-content>
+  <mat-action-row>
+    <button color="warn" mat-flat-button (click)="close()">Abbrechen</button>
+  </mat-action-row>
 </div>

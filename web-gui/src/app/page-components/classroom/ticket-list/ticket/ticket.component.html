@@ -15,7 +15,7 @@
       <app-ticket-assign label="zugewiesen" [ticket]="ticket" [users]="this.users"></app-ticket-assign>
       <app-ticket-user-display label="ersteller" [user]="this.fullUser(this.ticket.creator)"></app-ticket-user-display>
     </div>
-    <div class="ticket-buttons" [ngSwitch]="determineJoinButton()">
+    <div class="ticket-buttons" [ngSwitch]="determineButton()">
       <ng-container *ngSwitchCase="'invite'" [ngTemplateOutlet]="inviteToConferenceTemplate"></ng-container>
       <ng-container *ngSwitchCase="'join'" [ngTemplateOutlet]="joinConferenceTemplate"></ng-container>
       <ng-container *ngSwitchCase="'link'" [ngTemplateOutlet]="linkConferenceTemplate"></ng-container>

@@ -5,7 +5,6 @@ import {ClassroomService} from "../../../../service/classroom.service";
 import {ConferenceInfo} from "../../../../model/ConferenceInfo";
 import {User, UserCredentials} from "../../../../model/User";
 import {UserService} from "../../../../service/user.service";
-import {filter, tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-ticket',
@@ -33,11 +32,15 @@ export class TicketComponent implements OnInit {
     return this.timeFormatterService.timeAgo(ticket.createTime)
   }
 
-  public determineJoinButton(): "join" | "link" | "invite" {
+  public determineButton(): "join" | "link" | "invite" {
     this.conference = this.classroomService.findConferenceOfTicket(this.ticket!!)
-    if (this.conference !== undefined && this.classroomService.isInConference(this.ticket!!.creator)) return "join"
-    else if (this.classroomService.isSelf(this.ticket!!.creator)) return "link"
-    else return "invite"
+    if (this.classroomService.isSelf(this.ticket!!.creator) && this.conference === undefined) {
+      return "link"
+    }
+    if (this.conference !== undefined || this.classroomService.isInConference(this.ticket!!.creator))
+      return "join"
+    else
+      return "invite"
   }
 
   editTicket() {
@@ -49,19 +52,17 @@ export class TicketComponent implements OnInit {
   }
 
   inviteCreator() {
-    const conference = this.classroomService.findOrCreateConferenceOfTicket(this.ticket!!)
-    this.classroomService.inviteToConference(this.ticket!!.creator, conference)
+    this.classroomService
+      .createNewConferenceForTicket(this.ticket!!)
+      .subscribe(conf => this.classroomService.inviteToConference(this.ticket!!.creator, conf))
   }
 
   linkConference() {
-    this.classroomService.chooseConferenceOfUser().pipe(
-      filter(conf => conf !== undefined),
-      tap(conf => this.classroomService.linkTicketToConference(this.ticket!!, conf!!))
-    ).subscribe()
+    this.classroomService.linkTicketToConference(this.ticket!!)
   }
 
   joinConference() {
-
+    this.classroomService.conferenceService.joinConference(this.conference!!)
   }
 
   public fullUser(user: UserCredentials): User | undefined {

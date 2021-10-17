@@ -1,5 +1,9 @@
 <div class="attendee-container">
-  <div class="conference-attendees" #attendees>
+    <ng-container *ngIf="conference!!.attendeeIds.length > 0; then attendeesDisplay else placeholder"></ng-container>
+</div>
+
+<ng-template #attendeesDisplay>
+  <div class="conference-attendees" #attendees >
     <div class="conference-attendee" *ngFor="let attendee of getAttendees()" [matTooltip]="attendee.fullName">
       <ngx-avatar
         [bgColor]="this.userIconService.calculateColorCode(attendee.fullName!!)"
@@ -15,5 +19,20 @@
     </div>
   </div>
   <div [ngClass]="getClassOfNumAttendees(attendees)" class="num-attendees">{{this.conference?.attendeeIds?.length}}</div>
-</div>
+</ng-template>
 
+<ng-template #placeholder>
+    <div class="attendee-placeholder" matTooltip="Niemand da">
+      <ngx-avatar
+        bgColor="black"
+        class="user-avatar"
+        name="X"
+        initialsSize="2"
+        cornerRadius="4"
+        size="24"
+        [round]="false"
+        [textSizeRatio]="1.8"
+      ></ngx-avatar>
+      <span>¯\_(ツ)_/¯</span>
+    </div>
+</ng-template>

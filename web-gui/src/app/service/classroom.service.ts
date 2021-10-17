@@ -28,6 +28,10 @@ import {
   CreateConferenceDialogComponent,
   CreateConferenceInputData
 } from "../dialogs/create-conference-dialog/create-conference-dialog.component";
+import {
+  LinkConferenceInputData,
+  LinkConferenceToTicketDialogComponent
+} from "../dialogs/link-conference-to-ticket-dialog/link-conference-to-ticket-dialog.component";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and
@@ -135,9 +139,7 @@ export class ClassroomService {
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else if (this.currentUser?.conferences.length === 0) {
       const conferenceInfo = this.configureConference(
-        "Meeting",
-        false
-      )
+        "Meeting", false)
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else {
       this.dialog.open(InviteToConferenceDialogComponent, {
@@ -211,12 +213,19 @@ export class ClassroomService {
   public findOrCreateConferenceOfTicket(ticket: Ticket): ConferenceInfo {
     let conference = this.findConferenceOfTicket(ticket)
     if (conference === undefined) {
-      conference = this.createNewConferenceForTicket(ticket)
+      conference = this.configureNewConferenceForTicket(ticket)
     }
     return conference
   }
 
-  public createNewConferenceForTicket(ticket: Ticket): ConferenceInfo {
+  public createNewConferenceForTicket(ticket: Ticket): Observable<ConferenceInfo> {
+    const info = this.configureNewConferenceForTicket(ticket)
+    return this.conferenceService.createConference(info).pipe(
+      tap(conf => this.updateTicketWithConference(ticket, conf))
+    )
+  }
+
+  public configureNewConferenceForTicket(ticket: Ticket): ConferenceInfo {
     return this.configureConference(ticket.description, true)
   }
 
@@ -236,8 +245,19 @@ export class ClassroomService {
     });
   }
 
-  public linkTicketToConference(ticket: Ticket, conference: ConferenceInfo) {
-    ticket.conferenceId = conference.conferenceId
+  public linkTicketToConference(ticket: Ticket) {
+    this.dialog.open(LinkConferenceToTicketDialogComponent, {
+      height: 'auto',
+      width: 'auto',
+      data: new LinkConferenceInputData(this.currentUser!!.conferences, ticket)
+    }).beforeClosed().subscribe(conf => {
+      this.updateTicketWithConference(ticket, conf)
+    })
+  }
+
+  private updateTicketWithConference(ticket: Ticket, conference?: ConferenceInfo) {
+    if (conference === undefined) ticket.conferenceId = null
+    else ticket.conferenceId = conference!!.conferenceId
     this.ticketService.updateTicket(ticket)
   }
 

@@ -41,6 +41,8 @@ import { ConferenceComponent } from './page-components/classroom/conference-list
 import { ConferenceAttendeesComponent } from './page-components/classroom/conference-list/conference/conference-attendees/conference-attendees.component';
 import { DropdownMenuComponent } from './page-components/menu-bar/dropdown-menu/dropdown-menu.component';
 import { TicketUserDisplayComponent } from './page-components/classroom/ticket-list/ticket/ticket-user-display/ticket-user-display.component';
+import {LinkConferenceToTicketDialogComponent} from "./dialogs/link-conference-to-ticket-dialog/link-conference-to-ticket-dialog.component";
+
 
 @NgModule({
   declarations: [
@@ -72,7 +74,8 @@ import { TicketUserDisplayComponent } from './page-components/classroom/ticket-l
     ConferenceComponent,
     ConferenceAttendeesComponent,
     DropdownMenuComponent,
-    TicketUserDisplayComponent
+    TicketUserDisplayComponent,
+    LinkConferenceToTicketDialogComponent
   ],
   imports: [
     BrowserModule,

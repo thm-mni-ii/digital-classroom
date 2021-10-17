@@ -47,3 +47,13 @@
 .conference-attendee:last-child, .conference-attendee:hover {
   overflow: visible;
 }
+
+.attendee-placeholder {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: space-between;
+  span {
+    margin-left: 5px;
+  }
+}

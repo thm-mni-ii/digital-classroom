@@ -2,6 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {ClassroomService} from '../../service/classroom.service';
 import {User} from "../../model/User";
+import {ConferenceInfo} from "../../model/ConferenceInfo";
 
 @Component({
   selector: 'app-invite-to-conference-dialog',
@@ -22,5 +23,9 @@ export class InviteToConferenceDialogComponent implements OnInit {
 
   public close() {
     this.dialogRef.close()
+  }
+
+  getConference(conference: ConferenceInfo) {
+    this.dialogRef.close(conference)
   }
 }
