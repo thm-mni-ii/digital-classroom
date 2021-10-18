@@ -93,8 +93,10 @@ class ClassroomUserService(
 
     fun updateTicket(userCredentials: UserCredentials, receivedTicket: Ticket) {
         if (!userCredentials.isPrivileged()) {
-            logger.warn("User ${userCredentials.fullName} is not authorized " +
-                    "to change ticket #${receivedTicket.ticketId}!")
+            logger.warn(
+                "User ${userCredentials.fullName} is not authorized " +
+                    "to change ticket #${receivedTicket.ticketId}!"
+            )
             return
         } else if (receivedTicket.assignee != null && !receivedTicket.assignee!!.isPrivileged()) {
             logger.warn("User ${receivedTicket.assignee} may not be assigned to a ticket!")
