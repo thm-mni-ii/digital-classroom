@@ -32,6 +32,7 @@ class DownstreamAPISecurity(private val classroomProperties: ClassroomProperties
      * constrains the filter to requests at a specific path (/api/\*).
      */
     fun downstreamAPIFilter(): AuthenticationWebFilter {
+        logger.info("Secret starts with: ${classroomProperties.sharedSecret.substring(0, 5)}")
         val authManager = reactiveAuthenticationManager()
         val downstreamAPIFilter = AuthenticationWebFilter(authManager)
         downstreamAPIFilter.setRequiresAuthenticationMatcher(

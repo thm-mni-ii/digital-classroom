@@ -13,12 +13,9 @@ export class ConferenceListComponent implements OnInit {
   conferences: ConferenceInfo[] | undefined
   currentUser: User | undefined
 
-  constructor(private classroomService: ClassroomService) { }
-
-  isUserAttending(conference: ConferenceInfo): boolean {
-    if (this.currentUser === undefined) return false;
-    return conference.attendees.includes(this.currentUser.userId);
-  }
+  constructor(
+    private classroomService: ClassroomService,
+  ) { }
 
   ngOnInit(): void {
     this.classroomService.currentUserObservable.subscribe(
@@ -27,6 +24,10 @@ export class ConferenceListComponent implements OnInit {
     this.classroomService.conferencesObservable.subscribe(
       conferences => this.conferences = conferences
     )
+  }
+
+  public createConference() {
+    this.classroomService.createConference()
   }
 
 }

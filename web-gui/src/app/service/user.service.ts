@@ -14,6 +14,7 @@ import {ConferenceService} from "./conference.service";
 export class UserService {
 
   private users: Map<string, User> = new Map<string, User>()
+  private offlineUsers: Map<string, User> = new Map<string, User>()
   // @ts-ignore
   private userSubject: Subject<User[]> = new BehaviorSubject([])
   userObservable: Observable<User[]> = this.userSubject.asObservable()
@@ -29,6 +30,7 @@ export class UserService {
     private conferenceService: ConferenceService,
   ) {
     this.initUsers()
+    this.initOfflineUsers()
     this.eventListenerService.userEvents.pipe(
       tap((userEvent: UserEvent) => this.handleUserEvent(userEvent)),
       map(() => this.publish())
@@ -40,7 +42,7 @@ export class UserService {
         this.users.forEach((user, userId, map) => {
           user.conferences = conferences
             .filter(conference => conference.visible)
-            .filter(conference => conference.attendees.includes(userId))
+            .filter(conference => conference.attendeeIds.includes(userId))
           map.set(userId, user)
         })
       })
@@ -49,15 +51,23 @@ export class UserService {
 
   private initUsers() {
     this.rSocketService.requestStream<User>("socket/init-users", "Init Users").pipe(
-      tap(userDisplay => {
-        if (userDisplay.userId === this.authService.getToken().userId) {
-          this.selfSubject.next(userDisplay)
+      tap(users => {
+        if (users.userId === this.authService.getToken().userId) {
+          this.selfSubject.next(users)
         }
       }),
-      tap(userDisplay => {
-        this.users.set(userDisplay.userId, userDisplay)
+      tap(user => {
+        this.users.set(user.userId, user)
       }),
       finalize(() => this.publish())
+    ).subscribe()
+  }
+
+  private initOfflineUsers() {
+    this.rSocketService.requestStream<User>("socket/init-offline-users", "Init Offline Users").pipe(
+      tap(user => {
+        this.offlineUsers.set(user.userId, user)
+      })
     ).subscribe()
   }
 
@@ -67,11 +77,13 @@ export class UserService {
 
     switch (userEvent.userAction) {
       case UserAction.JOIN: {
+        this.offlineUsers.delete(userEvent.user.userId)
         this.updateUser(userEvent.user);
         break;
       }
       case UserAction.LEAVE: {
         this.users.delete(userEvent.user.userId);
+        this.offlineUsers.set(userEvent.user.userId, userEvent.user)
         break;
       }
       case UserAction.VISIBILITY_CHANGE: {
@@ -115,9 +127,9 @@ export class UserService {
     this.rSocketService.fireAndForget("socket/classroom-event", event)
   }
 
-  public getFullUser(userCredentials: UserCredentials): User | undefined {
-    const user: User | undefined = this.users.get(userCredentials?.userId)
-    if (user === undefined) return undefined
+  public getFullUser(userId: string): User | undefined {
+    let user: User | undefined = this.users.get(userId)
+    if (user === undefined) user = this.offlineUsers.get(userId)
     return user
   }
 }

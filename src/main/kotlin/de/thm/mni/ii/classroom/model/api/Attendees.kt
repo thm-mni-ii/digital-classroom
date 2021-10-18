@@ -10,7 +10,7 @@ class Attendees(userCredentials: Set<UserCredentials>? = null) {
 
     @Suppress("unused")
     @XmlElement(name = "attendee")
-    val attendees = userCredentials?.mapTo(HashSet(), ::Attendee)
+    val attendees = userCredentials?.mapTo(LinkedHashSet(), ::Attendee)
 }
 
 @XmlType(

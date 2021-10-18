@@ -3,7 +3,6 @@ package de.thm.mni.ii.classroom.services
 import de.thm.mni.ii.classroom.event.ClassroomEvent
 import de.thm.mni.ii.classroom.event.ConferenceAction
 import de.thm.mni.ii.classroom.event.ConferenceEvent
-import de.thm.mni.ii.classroom.event.MessageEvent
 import de.thm.mni.ii.classroom.event.TicketAction
 import de.thm.mni.ii.classroom.event.TicketEvent
 import de.thm.mni.ii.classroom.event.UserAction
@@ -12,7 +11,6 @@ import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class ClassroomEventReceiverService(
@@ -24,7 +22,6 @@ class ClassroomEventReceiverService(
 
     fun classroomEventReceived(userCredentials: UserCredentials, event: ClassroomEvent) {
         when (event) {
-            is MessageEvent -> messageEventReceived(userCredentials, event)
             is TicketEvent -> ticketEventReceived(userCredentials, event)
             is ConferenceEvent -> conferenceEventReceived(userCredentials, event)
             is UserEvent -> userEventReceived(userCredentials, event)
@@ -42,23 +39,18 @@ class ClassroomEventReceiverService(
         }
     }
 
-    private fun messageEventReceived(userCredentials: UserCredentials, messageEvent: MessageEvent): Mono<Void> {
-        logger.info("Received message ${messageEvent.message} from ${userCredentials.fullName}")
-        return Mono.empty()
-    }
-
     private fun ticketEventReceived(userCredentials: UserCredentials, ticketEvent: TicketEvent) {
         when (ticketEvent.ticketAction) {
             TicketAction.CREATE -> userService.createTicket(userCredentials, ticketEvent.ticket)
-            TicketAction.ASSIGN -> userService.assignTicket(userCredentials, ticketEvent.ticket)
+            TicketAction.UPDATE -> userService.updateTicket(userCredentials, ticketEvent.ticket)
             TicketAction.CLOSE -> userService.closeTicket(userCredentials, ticketEvent.ticket)
         }
     }
 
     private fun conferenceEventReceived(userCredentials: UserCredentials, conferenceEvent: ConferenceEvent) {
         when (conferenceEvent.conferenceAction) {
-            ConferenceAction.CREATE -> conferenceService.createConference(userCredentials, conferenceEvent.conferenceInfo)
-            ConferenceAction.CLOSE -> conferenceService.endConference(userCredentials, conferenceEvent.conferenceInfo)
+            ConferenceAction.CREATE -> logger.error("Received CREATE event from ${userCredentials.fullName}! This should never happen")
+            ConferenceAction.CLOSE -> logger.error("Received CREATE event from ${userCredentials.fullName}! This should never happen")
             ConferenceAction.VISIBILITY -> conferenceService.changeVisibility(userCredentials, conferenceEvent.conferenceInfo)
             ConferenceAction.USER_CHANGE -> logger.error("Received USER_CHANGE event from ${userCredentials.fullName}! This should never happen")
         }

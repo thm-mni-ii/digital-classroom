@@ -15,7 +15,7 @@ import {
 } from "rxjs/operators";
 import {UserService} from "./user.service";
 import {Roles} from "../model/Roles";
-import {NewTicketDialogComponent} from "../dialogs/new-ticket-dialog/new-ticket-dialog.component";
+import {CreateEditTicketComponent, TicketEditData} from "../dialogs/create-edit-ticket/create-edit-ticket.component";
 import {ConferenceInfo} from "../model/ConferenceInfo";
 import {ClassroomInfo} from "../model/ClassroomInfo";
 import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
@@ -24,6 +24,14 @@ import {Router} from "@angular/router";
 import {NotificationService} from "./notification.service";
 import {JoinUserConferenceDialogComponent} from "../dialogs/join-user-conference-dialog/join-user-conference-dialog.component";
 import {LogoutService} from "./logout.service";
+import {
+  CreateConferenceDialogComponent,
+  CreateConferenceInputData
+} from "../dialogs/create-conference-dialog/create-conference-dialog.component";
+import {
+  LinkConferenceInputData,
+  LinkConferenceToTicketDialogComponent
+} from "../dialogs/link-conference-to-ticket-dialog/link-conference-to-ticket-dialog.component";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and
@@ -38,7 +46,13 @@ export class ClassroomService {
   public userDisplayObservable = this.userService.userObservable
   public currentUserObservable = this.userService.currentUserObservable
   public conferencesObservable = this.conferenceService.conferencesObservable.pipe(
-    map(confs => confs.filter(conf => conf.visible || conf.creator!!.userId == this.currentUser?.userId))
+    map(conferences =>
+      conferences.filter(
+        conf => conf.visible ||
+          conf.creator!!.userId == this.currentUser?.userId ||
+          conf.attendeeIds.includes(this.currentUser?.userId!!)
+      )
+    )
   )
   private conferences: ConferenceInfo[] = []
 
@@ -50,31 +64,42 @@ export class ClassroomService {
   public classroomInfo: ClassroomInfo | undefined
   public currentUser: User | undefined
 
-  public constructor(private router: Router,
-                     private authService: AuthService,
-                     private conferenceService: ConferenceService,
-                     private dialog: MatDialog,
-                     private rSocketService: RSocketService,
-                     private ticketService: TicketService,
-                     private userService: UserService,
-                     private notification: NotificationService,
-                     private logoutService: LogoutService) {
+  public constructor(
+    private router: Router,
+    private authService: AuthService,
+    public conferenceService: ConferenceService,
+    private dialog: MatDialog,
+    private rSocketService: RSocketService,
+    public ticketService: TicketService,
+    public userService: UserService,
+    private notification: NotificationService,
+    private logoutService: LogoutService
+  ) {
+    this.connectToBackend()
+  }
+
+  /**
+   * Connect to backend
+   * @return Observable that completes if connected.
+   */
+  public connectToBackend() {
+    this.rSocketService.requestResponse<ClassroomInfo>("socket/init-classroom", "").pipe(
+      tap(info => this.classroomInfoSubject.next(info))
+    ).subscribe(
+      classroom => this.notification.show("Connected to " + classroom.classroomName + "!"),
+      e => {throw Error("Could not connect to classroom: \n" + e.message)}
+    )
     this.currentUserObservable.subscribe(currentUser => this.currentUser = currentUser)
     this.classroomInfoObservable.subscribe(info => {
       this.classroomInfo = info
       this.logoutService.classroomInfo = info
     })
     this.userDisplayObservable.subscribe(users => this.users = users)
-    this.conferencesObservable.subscribe(conferences =>
-      this.conferences = conferences.filter(conf => conf.visible || this.currentUser?.userId === conf.creator!!.userId)
-    )
-    this.conferenceService.invitationEvents.subscribe(invitation => {
-      this.handleInviteMsg(invitation)
-    })
-    this.join()
+    this.conferencesObservable.subscribe(conferences => this.conferences = conferences)
+    this.conferenceService.invitationEvents.subscribe(invitation => this.handleInviteMsg(invitation))
   }
 
-  public isCurrentUserAuthorized(): boolean {
+  public isCurrentUserPrivileged(): boolean {
     if (this.currentUser === undefined) return false
     return Roles.isPrivileged(this.currentUser.userRole)
   }
@@ -90,38 +115,31 @@ export class ClassroomService {
     return user.userId === this.currentUser?.userId
   }
 
-  /**
-   * Connect to backend
-   * @return Observable that completes if connected.
-   */
-  public join() {
-    return this.rSocketService.requestResponse<ClassroomInfo>("socket/init-classroom", "").pipe(
-        tap(info => this.classroomInfoSubject.next(info))
-      ).subscribe(
-        classroom => this.notification.show("Connected to " + classroom.classroomName + "!"),
-        e => {throw Error("Could not connect to classroom: \n" + e.message)}
-    )
-  }
-
-  public createConference(conferenceInfo: ConferenceInfo) {
-    this.conferenceService.createConference(conferenceInfo)
+  public configureConference(
+    conferenceName: string,
+    visible: boolean = true,
+  ): ConferenceInfo {
+    const conferenceInfo = new ConferenceInfo()
+    conferenceInfo.classroomId = this.classroomInfo!!.classroomId
+    conferenceInfo.creator = this.currentUser!!
+    conferenceInfo.visible = visible
+    conferenceInfo.creationTimestamp = Date.now()
+    conferenceInfo.conferenceName = conferenceName
+    return conferenceInfo
   }
 
   /**
    * Invites user to a conference.
    * @param invitee The user to invite
    * @param conferenceInfo
-   * @param ticket
    */
-  public inviteToConference(invitee: UserCredentials, conferenceInfo?: ConferenceInfo, ticket?: Ticket) {
+  public inviteToConference(invitee: UserCredentials, conferenceInfo?: ConferenceInfo) {
     if (this.currentUser === undefined) throw new Error("Current user is undefined!")
     if (conferenceInfo !== undefined) {
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
-    } else if (ticket !== undefined) {
-      const conferenceInfo = this.createConferenceInfo(ticket.description)
-      this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else if (this.currentUser?.conferences.length === 0) {
-      const conferenceInfo = this.createConferenceInfo("Meeting", false)
+      const conferenceInfo = this.configureConference(
+        "Meeting", false)
       this.conferenceService.inviteToConference(invitee, this.currentUser, conferenceInfo)
     } else {
       this.dialog.open(InviteToConferenceDialogComponent, {
@@ -136,40 +154,12 @@ export class ClassroomService {
     }
   }
 
-  private createConferenceInfo(conferenceName: string, visible: boolean = true): ConferenceInfo {
-    if (this.classroomInfo === undefined) throw new Error("ClassroomInfo is undefined!")
-    if (this.currentUser === undefined) throw new Error("Current user is undefined!")
-    const conferenceInfo = new ConferenceInfo()
-    conferenceInfo.classroomId = this.classroomInfo.classroomId
-    conferenceInfo.creator = this.currentUser
-    conferenceInfo.visible = visible
-    conferenceInfo.creationTimestamp = Date.now()
-    conferenceInfo.conferenceName = conferenceName
-    return conferenceInfo
-  }
-
-  public chooseConferenceToJoin(conferencingUser: UserCredentials) {
-    this.dialog.open(JoinUserConferenceDialogComponent, {
+  public chooseConferenceOfUser(conferencingUser: UserCredentials = this.currentUser!!): Observable<ConferenceInfo> {
+    return this.dialog.open(JoinUserConferenceDialogComponent, {
       height: 'auto',
       width: 'auto',
       data: conferencingUser
-    }).beforeClosed().subscribe( conf => {
-        if (conf !== undefined) {
-          this.joinConference(conf)
-        }
-      })
-  }
-
-  public joinConference(conferenceInfo: ConferenceInfo) {
-    this.conferenceService.joinConference(conferenceInfo)
-  }
-
-  public showUser() {
-    this.userService.changeVisibility(true)
-  }
-
-  public hideUser() {
-    this.userService.changeVisibility(false)
+    }).beforeClosed()
   }
 
   private handleInviteMsg(invitationEvent: InvitationEvent) {
@@ -177,13 +167,16 @@ export class ClassroomService {
         height: 'auto',
         width: 'auto',
         data: invitationEvent
-      });
+      }).beforeClosed().subscribe((acceptCall: boolean) => {
+        if (acceptCall) this.conferenceService.joinConference(invitationEvent.conferenceInfo!!)
+    });
   }
 
-  public createTicket() {
-    this.dialog.open(NewTicketDialogComponent, {
+  public createOrEditTicket(originalTicket?: Ticket) {
+    this.dialog.open(CreateEditTicketComponent, {
       height: 'auto',
       width: 'auto',
+      data: new TicketEditData(this.currentUser!!, originalTicket)
     }).beforeClosed().pipe(
       filter(ticket => ticket),
       map((ticket: Ticket) => {
@@ -193,7 +186,11 @@ export class ClassroomService {
         return ticket
       })
     ).subscribe((ticket: Ticket) => {
-      this.ticketService.createTicket(ticket)
+      if (ticket.ticketId === 0) {
+        this.ticketService.createTicket(ticket)
+      } else {
+        this.ticketService.updateTicket(ticket)
+      }
     });
   }
 
@@ -202,8 +199,7 @@ export class ClassroomService {
     this.notification.show(`Das Ticket wurde geschlossen`);
   }
 
-  public isInConference(userCredentials?: UserCredentials): boolean {
-    if (userCredentials === undefined) throw new Error("user is undefined!")
+  public isInConference(userCredentials: UserCredentials): boolean {
     let user: User | undefined
     if (userCredentials instanceof User)
       user = userCredentials
@@ -214,7 +210,62 @@ export class ClassroomService {
     return user.conferences.length !== 0
   }
 
-  public leave() {
+  public findOrCreateConferenceOfTicket(ticket: Ticket): ConferenceInfo {
+    let conference = this.findConferenceOfTicket(ticket)
+    if (conference === undefined) {
+      conference = this.configureNewConferenceForTicket(ticket)
+    }
+    return conference
+  }
+
+  public createNewConferenceForTicket(ticket: Ticket): Observable<ConferenceInfo> {
+    const info = this.configureNewConferenceForTicket(ticket)
+    return this.conferenceService.createConference(info).pipe(
+      tap(conf => this.updateTicketWithConference(ticket, conf))
+    )
+  }
+
+  public configureNewConferenceForTicket(ticket: Ticket): ConferenceInfo {
+    return this.configureConference(ticket.description, true)
+  }
+
+  public logout() {
     this.router.navigate(["/logout"], ).then()
+  }
+
+  public createConference() {
+    this.dialog.open(CreateConferenceDialogComponent, {
+      height: 'auto',
+      width: 'auto',
+      data: new CreateConferenceInputData(this.classroomInfo!!, this.currentUser!!)
+    }).beforeClosed().pipe(
+      filter(conferenceInfo => conferenceInfo instanceof ConferenceInfo),
+    ).subscribe((conferenceInfo: ConferenceInfo) => {
+      this.conferenceService.createConference(conferenceInfo)
+    });
+  }
+
+  public linkTicketToConference(ticket: Ticket) {
+    this.dialog.open(LinkConferenceToTicketDialogComponent, {
+      height: 'auto',
+      width: 'auto',
+      data: new LinkConferenceInputData(this.currentUser!!.conferences, ticket)
+    }).beforeClosed().subscribe(conf => {
+      this.updateTicketWithConference(ticket, conf)
+    })
+  }
+
+  private updateTicketWithConference(ticket: Ticket, conference?: ConferenceInfo) {
+    if (conference === undefined) ticket.conferenceId = null
+    else ticket.conferenceId = conference!!.conferenceId
+    this.ticketService.updateTicket(ticket)
+  }
+
+  public findTicketOfConference(conferenceInfo: ConferenceInfo): Ticket | null {
+    return this.ticketService.getTicketOfConference(conferenceInfo)
+  }
+
+  public findConferenceOfTicket(ticket: Ticket): ConferenceInfo | undefined {
+    return this.conferences.find(conference => conference.conferenceId === ticket.conferenceId)
   }
 }

@@ -2,6 +2,11 @@
   cursor: pointer;
 }
 
+hr {
+  border: 1px dashed #B1B1B1;
+  overflow: hidden;
+  width: 100%;
+}
 
 $userIconColors: #FD9A63, #60CB7E, #26B8B8, #405E9A;
 

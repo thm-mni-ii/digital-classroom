@@ -7,17 +7,19 @@ import de.thm.mni.ii.classroom.config.ZonedDateTimeMillisSerializer
 import de.thm.mni.ii.classroom.model.ClassroomDependent
 import java.time.ZonedDateTime
 
-class ConferenceInfo(
+@Suppress("unused")
+open class ConferenceInfo(
     override val classroomId: String,
-    val conferenceId: String?,
+    open val conferenceId: String?,
     val conferenceName: String,
-    val creator: UserCredentials?,
-    val visible: Boolean,
+    val creator: UserCredentials,
+    var visible: Boolean,
     @field:JsonSerialize(using = ZonedDateTimeMillisSerializer::class)
     @field:JsonDeserialize(using = ZonedDateTimeMillisDeserializer::class)
-    val creationTimestamp: ZonedDateTime?,
-    val attendees: List<String>
+    val creationTimestamp: ZonedDateTime,
+    var attendeeIds: List<String>,
 ) : ClassroomDependent {
+
     constructor(conference: Conference) : this(
         conference.classroomId,
         conference.conferenceId,
@@ -25,17 +27,16 @@ class ConferenceInfo(
         conference.creator,
         conference.visible,
         conference.creationTimestamp,
-        conference.attendees.map { it.userId }
+        conference.attendees.map { it.userId },
     )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ConferenceInfo
+        if (other !is ConferenceInfo) return false
 
         if (classroomId != other.classroomId) return false
         if (conferenceId != other.conferenceId) return false
+        if (creator != other.creator) return false
 
         return true
     }
@@ -43,6 +44,7 @@ class ConferenceInfo(
     override fun hashCode(): Int {
         var result = classroomId.hashCode()
         result = 31 * result + (conferenceId?.hashCode() ?: 0)
+        result = 31 * result + creator.hashCode()
         return result
     }
 }

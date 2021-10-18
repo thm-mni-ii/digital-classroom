@@ -6,9 +6,8 @@ import { AppComponent } from './app.component';
 import {ClassroomComponent} from "./page-components/classroom/classroom.component";
 import {MenuBarComponent} from "./page-components/menu-bar/menu-bar.component";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {NewTicketDialogComponent} from "./dialogs/new-ticket-dialog/new-ticket-dialog.component";
+import {CreateEditTicketComponent} from "./dialogs/create-edit-ticket/create-edit-ticket.component";
 import {InviteToConferenceDialogComponent} from "./dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component";
-import {AssignTicketDialogComponent} from "./dialogs/assign-ticket-dialog/assign-ticket-dialog.component";
 import {MaterialComponentsModule} from "./modules/material-components/material-components.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatSliderModule} from "@angular/material/slider";
@@ -36,17 +35,22 @@ import {JoinUserConferenceDialogComponent} from "./dialogs/join-user-conference-
 import {AvatarModule} from "ngx-avatar";
 import { FullPageComponent } from './page-components/full-page/full-page.component';
 import { TicketComponent } from './page-components/classroom/ticket-list/ticket/ticket.component';
-import { TicketUserComponent } from './page-components/classroom/ticket-list/ticket/ticket-user/ticket-user.component';
+import { TicketAssignComponent } from './page-components/classroom/ticket-list/ticket/ticket-assign/ticket-assign.component';
 import { SideDrawerMenuComponent } from './page-components/side-drawer-menu/side-drawer-menu.component';
+import { ConferenceComponent } from './page-components/classroom/conference-list/conference/conference.component';
+import { ConferenceAttendeesComponent } from './page-components/classroom/conference-list/conference/conference-attendees/conference-attendees.component';
+import { DropdownMenuComponent } from './page-components/menu-bar/dropdown-menu/dropdown-menu.component';
+import { TicketUserDisplayComponent } from './page-components/classroom/ticket-list/ticket/ticket-user-display/ticket-user-display.component';
+import {LinkConferenceToTicketDialogComponent} from "./dialogs/link-conference-to-ticket-dialog/link-conference-to-ticket-dialog.component";
+
 
 @NgModule({
   declarations: [
     AppComponent,
     ClassroomComponent,
     MenuBarComponent,
-    NewTicketDialogComponent,
+    CreateEditTicketComponent,
     InviteToConferenceDialogComponent,
-    AssignTicketDialogComponent,
     IsPrivilegedPipe,
     IncomingCallDialogComponent,
     JoinComponent,
@@ -65,8 +69,13 @@ import { SideDrawerMenuComponent } from './page-components/side-drawer-menu/side
     OverlayErrorComponent,
     FullPageComponent,
     TicketComponent,
-    TicketUserComponent,
-    SideDrawerMenuComponent
+    TicketAssignComponent,
+    SideDrawerMenuComponent,
+    ConferenceComponent,
+    ConferenceAttendeesComponent,
+    DropdownMenuComponent,
+    TicketUserDisplayComponent,
+    LinkConferenceToTicketDialogComponent
   ],
   imports: [
     BrowserModule,
