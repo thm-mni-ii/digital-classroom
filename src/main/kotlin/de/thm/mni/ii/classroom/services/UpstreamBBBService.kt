@@ -16,11 +16,13 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.util.DefaultUriBuilderFactory
 import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import java.util.UUID
+
 
 @Component
 class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBProperties) {
@@ -39,7 +41,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 visible = conferenceInfo.visible,
                 attendees = LinkedHashSet(),
             )
-        ).flatMap { conference ->
+        ).zipWhen { conference ->
             val queryParams = mapOf(
                 Pair("meetingID", conference.conferenceId),
                 Pair("name", conference.conferenceName),
@@ -51,7 +53,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 Pair("meta_creatorId", userCredentials.userId)
             )
             val request = buildApiRequest("create", queryParams)
-            Mono.zip(Mono.just(conference), WebClient.create(request).get().retrieve().toEntity(MessageBBB::class.java))
+            buildWebClient(request).get().retrieve().toEntity(MessageBBB::class.java)
         }.map { (conference, responseEntity) ->
             if (responseEntity.body!!.returncode == "SUCCESS") conference
             else error(Exception(responseEntity.body?.message))
@@ -77,7 +79,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
             Pair("password", conference.moderatorPassword)
         )
         val request = buildApiRequest("end", queryParams)
-        return WebClient.create(request).get().retrieve().toEntity(MessageBBB::class.java)
+        return buildWebClient(request).get().retrieve().toEntity(MessageBBB::class.java)
             .map { it.body!! }
             .map {
                 if (it.returncode == "SUCCESS") {
@@ -95,7 +97,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
     ): Mono<List<Conference>> {
         if (conferences.isEmpty()) return Mono.empty()
         val request = buildApiRequest("getMeetings", mapOf())
-        return WebClient.create(request).get().retrieve()
+        return buildWebClient(request).get().retrieve()
             .bodyToMono(GetMeetingsBBBResponse::class.java)
             .flatMapMany { getMeetings ->
                 Flux.fromIterable(getMeetings.meetings.meetings ?: listOf())
@@ -144,5 +146,15 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
     private fun calculateChecksum(method: String, query: String, secret: String): String {
         logger.trace("Checksum calculated from: $method$query$secret")
         return DigestUtils.sha1Hex("$method$query$secret")
+    }
+
+    private fun buildWebClient(baseUrl: String): WebClient {
+        val factory = DefaultUriBuilderFactory(baseUrl)
+        factory.encodingMode = DefaultUriBuilderFactory.EncodingMode.NONE
+        return WebClient
+            .builder()
+            .uriBuilderFactory(factory)
+            .baseUrl(baseUrl)
+            .build()
     }
 }
