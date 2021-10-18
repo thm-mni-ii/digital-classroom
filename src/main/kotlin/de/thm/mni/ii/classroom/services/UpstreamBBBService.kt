@@ -132,16 +132,17 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
         queryParams.forEach { (name, value) ->
             uriBuilder.queryParam(name, value.replace(" ", "+"))
         }
-        val query = uriBuilder.encode().build().query ?: ""
+        val query = uriBuilder.build().encode().query ?: ""
         val checksum = calculateChecksum(method, query, upstreamBBBProperties.sharedSecret)
         uriBuilder.queryParam("checksum", checksum)
-        val queryWithChecksum = uriBuilder.encode().build().query!!
+        val queryWithChecksum = uriBuilder.build().query!!
         val request = "${upstreamBBBProperties.serviceUrl}/api/$method?$queryWithChecksum"
         logger.trace("BBB API call: {}", request)
         return request
     }
 
     private fun calculateChecksum(method: String, query: String, secret: String): String {
+        logger.trace("Checksum calculated from: $method$query$secret")
         return DigestUtils.sha1Hex("$method$query$secret")
     }
 }
