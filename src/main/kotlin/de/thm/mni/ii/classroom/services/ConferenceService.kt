@@ -1,95 +1,172 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.event.*
-import de.thm.mni.ii.classroom.exception.classroom.ClassroomException
+import de.thm.mni.ii.classroom.event.ConferenceAction
+import de.thm.mni.ii.classroom.event.ConferenceEvent
+import de.thm.mni.ii.classroom.event.InvitationEvent
 import de.thm.mni.ii.classroom.exception.classroom.InvitationException
-import de.thm.mni.ii.classroom.model.classroom.*
+import de.thm.mni.ii.classroom.model.classroom.Conference
+import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
+import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
+import de.thm.mni.ii.classroom.model.classroom.JoinLink
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
+import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
 import de.thm.mni.ii.classroom.security.jwt.ClassroomAuthentication
+import de.thm.mni.ii.classroom.util.component1
+import de.thm.mni.ii.classroom.util.component2
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-
-import de.thm.mni.ii.classroom.util.component1
-import de.thm.mni.ii.classroom.util.component2
+import reactor.core.scheduler.Schedulers
+import reactor.kotlin.core.publisher.toMono
+import reactor.util.function.Tuple2
+import java.time.Duration
 
 @Component
-class ConferenceService(private val classroomInstanceService: ClassroomInstanceService,
-                        private val upstreamBBBService: UpstreamBBBService,
-                        private val eventSenderService: ClassroomEventSenderService) {
+class ConferenceService(
+    private val classroomInstanceService: ClassroomInstanceService,
+    private val upstreamBBBService: UpstreamBBBService,
+) {
 
     private val logger = LoggerFactory.getLogger(ConferenceService::class.java)
 
-    fun createConference(user: User, conferenceInfo: ConferenceInfo): Mono<ConferenceInfo> {
-        return classroomInstanceService.getClassroomInstance(user.classroomId)
-            .flatMap { classroom ->
-                Mono.zip(
-                    Mono.just(classroom),
-                    upstreamBBBService.createConference(user, conferenceInfo)
-                )
-            }.doOnNext { (classroom, conference) ->
+    fun createConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<ConferenceInfo> {
+        return classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+            .zipWith(upstreamBBBService.createConference(userCredentials, conferenceInfo))
+            .doOnNext { (classroom, conference) ->
                 logger.info("Created conference ${conference.conferenceId} in classroom ${classroom.classroomName}!")
-                eventSenderService.sendToAll(classroom, ConferenceEvent(ConferenceInfo(conference), ConferenceAction.CREATE)).subscribe()
+                classroom.sendToAll(ConferenceEvent(ConferenceInfo(conference), ConferenceAction.CREATE)).subscribe()
             }.flatMap { (classroom, conference) ->
-                classroom.saveConference(conference)
+                classroom.conferences.createConference(conference)
             }.map(::ConferenceInfo)
     }
 
-    fun joinConference(user: User, conferenceInfo: ConferenceInfo): Mono<JoinLink> {
-        return classroomInstanceService.getClassroomInstance(user.classroomId)
-            .flatMap { classroom ->
-                Mono.zip(Mono.just(classroom), classroom.getConference(conferenceInfo.conferenceId!!))
+    fun joinConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<JoinLink> {
+        return classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+            .zipWhen { classroom ->
+                classroom.conferences.getConference(conferenceInfo.conferenceId!!)
             }.flatMap { (classroom, conference) ->
-                joinUser(user, conference, classroom)
+                joinUser(userCredentials, conference, classroom)
             }
     }
 
-    fun joinConferenceOfUser(joiningUser: User, conferencingUser: User): Mono<JoinLink> {
-        return classroomInstanceService.getClassroomInstance(joiningUser.classroomId)
-            .flatMap { classroom ->
-                Mono.zip(Mono.just(classroom), classroom.getConferenceOfUser(conferencingUser))
+    fun joinConferenceOfUser(joiningUserCredentials: UserCredentials, conferencingUserCredentials: UserCredentials): Mono<JoinLink> {
+        return classroomInstanceService.getClassroomInstance(joiningUserCredentials.classroomId)
+            .zipWhen { classroom ->
+                classroom.conferences.getConferencesOfUser(conferencingUserCredentials).last()
             }.flatMap { (classroom, conference) ->
-                joinUser(joiningUser, conference, classroom)
+                joinUser(joiningUserCredentials, conference!!, classroom)
             }
     }
 
-    private fun joinUser(user: User, conference: Conference, classroom: DigitalClassroom): Mono<JoinLink> {
-        return upstreamBBBService.joinConference(conference, user, true)
-            .doOnSuccess {
-                logger.info("${user.fullName} joins conference ${conference.conferenceId}!")
-                classroom.joinUserToConference(conference, user).subscribe()
-                eventSenderService.sendToAll(
-                    classroom,
-                    UserEvent(user, true, conference.conferenceId, UserAction.JOIN_CONFERENCE)
+    private fun joinUser(userCredentials: UserCredentials, conference: Conference, classroom: DigitalClassroom): Mono<JoinLink> {
+        return upstreamBBBService.joinConference(conference, userCredentials, true)
+            .zipWith(classroom.conferences.joinUser(conference, userCredentials))
+            .doOnNext { (_, conference) ->
+                logger.info("${userCredentials.fullName} joins conference ${conference.conferenceId}!")
+                classroom.sendToAll(
+                    ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.USER_CHANGE)
                 ).subscribe()
+            }.map(Tuple2<JoinLink, Conference>::getT1)
+    }
+
+    fun getUsersInConferences(auth: ClassroomAuthentication): Flux<UserCredentials> {
+        return classroomInstanceService.getClassroomInstance(auth.getClassroomId())
+            .flatMapMany {
+                it.conferences.getUsersInConferences()
             }
     }
 
-    fun getUsersInConferences(auth: ClassroomAuthentication): Flux<User> {
-        return classroomInstanceService.getClassroomInstance(auth.getClassroomId()).flatMapMany {
-            it.getUsersInConferences()
-        }
-    }
-
-    fun endConference(user: User, conferenceInfo: ConferenceInfo) {
+    fun endConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo) {
         TODO("Not yet implemented")
     }
 
-    fun hideConference(user: User, conferenceInfo: ConferenceInfo) {
-        TODO("Not yet implemented")
+    fun changeVisibility(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<Void> {
+        return classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+            .map {
+                if (userCredentials != conferenceInfo.creator) {
+                    throw UnauthorizedException("Only the creator may hide or publish a conference!")
+                } else {
+                    it
+                }
+            }.zipWhen { classroom ->
+                classroom.conferences.changeVisibility(conferenceInfo)
+            }.flatMap { (classroom, conference) ->
+                val event = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.VISIBILITY)
+                classroom.sendToAll(event)
+            }
     }
 
-    fun publishConference(user: User, conferenceInfo: ConferenceInfo) {
-        TODO("Not yet implemented")
+    fun forwardInvitation(userCredentials: UserCredentials, invitationEvent: InvitationEvent): Mono<Void> {
+        if (invitationEvent.inviter != userCredentials) return Mono.error(InvitationException(userCredentials, invitationEvent))
+        return classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+            .flatMap { classroom ->
+                classroom.sendInvitation(invitationEvent)
+            }
     }
 
-    fun forwardInvitation(user: User, invitationEvent: InvitationEvent): Mono<Void> {
-        if (invitationEvent.inviter != user) return Mono.error(InvitationException(user, invitationEvent))
-        return classroomInstanceService.getClassroomInstance(user.classroomId)
-            .switchIfEmpty(Mono.error(ClassroomException("Classroom ${user.classroomId} not found!")))
-            .doOnNext { classroom ->
-                eventSenderService.sendInvitation(classroom, invitationEvent).subscribe()
+    fun leaveConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<Void> {
+        return classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+            .zipWhen { classroom ->
+                classroom.conferences.getConference(conferenceInfo.conferenceId!!)
+            }.flatMap { (classroom, conference) ->
+                Mono.zip(classroom.toMono(), classroom.conferences.leaveConference(userCredentials, conference))
+            }.doOnNext { (classroom, conferenceLeft) ->
+                if (conferenceLeft.attendees.isEmpty()) {
+                    this.scheduleConferenceDeletion(classroom, conferenceLeft)
+                }
+            }.flatMap { (classroom, conferenceLeft) ->
+                classroom.sendToAll(
+                    ConferenceEvent(conferenceLeft.toConferenceInfo(), ConferenceAction.USER_CHANGE)
+                )
+            }
+    }
+
+    @Suppress("unused")
+    fun removeUserFromAllConferences(classroom: DigitalClassroom, userCredentials: UserCredentials): Mono<Void> {
+        return classroom.conferences.removeFromConferences(userCredentials)
+            .doOnNext { conference ->
+                if (conference.attendees.isEmpty()) {
+                    scheduleConferenceDeletion(classroom, conference)
+                }
+            }.flatMap { conference ->
+                val confEvent = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.USER_CHANGE)
+                classroom.sendToAll(confEvent)
             }.then()
     }
 
+    fun updateConferences(classroom: DigitalClassroom): Mono<Void> {
+        return classroom.conferences.getConferences()
+            .publishOn(Schedulers.boundedElastic())
+            .collectList()
+            .flatMapMany { conferences -> this.upstreamBBBService.syncMeetings(classroom, conferences) }
+            .doOnNext { conference ->
+                if (conference.attendees.isEmpty()) {
+                    this.scheduleConferenceDeletion(classroom, conference, 10)
+                }
+            }
+            .collectList()
+            .flatMap(classroom.conferences::updateConferences)
+    }
+
+    fun scheduleConferenceDeletion(classroom: DigitalClassroom, conference: Conference, delaySeconds: Long = 90) {
+        logger.debug("Conference ${conference.conferenceId} scheduled for deletion if still empty in $delaySeconds seconds!")
+        Mono.just(conference)
+            .delayElement(Duration.ofSeconds(delaySeconds))
+            .delayUntil { this.updateConferences(classroom) }
+            .flatMap { classroom.conferences.getUsersOfConference(it).hasElements() }
+            // Stop if users rejoined the conference!
+            .filter { usersJoined ->
+                if (usersJoined) logger.debug("Users rejoined to conference ${conference.conferenceId}. Abort deletion.")
+                else logger.debug("Conference ${conference.conferenceId} is still empty. Deleting...")
+                !usersJoined
+            }.flatMap {
+                upstreamBBBService.endConference(conference)
+            }.flatMap {
+                classroom.conferences.deleteConference(conference)
+            }.flatMap {
+                val conferenceEvent = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.CLOSE)
+                classroom.sendToAll(conferenceEvent)
+            }.subscribe()
+    }
 }

@@ -4,7 +4,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {ClassroomService} from '../../service/classroom.service';
 import {AuthService} from '../../service/auth.service';
 import {Ticket} from '../../model/Ticket';
-import {User, UserDisplay} from "../../model/User";
+import {UserCredentials, User} from "../../model/User";
 import {TicketService} from "../../service/ticket.service";
 import {ConferenceService} from "../../service/conference.service";
 
@@ -14,7 +14,7 @@ import {ConferenceService} from "../../service/conference.service";
   styleUrls: ['./assign-ticket-dialog.component.scss']
 })
 export class AssignTicketDialogComponent implements OnInit {
-  users: UserDisplay[] = [];
+  users: User[] = [];
   disabled = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: Ticket,
@@ -23,40 +23,37 @@ export class AssignTicketDialogComponent implements OnInit {
               public classroomService: ClassroomService,
               private conferenceService: ConferenceService,
               private ticketService: TicketService,
-              public auth: AuthService) {
-  }
+              public auth: AuthService) { }
 
   ngOnInit(): void {
-    this.classroomService.userObservable.subscribe((users) => {
+    this.classroomService.userDisplayObservable.subscribe((users) => {
       this.users = users
     });
     this.dialogRef.afterOpened().subscribe(() => this.disabled = false);
   }
 
-  public assignTicket(assignee, ticket) {
-      this.data.assignee = assignee;
+  public assignTicket(assignee?: UserCredentials, ticket?: Ticket) {
+    if (assignee === undefined) throw new Error("assignee is undefined!")
+    if (ticket === undefined) throw new Error("ticket is undefined!")
+    this.data.assignee = assignee;
       this.ticketService.updateTicket(ticket);
       this.snackBar.open(`${assignee.fullName} wurde dem Ticket als Bearbeiter zugewiesen`, 'OK', {duration: 3000});
       this.dialogRef.close();
   }
 
-  public closeTicket(ticket) {
-    this.ticketService.removeTicket(ticket);
-    this.snackBar.open(`Das Ticket wurde geschlossen`, 'OK', {duration: 3000});
-    this.dialogRef.close();
-  }
-
-  public startCall(invitee) {
+  public startCall(invitee?: UserCredentials) {
+    if (invitee === undefined) throw new Error("invitee is undefined!")
     if (this.disabled) {
       return;
     }
     this.disabled = true;
-    this.classroomService.inviteToConference(invitee);
+    this.classroomService.inviteToConference(invitee, undefined, this.data);
     this.snackBar.open(`${invitee.fullName} wurde eingeladen der Konferenz beizutreten.`, 'OK', {duration: 3000});
     this.dialogRef.close();
   }
 
-  public joinConference(user: User) {
-    this.classroomService.joinConferenceOfUser(user);
+  public joinConference(user?: UserCredentials) {
+    if (user === undefined) throw new Error("user to join is undefined!")
+    this.classroomService.chooseConferenceToJoin(user);
   }
 }

@@ -1,6 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {AuthService} from './service/auth.service';
-import {environment} from "../environments/environment";
+import {Component} from '@angular/core';
+import {AssetManagerService} from "./util/asset-manager.service";
 
 /**
  * Component that routes from login to app
@@ -10,14 +9,9 @@ import {environment} from "../environments/environment";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   constructor(
-    private authService: AuthService
+    _assetManagerService: AssetManagerService
   ) {
-    console.log(environment.production)
-  }
-
-  ngOnInit(): void {
-    this.authService.startTokenAutoRefresh();
   }
 }

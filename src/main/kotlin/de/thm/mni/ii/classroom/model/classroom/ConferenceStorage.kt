@@ -1,45 +1,96 @@
 package de.thm.mni.ii.classroom.model.classroom
 
+import de.thm.mni.ii.classroom.exception.classroom.ConferenceNotFoundException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 
-class ConferenceStorage(private val digitalClassroom: DigitalClassroom) {
+class ConferenceStorage {
 
-    private val usersConference = HashMap<User, Conference>()
-    private val conferenceUsers = HashMap<Conference, HashSet<User>>()
+    private val usersConference = HashMap<UserCredentials, HashSet<Conference>>()
+    private val conferences = HashMap<String, Conference>()
 
-    fun getConferenceOfUser(user: User) = usersConference[user]
+    fun getConferencesOfUser(userCredentials: UserCredentials) =
+        Flux.fromIterable(usersConference[userCredentials] ?: LinkedHashSet())
 
-    fun getUsersOfConference(conference: Conference) = Mono.justOrEmpty(conferenceUsers[conference])
+    fun getUsersOfConference(conference: Conference): Flux<UserCredentials> {
+        return conferences[conference.conferenceId]?.attendees?.toFlux()
+            ?: throw ConferenceNotFoundException(conference.conferenceId)
+    }
 
-    fun joinUser(conference: Conference, user: User): Mono<User> {
-        return Mono.just(user).doOnNext {
-            usersConference[user] = conference
-            conferenceUsers.computeIfAbsent(conference) { HashSet() }
-                .also { it.add(user) }
+    fun joinUser(conference: Conference, userCredentials: UserCredentials): Mono<Conference> {
+        return Mono.just(userCredentials).map {
+            usersConference.computeIfAbsent(userCredentials) { HashSet() }
+                .also { it.add(conference) }
+            conferences.computeIfAbsent(conference.conferenceId) { conference }
+                .also { it.attendees.add(userCredentials) }
         }
     }
 
     fun createConference(conference: Conference): Mono<Conference> {
-        conferenceUsers.computeIfAbsent(conference) { HashSet() }
-        return conference.toMono()
+        return conferences.computeIfAbsent(conference.conferenceId) { conference }.toMono()
     }
 
     fun getConferences(): Flux<Conference> {
-        return Flux.fromIterable(conferenceUsers.keys)
+        return conferences.values.toFlux()
     }
 
-    fun getUsersInConferences(): Flux<User> {
+    fun getUsersInConferences(): Flux<UserCredentials> {
         return Flux.fromIterable(usersConference.keys)
     }
 
-    fun isUserInConference(user: User): Mono<Boolean> {
-        return Mono.just(usersConference.containsKey(user))
+    fun isUserInConference(userCredentials: UserCredentials): Mono<Boolean> {
+        return Mono.just(usersConference.containsKey(userCredentials))
     }
 
     fun getConference(conferenceId: String): Mono<Conference> {
-        return Mono.just(conferenceUsers.keys.first { it.conferenceId == conferenceId })
+        return conferences[conferenceId].toMono()
+            .switchIfEmpty(Mono.error(ConferenceNotFoundException(conferenceId)))
     }
 
+    fun leaveConference(userCredentials: UserCredentials, conference: Conference): Mono<Conference> {
+        return Mono.just(conference).map {
+            this.usersConference[userCredentials]?.remove(conference)
+            this.conferences[conference.conferenceId]!!.removeUser(userCredentials)
+        }
+    }
+
+    fun deleteConference(conference: Conference): Mono<Conference> {
+        return Mono.justOrEmpty(conference).doOnNext {
+            this.conferences.remove(conference.conferenceId)
+            this.usersConference.values.forEach {
+                it.remove(conference)
+            }
+        }
+    }
+
+    fun removeFromConferences(userCredentials: UserCredentials): Flux<Conference> {
+        return this.usersConference[userCredentials]?.toFlux()?.flatMap {
+            this.leaveConference(userCredentials, it)
+        } ?: Flux.empty()
+    }
+
+    fun changeVisibility(conferenceInfo: ConferenceInfo): Mono<Conference> {
+        val conference = this.conferences[conferenceInfo.conferenceId]
+        conference!!.visible = conferenceInfo.visible
+        return conference.toMono()
+    }
+
+    fun updateConferences(conferences: List<Conference>): Mono<Void> {
+        return conferences.toFlux().doOnNext { conference ->
+            this.conferences[conference.conferenceId] = conference
+        }.then(recomputeUsersConferences())
+    }
+
+    private fun recomputeUsersConferences(): Mono<Void> {
+        usersConference.clear()
+        conferences.values.forEach { conference ->
+            conference.attendees.forEach { user ->
+                usersConference.computeIfAbsent(user) { HashSet() }
+                    .also { it.add(conference) }
+            }
+        }
+        return Mono.empty()
+    }
 }

@@ -33,7 +33,16 @@ $web-gui-theme: mat.define-light-theme((
 // that you are using.
 @include mat.all-component-themes($web-gui-theme);
 
+@import 'src/style/global-style';
+
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  &.error-overlay-backdrop {
+    background: rgb(120 11 0 / 32%);
+    //opacity: 0.85 !important;
+  }
+}

@@ -111,5 +111,4 @@ class DownstreamAPISecurity(private val classroomProperties: ClassroomProperties
                 .flatMap(::calculateChecksum)
         }
     }
-
 }

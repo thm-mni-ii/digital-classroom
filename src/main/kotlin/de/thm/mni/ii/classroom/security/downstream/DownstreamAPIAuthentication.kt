@@ -10,7 +10,7 @@ import org.springframework.security.core.GrantedAuthority
  * @param givenChecksum: The checksum given with the gateways request.
  * @see DownstreamAPISecurity.downstreamAPIAuthenticationConverter
  */
-class DownstreamAPIAuthentication(private val host: String, private val givenChecksum: String): Authentication {
+class DownstreamAPIAuthentication(private val host: String, private val givenChecksum: String) : Authentication {
 
     // The re-calculated checksum
     lateinit var calculatedChecksum: String

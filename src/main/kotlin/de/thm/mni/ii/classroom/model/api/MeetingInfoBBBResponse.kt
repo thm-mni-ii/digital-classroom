@@ -5,43 +5,45 @@ import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import java.time.ZonedDateTime
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
-import javax.xml.bind.annotation.XmlTransient
 import javax.xml.bind.annotation.XmlType
 
+@Suppress("unused")
 @XmlRootElement(name = "response")
-@XmlType(propOrder=[
-    "returncode",
-    "meetingName",
-    "meetingID",
-    "internalMeetingID",
-    "createTime",
-    "createDate",
-    "voiceBridge",
-    "dialNumber",
-    "attendeePW",
-    "tutorPW",
-    "moderatorPW",
-    "running",
-    "duration",
-    "hasUserJoined",
-    "recording",
-    "hasBeenForciblyEnded",
-    "startTime",
-    "endTime",
-    "participantCount",
-    "listenerCount",
-    "voiceParticipantCount",
-    "videoCount",
-    "maxUsers",
-    "moderatorCount",
-    "attendees",
-    "metadata",
-    "isBreakout"
-])
+@XmlType(
+    propOrder = [
+        "returncode",
+        "meetingName",
+        "meetingID",
+        "internalMeetingID",
+        "createTime",
+        "createDate",
+        "voiceBridge",
+        "dialNumber",
+        "attendeePW",
+        "tutorPW",
+        "moderatorPW",
+        "running",
+        "duration",
+        "hasUserJoined",
+        "recording",
+        "hasBeenForciblyEnded",
+        "startTime",
+        "endTime",
+        "participantCount",
+        "listenerCount",
+        "voiceParticipantCount",
+        "videoCount",
+        "maxUsers",
+        "moderatorCount",
+        "attendees",
+        "metadata",
+        "isBreakout"
+    ]
+)
 class MeetingInfoBBBResponse(
     digitalClassroom: DigitalClassroom? = null,
     success: Boolean = true,
-    ): ReturnCodeBBB(success) {
+) : ReturnCodeBBB(success) {
     @XmlElement private val meetingName: String? = digitalClassroom?.classroomName
     @XmlElement private val meetingID: String? = digitalClassroom?.classroomId
     @XmlElement private val internalMeetingID: String? = digitalClassroom?.classroomId

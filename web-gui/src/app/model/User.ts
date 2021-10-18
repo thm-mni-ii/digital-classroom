@@ -1,51 +1,37 @@
 import {ClassroomDependent} from "../rsocket/event/ClassroomEvent";
-import {UserEvent} from "../rsocket/event/UserEvent";
+import {ConferenceInfo} from "./ConferenceInfo";
 
-export interface User extends ClassroomDependent {
+export interface UserCredentials extends ClassroomDependent {
   classroomId: string;
   userId: string;
   fullName: string;
-  userRole?: UserRole; // STUDENT, TUTOR or TEACHER
+  userRole: UserRole; // STUDENT, TUTOR or TEACHER
 }
 
-export class UserDisplay implements User {
+export class User implements UserCredentials {
   classroomId: string;
   userId: string;
   fullName: string;
   userRole: UserRole;
-  inConference: boolean;
-  conferenceId: string;
+  visible: boolean;
+  conferences: ConferenceInfo[];
+  avatarUrl: string;
 
-  constructor(classroomId: string, userId: string, fullName: string, userRole: UserRole, inConference: boolean, conferenceId: string) {
+  constructor(classroomId: string,
+              userId: string,
+              fullName: string,
+              userRole: UserRole,
+              visible: boolean,
+              conferences: ConferenceInfo[],
+              avatarUrl: string) {
     this.classroomId = classroomId;
     this.userId = userId;
     this.fullName = fullName;
     this.userRole = userRole;
-    this.inConference = inConference;
-    this.conferenceId = conferenceId;
+    this.visible = visible;
+    this.conferences = conferences;
+    this.avatarUrl = avatarUrl
   }
-}
-
-export function userDisplayFromEvent(userEvent: UserEvent) {
-  return new UserDisplay(
-    userEvent.user.classroomId,
-    userEvent.user.userId,
-    userEvent.user.fullName,
-    userEvent.user.userRole,
-    userEvent.inConference,
-    userEvent.conferenceId
-  )
-}
-
-export function defaultUserDisplay(user: User) {
-  return new UserDisplay(
-    user.classroomId,
-    user.userId,
-    user.fullName,
-    user.userRole,
-    false,
-    null
-  )
 }
 
 export enum UserRole {

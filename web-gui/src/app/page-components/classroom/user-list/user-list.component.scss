@@ -1,16 +1,18 @@
-.users {
-  height: 90%;
+h3 {
+  text-align:center;
+}
+
+.user-list {
   display: flex;
-  flex-direction:row;
+  flex-direction:column;
   flex-grow: 2;
-  h3 {
-    text-align:center;
-  }
+  margin-right: 5%;
+  margin-left: 5%;
 }
 
 .user {
   height: 24px;
-  margin-top: 12px;
+  margin: 12px 5px 5px 5px;
   padding:5px;
   display: flex;
   justify-content: space-between;
@@ -25,17 +27,23 @@
       text-align: center;
       line-height: 30px;
     }
+    .call:hover {
+      cursor: pointer;
+      color: green;
+    }
   }
   span {
     display: flex;
     align-items: center;
   }
-}
-
-.user-item {
-  width:100%;
-  margin:0;
-  p {
+  .user-item {
+    width:100%;
     margin:0;
+    .subtext-role {
+      float:right;
+    }
+    p {
+      margin:2px;
+    }
   }
 }

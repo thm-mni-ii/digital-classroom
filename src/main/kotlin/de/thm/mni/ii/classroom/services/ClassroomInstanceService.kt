@@ -1,23 +1,26 @@
 package de.thm.mni.ii.classroom.services
 
 import de.thm.mni.ii.classroom.exception.api.ClassroomNotFoundException
+import de.thm.mni.ii.classroom.exception.api.NoPasswordSpecifiedException
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.exception.api.NoPasswordSpecifiedException
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.util.toPair
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
-import java.util.*
+import reactor.util.function.Tuple2
+import java.net.URL
+import java.util.UUID
 import kotlin.collections.HashMap
 
 /**
  * Central service for managing and creating all DigitalClassroomInstances.
  */
 @Service
-class ClassroomInstanceService(private val senderService: ClassroomEventSenderService) {
+class ClassroomInstanceService {
 
     private val classrooms = HashMap<String, DigitalClassroom>()
 
@@ -31,11 +34,13 @@ class ClassroomInstanceService(private val senderService: ClassroomEventSenderSe
      * @param teacherPassword password for teachers given by the downstream service
      * @param classroomName informal name given to the classroom.
      */
-    fun createNewClassroomInstance(classroomId: String,
-                                   classroomName: String?,
-                                   studentPassword: String?,
-                                   tutorPassword: String?,
-                                   teacherPassword: String?
+    fun createNewClassroomInstance(
+        classroomId: String,
+        classroomName: String?,
+        studentPassword: String?,
+        tutorPassword: String?,
+        teacherPassword: String?,
+        logoutUrl: String?
     ): Mono<DigitalClassroom> {
         return Mono.defer {
             val classroom = DigitalClassroom(
@@ -43,21 +48,30 @@ class ClassroomInstanceService(private val senderService: ClassroomEventSenderSe
                 studentPassword = studentPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 tutorPassword = tutorPassword ?: RandomStringUtils.randomAlphanumeric(30),
                 teacherPassword = teacherPassword ?: RandomStringUtils.randomAlphanumeric(30),
-                classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}"
+                classroomName = classroomName ?: "Digital Classroom - ${UUID.randomUUID()}",
+                logoutUrl = logoutUrl?.let { URL(it) }
             )
             classrooms.computeIfAbsent(classroomId) { classroom }
             Mono.just(classroom)
         }
     }
 
+    fun getClassroomInstanceSync(classroomId: String): DigitalClassroom {
+        return classrooms[classroomId] ?: throw ClassroomNotFoundException(classroomId)
+    }
+
     fun getClassroomInstance(classroomId: String): Mono<DigitalClassroom> {
         return Mono.justOrEmpty(classrooms[classroomId]).switchIfEmpty(Mono.error(ClassroomNotFoundException(classroomId)))
     }
 
-    fun joinUser(classroomId: String, password: String, user: User): Mono<Pair<User, DigitalClassroom>> {
-        return getClassroomInstance(classroomId).flatMap { classroom ->
-            Mono.zip(classroom.joinUser(password, user), Mono.just(classroom)).map { it.toPair() }
-        }
+    fun joinUser(classroomId: String, password: String, userCredentials: UserCredentials, avatarUrl: String?): Mono<Pair<User, DigitalClassroom>> {
+        return getClassroomInstance(classroomId)
+            .flatMap { classroom ->
+                Mono.zip(classroom.authenticateAssignRole(password, userCredentials), Mono.just(classroom))
+            }.map(Tuple2<UserCredentials, DigitalClassroom>::toPair)
+            .map { (user, classroom) ->
+                Pair(User(user, true, avatarUrl), classroom)
+            }
     }
 
     fun isRunning(classroomId: String) = Mono.just(classrooms.containsKey(classroomId))
@@ -70,11 +84,10 @@ class ClassroomInstanceService(private val senderService: ClassroomEventSenderSe
         val classroom = classrooms[classroomId] ?: return Mono.error(ClassroomNotFoundException(classroomId))
         if (classroom.teacherPassword != password) return Mono.error(NoPasswordSpecifiedException())
         return classroom.getSockets()
-                .doOnNext { (_, socket) ->
-                    socket?.rsocket()?.dispose()
-                }.doOnComplete {
-                    classrooms.remove(classroomId)
-                }.then()
+            .doOnNext { (_, socket) ->
+                socket?.rsocket()?.dispose()
+            }.doOnComplete {
+                classrooms.remove(classroomId)
+            }.then()
     }
-
 }

@@ -5,15 +5,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import de.thm.mni.ii.classroom.config.ZonedDateTimeMillisDeserializer
 import de.thm.mni.ii.classroom.config.ZonedDateTimeMillisSerializer
 import de.thm.mni.ii.classroom.model.ClassroomDependent
-import de.thm.mni.ii.classroom.util.setOnce
 import java.time.ZonedDateTime
 
 class Ticket(
     override val classroomId: String,
     var description: String,
-    val creator: User,
-    var assignee: User? = null
-): Comparable<Ticket>, ClassroomDependent {
+    val creator: UserCredentials,
+    var assignee: UserCredentials? = null
+) : Comparable<Ticket>, ClassroomDependent {
 
     var ticketId: Long? = null
 
@@ -46,6 +45,4 @@ class Ticket(
         result = 31 * result + classroomId.hashCode()
         return result
     }
-
-
 }

@@ -13,7 +13,7 @@ import java.io.Serializable
     JsonSubTypes.Type(value = TicketEvent::class, name = "TicketEvent"),
     JsonSubTypes.Type(value = ConferenceEvent::class, name = "ConferenceEvent"),
     JsonSubTypes.Type(value = InvitationEvent::class, name = "InvitationEvent"),
-    )
-abstract class ClassroomEvent(@field:SuppressWarnings("unused") private val eventName: String): Serializable
+)
+abstract class ClassroomEvent(@field:Suppress("unused") private val eventName: String) : Serializable
 
-data class MessageEvent(val message: String): ClassroomEvent(MessageEvent::class.simpleName!!)
+data class MessageEvent(val message: String) : ClassroomEvent(MessageEvent::class.simpleName!!)

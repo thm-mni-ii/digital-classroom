@@ -20,4 +20,4 @@ data class ClassroomProperties(
 
     @NotBlank val sharedSecret: String,
 
-    )
+)

@@ -5,7 +5,7 @@ services:
     build: .
     restart: always
     ports:
-      - 8085:8085
+      - "8085:8085"
     environment:
       - CLASSROOM_BBB_UPSTREAM_URL
       - CLASSROOM_BBB_UPSTREAM_SECRET

@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import {ErrorHandler, NgModule} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -6,8 +6,8 @@ import { AppComponent } from './app.component';
 import {ClassroomComponent} from "./page-components/classroom/classroom.component";
 import {MenuBarComponent} from "./page-components/menu-bar/menu-bar.component";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {NewTicketDialogComponent} from "./dialogs/newticket-dialog/new-ticket-dialog.component";
-import {InviteToConferenceDialogComponent} from "./dialogs/inviteto-conference-dialog/invite-to-conference-dialog.component";
+import {NewTicketDialogComponent} from "./dialogs/new-ticket-dialog/new-ticket-dialog.component";
+import {InviteToConferenceDialogComponent} from "./dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component";
 import {AssignTicketDialogComponent} from "./dialogs/assign-ticket-dialog/assign-ticket-dialog.component";
 import {MaterialComponentsModule} from "./modules/material-components/material-components.module";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -17,13 +17,27 @@ import {HttpClientModule} from "@angular/common/http";
 import {JwtModule} from "@auth0/angular-jwt";
 import {RouterModule} from "@angular/router";
 import {JoinComponent} from "./page-components/join-component/join.component";
-import { UnauthorizedComponent } from './page-components/unauthorized/unauthorized.component';
+import { UnauthorizedComponent } from './page-components/full-page/unauthorized/unauthorized.component';
 import {httpInterceptorProviders} from "./util/ApiURIHttpInterceptor";
 import {IsNotSelfPipe } from './pipes/is-not-self.pipe';
 import {IsPrivilegedPipe} from "./pipes/is-privileged-pipe";
-import {ManageTicketDialogComponent} from "./dialogs/manage-ticket-dialog/manage-ticket-dialog.component";
 import {UserListComponent} from "./page-components/classroom/user-list/user-list.component";
 import {TicketListComponent} from "./page-components/classroom/ticket-list/ticket-list.component";
+import {GlobalErrorHandler} from "./util/GlobalErrorHandler";
+import { ConferenceListComponent } from './page-components/classroom/conference-list/conference-list.component';
+import {CreateConferenceDialogComponent} from "./dialogs/create-conference-dialog/create-conference-dialog.component";
+import {MatInputModule} from "@angular/material/input";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import { LogoutComponent } from './page-components/full-page/logout/logout.component';
+import {NotFoundComponent} from "./page-components/full-page/not-found/not-found.component";
+import { OverlayErrorComponent } from './page-components/overlay-error/overlay-error.component';
+import { ChooseConferenceDialogComponent } from './dialogs/choose-conference-dialog/choose-conference-dialog.component';
+import {JoinUserConferenceDialogComponent} from "./dialogs/join-user-conference-dialog/join-user-conference-dialog.component";
+import {AvatarModule} from "ngx-avatar";
+import { FullPageComponent } from './page-components/full-page/full-page.component';
+import { TicketComponent } from './page-components/classroom/ticket-list/ticket/ticket.component';
+import { TicketUserComponent } from './page-components/classroom/ticket-list/ticket/ticket-user/ticket-user.component';
+import { SideDrawerMenuComponent } from './page-components/side-drawer-menu/side-drawer-menu.component';
 
 @NgModule({
   declarations: [
@@ -38,9 +52,21 @@ import {TicketListComponent} from "./page-components/classroom/ticket-list/ticke
     JoinComponent,
     UnauthorizedComponent,
     IsNotSelfPipe,
-    ManageTicketDialogComponent,
     UserListComponent,
-    TicketListComponent
+    TicketListComponent,
+    NotFoundComponent,
+    ConferenceListComponent,
+    CreateConferenceDialogComponent,
+    LogoutComponent,
+    CreateConferenceDialogComponent,
+    OverlayErrorComponent,
+    ChooseConferenceDialogComponent,
+    JoinUserConferenceDialogComponent,
+    OverlayErrorComponent,
+    FullPageComponent,
+    TicketComponent,
+    TicketUserComponent,
+    SideDrawerMenuComponent
   ],
   imports: [
     BrowserModule,
@@ -52,14 +78,18 @@ import {TicketListComponent} from "./page-components/classroom/ticket-list/ticke
     MatSliderModule,
     HttpClientModule,
     RouterModule,
+    MatFormFieldModule,
+    MatInputModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,
       }
-    })
+    }),
+    AvatarModule
   ],
-  providers: [httpInterceptorProviders],
-  bootstrap: [AppComponent]
+  providers: [httpInterceptorProviders, {provide: ErrorHandler, useClass: GlobalErrorHandler}],
+  bootstrap: [AppComponent],
+  entryComponents: [UserListComponent, ConferenceListComponent]
 })
 export class AppModule { }
 

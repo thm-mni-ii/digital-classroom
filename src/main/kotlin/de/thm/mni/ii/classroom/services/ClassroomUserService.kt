@@ -5,10 +5,13 @@ import de.thm.mni.ii.classroom.event.TicketEvent
 import de.thm.mni.ii.classroom.event.UserAction
 import de.thm.mni.ii.classroom.event.UserEvent
 import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
+import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.Ticket
 import de.thm.mni.ii.classroom.model.classroom.User
-import de.thm.mni.ii.classroom.model.classroom.UserDisplay
+import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.security.exception.UnauthorizedException
+import de.thm.mni.ii.classroom.util.component1
+import de.thm.mni.ii.classroom.util.component2
 import org.slf4j.LoggerFactory
 import org.springframework.messaging.rsocket.RSocketRequester
 import org.springframework.stereotype.Service
@@ -20,116 +23,135 @@ import java.lang.IllegalArgumentException
 @Service
 class ClassroomUserService(
     private val classroomInstanceService: ClassroomInstanceService,
-    private val senderService: ClassroomEventSenderService
-    ) {
+    private val conferenceService: ConferenceService
+) {
 
     private val logger = LoggerFactory.getLogger(ClassroomUserService::class.java)
 
-    fun userConnected(user: User, socketRequester: RSocketRequester): Mono<Void> {
-        return classroomInstanceService.getClassroomInstance(user.classroomId)
-            .doOnNext { classroom ->
-                classroom.connectSocket(user, socketRequester)
-            }.doOnNext { classroom ->
-                senderService.sendToAll(classroom, UserEvent(user, userAction = UserAction.JOIN)).subscribe()
+    fun userConnected(userCredentials: UserCredentials, socketRequester: RSocketRequester): Mono<Void> {
+        return classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+            .doOnNext { classroom -> this.conferenceService.updateConferences(classroom).subscribe() }
+            .zipWhen { classroom ->
+                classroom.connectSocket(userCredentials, socketRequester)
+            }.delayUntil { (classroom, userDisplay) ->
+                classroom.sendToAll(UserEvent(userDisplay, UserAction.JOIN))
             }.doOnSuccess {
-                logger.info("${user.userId}/${user.fullName} connected to ${user.classroomId}!")
-            }.flatMap {
-                socketRequester.rsocketClient().source()}
-            .doOnNext {
-                it.onClose().doOnSuccess {
-                    userDisconnected(user)
+                logger.info("$userCredentials connected to ${userCredentials.classroomId}!")
+            }.map {
+                socketRequester.rsocket()!!
+            }.doOnNext { socket ->
+                socket.onClose().doOnSuccess {
+                    userDisconnected(userCredentials)
                 }.doOnError { exception ->
-                    userDisconnected(user, exception)
+                    userDisconnected(userCredentials, exception)
                 }.subscribe()
-            }.thenEmpty(Mono.empty())
+            }.then()
     }
 
-    private fun userDisconnected(user: User, throwable: Throwable? = null) {
-        classroomInstanceService.getClassroomInstance(user.classroomId)
-            .doOnNext { classroom ->
-                classroom.disconnectSocket(user)
-            }.doOnNext { classroom ->
-                senderService.sendToAll(classroom, UserEvent(user, userAction = UserAction.LEAVE)).subscribe()
+    fun userDisconnected(userCredentials: UserCredentials, throwable: Throwable? = null) {
+        classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+            .zipWhen { classroom ->
+                classroom.disconnectSocket(userCredentials)
+            }.delayUntil { (classroom, user) ->
+                classroom.sendToAll(UserEvent(user, userAction = UserAction.LEAVE))
             }.doOnNext {
                 if (throwable == null) {
-                    logger.info("${user.userId} / ${user.fullName} disconnected from ${user.classroomId}!")
+                    logger.info("$userCredentials disconnected from ${userCredentials.classroomId}!")
                 } else {
-                    logger.error("${user.userId} / ${user.fullName} disconnected from ${user.classroomId} with error {}!", throwable.message)
+                    logger.error("$userCredentials disconnected from ${userCredentials.classroomId} with error {}!", throwable.message)
                 }
             }.subscribe()
     }
 
-    fun getTickets(user: User): Flux<Ticket> {
+    fun getTickets(userCredentials: UserCredentials): Flux<Ticket> {
         return classroomInstanceService
-            .getClassroomInstance(user.classroomId)
+            .getClassroomInstance(userCredentials.classroomId)
             .flatMapMany { it.getTickets() }
     }
 
-    fun createTicket(user: User, ticket: Ticket) {
+    fun createTicket(userCredentials: UserCredentials, ticket: Ticket) {
         classroomInstanceService
-            .getClassroomInstance(user.classroomId)
+            .getClassroomInstance(userCredentials.classroomId)
             .filter {
-                ticket.creator == user && ticket.classroomId == user.classroomId
+                ticket.creator == userCredentials && ticket.classroomId == userCredentials.classroomId
             }.switchIfEmpty {
                 Mono.error(IllegalArgumentException())
             }.flatMap {
                 it.createTicket(ticket)
-            }.doOnNext { (ticket, classroom) ->
-                senderService.sendToAll(classroom, TicketEvent(ticket, TicketAction.CREATE)).subscribe()
+            }.delayUntil { (ticket, classroom) ->
+                classroom.sendToAll(TicketEvent(ticket, TicketAction.CREATE))
             }.doOnSuccess { (ticket, classroom) ->
-                logger.info("Ticket ${classroom.classroomName}/${ticket.ticketId} created!")
+                logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} created!")
             }.subscribe()
     }
 
-    fun assignTicket(user: User, receivedTicket: Ticket) {
+    fun assignTicket(userCredentials: UserCredentials, receivedTicket: Ticket) {
         classroomInstanceService
-            .getClassroomInstance(user.classroomId)
+            .getClassroomInstance(userCredentials.classroomId)
             .filter {
-                user.isPrivileged() && receivedTicket.assignee!!.isPrivileged() && receivedTicket.classroomId == user.classroomId
+                userCredentials.isPrivileged() && receivedTicket.assignee!!.isPrivileged() && receivedTicket.classroomId == userCredentials.classroomId
             }.switchIfEmpty {
                 Mono.error(UnauthorizedException("User not authorized to assign ticket!"))
             }.flatMap {
                 it.assignTicket(receivedTicket, receivedTicket.assignee!!)
-            }.doOnNext { (ticket, classroom) ->
-                senderService.sendToAll(classroom, TicketEvent(ticket, TicketAction.ASSIGN)).subscribe()
+            }.delayUntil { (ticket, classroom) ->
+                classroom.sendToAll(TicketEvent(ticket, TicketAction.ASSIGN))
             }.doOnSuccess { (ticket, classroom) ->
-                logger.info("Ticket ${classroom.classroomName}/${ticket.ticketId} assigned to ${ticket.assignee!!.fullName}!")
+                logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee!!.fullName}!")
             }.subscribe()
     }
 
-    fun closeTicket(user: User, ticket: Ticket) {
+    fun closeTicket(userCredentials: UserCredentials, ticket: Ticket) {
         classroomInstanceService
-            .getClassroomInstance(user.classroomId)
+            .getClassroomInstance(userCredentials.classroomId)
             .filter {
-                ticket.classroomId == user.classroomId &&
-                        (user.isPrivileged() || ticket.creator == user)
+                ticket.classroomId == userCredentials.classroomId &&
+                    (userCredentials.isPrivileged() || ticket.creator == userCredentials)
             }.switchIfEmpty {
                 Mono.error(UnauthorizedException("User not authorized to delete ticket!"))
-            }.flatMap {
-                it.deleteTicket(ticket)
-            }.doOnNext { (ticket, classroom) ->
-                senderService.sendToAll(classroom, TicketEvent(ticket, TicketAction.CLOSE)).subscribe()
+            }.flatMap { classroom ->
+                classroom.deleteTicket(ticket)
+            }.delayUntil { (ticket, classroom) ->
+                classroom.sendToAll(TicketEvent(ticket, TicketAction.CLOSE))
             }.doOnSuccess { (ticket, classroom) ->
-                logger.info("Ticket ${classroom.classroomName}/${ticket.ticketId} assigned to ${ticket.assignee!!.fullName}!")
+                logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee?.fullName ?: "N/A"}!")
             }.subscribe()
     }
 
-    fun getUsers(user: User): Flux<User> {
+    fun getUsers(userCredentials: UserCredentials): Flux<UserCredentials> {
         return classroomInstanceService
-            .getClassroomInstance(user.classroomId)
+            .getClassroomInstance(userCredentials.classroomId)
             .flatMapMany { it.getUsersFlux() }
     }
 
-    fun getUserDisplays(user: User): Flux<UserDisplay> {
+    fun getUserDisplays(userCredentials: UserCredentials): Flux<User> {
         return classroomInstanceService
-            .getClassroomInstance(user.classroomId)
-            .flatMapMany { it.getUserDisplays() }
+            .getClassroomInstance(userCredentials.classroomId)
+            .flatMapMany { it.getUsersFlux() }
     }
 
-    fun getClassroomInfo(user: User): Mono<ClassroomInfo> {
+    fun getClassroomInfo(userCredentials: UserCredentials): Mono<ClassroomInfo> {
         return classroomInstanceService
-            .getClassroomInstance(user.classroomId)
-            .map { ClassroomInfo(it.classroomId, it.classroomName) }
+            .getClassroomInstance(userCredentials.classroomId)
+            .cast(ClassroomInfo::class.java)
     }
 
+    fun getConferences(userCredentials: UserCredentials): Flux<ConferenceInfo> {
+        return classroomInstanceService
+            .getClassroomInstance(userCredentials.classroomId)
+            .flatMapMany { classroom ->
+                classroom.conferences.getConferences()
+            }.map(::ConferenceInfo)
+    }
+
+    fun changeVisibility(userCredentials: UserCredentials, event: UserEvent) {
+        assert(userCredentials == event.user)
+        classroomInstanceService
+            .getClassroomInstance(userCredentials.classroomId)
+            .zipWhen { classroom ->
+                classroom.changeVisibility(event.user)
+            }.flatMap { (classroom, user) ->
+                classroom.sendToAll(UserEvent(user, UserAction.VISIBILITY_CHANGE))
+            }.subscribe()
+    }
 }

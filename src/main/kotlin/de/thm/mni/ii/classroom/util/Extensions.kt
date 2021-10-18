@@ -1,7 +1,6 @@
 package de.thm.mni.ii.classroom.util
 
 import org.slf4j.Logger
-import org.slf4j.Marker
 import reactor.util.function.Tuple2
 
 /**
@@ -15,7 +14,6 @@ fun CharSequence.repeatLength(n: Int): String {
         str.repeatLength(n)
     }
 }
-
 
 fun <T> MutableSet<T>.update(item: T): Boolean {
     this.remove(item)
@@ -43,4 +41,3 @@ fun Logger.logThread(task: String = "") {
         this.debug("Executing {} on {} / {} in group {}", task, thread.id, thread.name, thread.threadGroup.name)
     }
 }
-

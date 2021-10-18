@@ -1,60 +1,36 @@
-.tickets {
-  height: 90%;
-  display: flex;
-  flex-direction:row;
-  flex-grow: 2;
-
-}
-
 h3 {
   text-align:center;
 }
 
-.ticket-mat-card {
+.sepa {
+  border: 1px dashed #B1B1B1;
+  width: 99%
+}
+
+.ticket-list {
+  height: 90%;
+  display: flex;
+  flex-direction:column;
+  flex-grow: 2;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+.list-header {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+  mat-icon {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
+.ticket {
   padding: 5px;
+  margin: 5px;
 }
 
-.ticket-desc {
-  grid-column: 1/3;
-  grid-row: 1;
-  font-size: medium;
-  border-bottom: solid 1px black;
-  word-wrap: break-word;
-  word-break: break-all;
-}
 
-.ticket-creator {
-  grid-column: 1;
-  grid-row: 2;
-}
-
-.ticket-date {
-  grid-column: 2;
-  grid-row: 2;
-  text-align: right;
-}
-
-.ticket-prio {
-  text-align: right;
-  grid-column: 3;
-  grid-row: 2;
-}
-
-.ticket-assignee {
-  grid-column: 1;
-  grid-row: 3;
-}
-
-.ticket-position {
-  text-align: right;
-  border-bottom: solid 1px black;
-  grid-column: 3;
-  grid-row: 1;
-}
-
-.selfassigned {
-  background-color: #43A047;
-}
-.otherassigned {
-  background-color: #F4511E;
-}

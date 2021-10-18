@@ -1,0 +1,11 @@
+<div class="container">
+  <div class="dialogTitle" matDialogTitle>Konferenzeinladung versenden</div>
+  <mat-dialog-content style="max-height: 100%; overflow: hidden;">
+    <p>Zu welcher Konferenz möchten Sie {{this.data.fullName}} einladen?</p>
+      <app-choose-conference-dialog
+        [conferences]="this.data.conferences"
+        [dialogRef]="this.dialogRef">
+      </app-choose-conference-dialog>
+    <button color="warn" mat-flat-button (click)="close()">Abbrechen</button>
+  </mat-dialog-content>
+</div>

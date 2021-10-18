@@ -1,26 +1,53 @@
-import {Component, Input} from '@angular/core';
-import {User, UserDisplay} from "../../../model/User";
+import {Component, OnInit} from '@angular/core';
+import {parseCourseRole, User, UserRole} from "../../../model/User";
 import {ClassroomService} from "../../../service/classroom.service";
-import {parseCourseRole} from "../../../model/User";
 
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.component.html',
-  styleUrls: ['../classroom.component.scss', './user-list.component.scss']
+  styleUrls: ['./user-list.component.scss']
 })
-export class UserListComponent {
+export class UserListComponent implements OnInit {
 
-  @Input() public users: UserDisplay[]
   public parseCourseRole: Function = parseCourseRole
+  public users: User[] = []
 
   constructor(
     public classroomService: ClassroomService
-  ) { }
-
-  inviteToConference(user: User) {
-
+  ) {
   }
 
+  ngOnInit(): void {
+    this.classroomService.userDisplayObservable.subscribe(
+      users => this.users = users
+    )
+  }
 
+  public sortUsers(users: User[]) {
+    return users
+      .filter(user => user.visible)
+      .sort(UserListComponent.compareUsers);
+  }
+
+  private static compareUsers(a: User, b: User) {
+    if (UserListComponent.roleValue(a.userRole) > UserListComponent.roleValue(b.userRole)) {
+      return 1;
+    } else if (UserListComponent.roleValue(a.userRole) < UserListComponent.roleValue(b.userRole)) {
+      return -1;
+    } else {
+      if (a.fullName > b.fullName) {
+        return 1
+      } else {
+        return -1
+      }
+    }
+  }
+
+  private static roleValue(role: UserRole): number {
+    if (role === UserRole.STUDENT) return 90
+    if (role === UserRole.TUTOR) return 50
+    if (role === UserRole.TEACHER) return 0
+    else return 0
+  }
 
 }
