@@ -135,7 +135,7 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
         val query = uriBuilder.build().encode().query ?: ""
         val checksum = calculateChecksum(method, query, upstreamBBBProperties.sharedSecret)
         uriBuilder.queryParam("checksum", checksum)
-        val queryWithChecksum = uriBuilder.build().encode().query!!
+        val queryWithChecksum = uriBuilder.encode().build().query!!
         val request = "${upstreamBBBProperties.serviceUrl}/api/$method?$queryWithChecksum"
         logger.trace("BBB API call: {}", request)
         return request
