@@ -12,7 +12,7 @@
   <mat-sidenav-content>
     <mat-icon class="sidenav-toggle functional-icon" (click)="sidenav.toggle()">{{this.icon()}}</mat-icon>
     <div class="sidenav-filler">
-      <span class="sidenav-label">{{this.label}}</span>
+      <span class="sidenav-label" [class.invisible]="this.opened">{{this.label}}</span>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
