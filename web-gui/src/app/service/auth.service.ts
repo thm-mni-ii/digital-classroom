@@ -31,10 +31,10 @@ export class AuthService {
   }
 
   private static extractRefreshTokenFromHeader(response: HttpResponse<any>): string {
-    if (!response.headers.has('refresh-token')) {
-      throw Error("No refresh-token token in HttpResponse!")
+    if (!response.headers.has('refreshToken')) {
+      throw Error("No refreshToken token in HttpResponse!")
     }
-    return response.headers.get('refresh-token')!!;
+    return response.headers.get('refreshToken')!!;
   }
 
   /**
@@ -93,7 +93,7 @@ export class AuthService {
   }
 
   public requestNewToken() {
-    const headers = new HttpHeaders().set('refresh-token', this.loadRefreshToken())
+    const headers = new HttpHeaders().set('refreshToken', this.loadRefreshToken())
     return this.http.get<void>('/classroom-api/refresh', {headers: headers, observe: 'response'})
       .pipe(
         tap(res => AuthService.storeToken(AuthService.extractJwtFromHeader(res))),
