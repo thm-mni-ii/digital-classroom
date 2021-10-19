@@ -20,7 +20,7 @@ server:
 
 jwt:
   secret: ${CLASSROOM_JWT_SECRET:8Dsupersecurekeydf0}
-  expiration: ${CLASSROOM_JWT_EXPIRATION:900}
+  expiration: ${CLASSROOM_JWT_EXPIRATION:15}
 
 logging:
   level:
