@@ -3,8 +3,8 @@
     <mat-icon>supervised_user_circle</mat-icon> {{parseCourseRole(currentUser?.userRole)}}
   </div>
 
-  <div class="menu-bar-section">
-    <mat-icon>meeting_room</mat-icon> {{classroomInfo?.classroomName}}
+  <div class="menu-bar-section room-label" >
+    <mat-icon>meeting_room</mat-icon> <span class="room-name">{{classroomInfo?.classroomName}}</span>
   </div>
 
   <div class="menu-bar-section" (click)="this.toggleMenu()">

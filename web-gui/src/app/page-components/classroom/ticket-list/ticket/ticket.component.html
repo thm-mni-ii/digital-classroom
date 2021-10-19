@@ -9,9 +9,8 @@
       <p class="ticket-time">{{this.getTicketTime(ticket)}}</p>
     </div>
   </div>
-  <div class="ticket-row ticket-details">{{ticket.description}}</div>
   <div class="ticket-row">
-    <div class="ticket-users ticket-row">
+    <div class="ticket-users">
       <app-ticket-assign label="zugewiesen" [ticket]="ticket" [users]="this.users"></app-ticket-assign>
       <app-ticket-user-display label="ersteller" [user]="this.fullUser(this.ticket.creator)"></app-ticket-user-display>
     </div>

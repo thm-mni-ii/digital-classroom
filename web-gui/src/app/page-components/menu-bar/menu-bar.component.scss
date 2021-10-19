@@ -10,12 +10,12 @@
   align-items: center;
   padding: 5px 5px;
   box-shadow: none;
-  border: 1px solid rgba(0, 0, 0, 0.12);
 
   .menu-bar-section {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
+    justify-content: space-evenly;
     margin: 0 5px 0 5px;
   }
 
@@ -26,11 +26,10 @@
   }
 }
 
-mat-icon {
-  /* Adjust these values accordingly */
-  left: 0;
-  right: 0;
+.room-name {
+  margin-left: 3px;
 }
+
 
 .user-avatar {
   position: relative;
