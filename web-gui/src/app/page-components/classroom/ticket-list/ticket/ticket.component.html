@@ -9,18 +9,17 @@
       <p class="ticket-time">{{this.getTicketTime(ticket)}}</p>
     </div>
   </div>
-  <div class="ticket-row ticket-details">{{ticket.description}}</div>
   <div class="ticket-row">
-    <div class="ticket-users ticket-row">
+    <div class="ticket-users">
       <app-ticket-assign label="zugewiesen" [ticket]="ticket" [users]="this.users"></app-ticket-assign>
       <app-ticket-user-display label="ersteller" [user]="this.fullUser(this.ticket.creator)"></app-ticket-user-display>
     </div>
-    <div class="ticket-buttons" [ngSwitch]="determineButton()">
+    <div *ngIf="mayDeleteTicket()" class="ticket-buttons" [ngSwitch]="determineButton()">
       <ng-container *ngSwitchCase="'invite'" [ngTemplateOutlet]="inviteToConferenceTemplate"></ng-container>
       <ng-container *ngSwitchCase="'join'" [ngTemplateOutlet]="joinConferenceTemplate"></ng-container>
       <ng-container *ngSwitchCase="'link'" [ngTemplateOutlet]="linkConferenceTemplate"></ng-container>
-      <mat-icon class="edit-icon functional-icon" (click)="this.editTicket()">edit</mat-icon>
-      <mat-icon class="delete-icon functional-icon" (click)="this.closeTicket()">delete</mat-icon>
+      <mat-icon *ngIf="mayEditTicket()" class="edit-icon functional-icon" (click)="this.editTicket()">edit</mat-icon>
+      <mat-icon *ngIf="mayDeleteTicket()" class="delete-icon functional-icon" (click)="this.closeTicket()">delete</mat-icon>
     </div>
   </div>
 </mat-card-content>

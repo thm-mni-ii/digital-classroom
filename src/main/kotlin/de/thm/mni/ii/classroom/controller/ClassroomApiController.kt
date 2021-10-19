@@ -48,7 +48,7 @@ class ClassroomApiController(
             }.map {
                 val refreshToken = generateRefreshToken(auth.principal)
                 // Set refresh_token header
-                val refreshTokenSet = setHeader("refresh_token", refreshToken, originalExchange)
+                val refreshTokenSet = setHeader("refreshToken", refreshToken, originalExchange)
                 // Set Authorization header
                 setHeader(HttpHeaders.AUTHORIZATION, "Bearer ${auth.credentials}", refreshTokenSet).response
             }.doOnNext {
@@ -61,7 +61,7 @@ class ClassroomApiController(
     fun refreshToken(
         auth: ClassroomAuthentication,
         originalExchange: ServerWebExchange,
-        @RequestHeader("refresh_token") refreshToken: String
+        @RequestHeader("refreshToken") refreshToken: String
     ): Mono<ServerHttpResponse> {
         return classroomTokenRepository
             .findRefreshToken(refreshToken)
@@ -71,18 +71,23 @@ class ClassroomApiController(
             }.switchIfEmpty(Mono.error(UnauthorizedException("Owner of refresh token does not match requester!")))
             .map { user ->
                 val newRefreshToken = generateRefreshToken(user)
-                Pair(user, setHeader("refresh_token", newRefreshToken, originalExchange))
+                Pair(user, setHeader("refreshToken", newRefreshToken, originalExchange))
             }.flatMap { (user, exchange) ->
                 Mono.zip(jwtService.createToken(user), Mono.just(exchange))
             }.map { (jwt, exchange) ->
                 setHeader(HttpHeaders.AUTHORIZATION, "Bearer $jwt", exchange).response
             }.doOnNext {
                 logger.info("${auth.principal} refreshed his JWT!")
+            }.onErrorResume { error ->
+                logger.error(error.message)
+                originalExchange.response.statusCode = HttpStatus.BAD_REQUEST
+                originalExchange.response.bufferFactory().wrap(error.message!!.encodeToByteArray())
+                Mono.just(originalExchange.response)
             }
     }
 
     private fun generateRefreshToken(userCredentials: UserCredentials): String {
-        val newRefreshToken = RandomStringUtils.randomAscii(30)
+        val newRefreshToken = RandomStringUtils.randomAlphanumeric(30)
         classroomTokenRepository.insertRefreshToken(newRefreshToken, userCredentials)
         return newRefreshToken
     }

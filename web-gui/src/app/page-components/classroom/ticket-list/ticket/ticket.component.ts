@@ -43,6 +43,15 @@ export class TicketComponent implements OnInit {
       return "invite"
   }
 
+  public mayDeleteTicket(): boolean {
+    return this.classroomService.isSelf(this.ticket?.creator!!) ||
+      this.classroomService.isCurrentUserPrivileged()
+  }
+
+  public mayEditTicket(): boolean {
+    return this.classroomService.isSelf(this.ticket?.creator!!)
+  }
+
   editTicket() {
     this.classroomService.createOrEditTicket(this.ticket)
   }
