@@ -13,14 +13,17 @@ mat-card-content {
   }
 
   .conference-desc {
-    display: flex;
-    flex-flow: row nowrap;
+    display: inline-flex;
     align-items: center;
     font-size: 14px;
   }
 
   .conference-icon {
     padding-right: 15px;
+  }
+
+  .conference-buttons {
+    display: inline-flex;
   }
 
   .conference-ref {

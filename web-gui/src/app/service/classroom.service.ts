@@ -200,14 +200,7 @@ export class ClassroomService {
   }
 
   public isInConference(userCredentials: UserCredentials): boolean {
-    let user: User | undefined
-    if (userCredentials instanceof User)
-      user = userCredentials
-    else {
-      user = this.users.find(userDisplay => userDisplay.userId === userCredentials.userId)
-      if (user === undefined) return false
-    }
-    return user.conferences.length !== 0
+    return this.conferenceService.isUserInConference(userCredentials)
   }
 
   public createNewConferenceForTicket(ticket: Ticket): Observable<ConferenceInfo> {

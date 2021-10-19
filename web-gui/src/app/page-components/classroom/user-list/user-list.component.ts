@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {parseCourseRole, User, UserRole} from "../../../model/User";
+import {User, UserRole} from "../../../model/User";
 import {ClassroomService} from "../../../service/classroom.service";
-import {filter, tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-user-list',
@@ -10,7 +9,6 @@ import {filter, tap} from "rxjs/operators";
 })
 export class UserListComponent implements OnInit {
 
-  public parseCourseRole: Function = parseCourseRole
   public users: User[] = []
 
   constructor(
@@ -24,8 +22,9 @@ export class UserListComponent implements OnInit {
     )
   }
 
-  public sortUsers(users: User[]) {
+  public formatUsers(users: User[]) {
     return users
+      .filter(user => !this.classroomService.isSelf(user))
       .filter(user => user.visible)
       .sort(UserListComponent.compareUsers);
   }
@@ -49,12 +48,5 @@ export class UserListComponent implements OnInit {
     if (role === UserRole.TUTOR) return 50
     if (role === UserRole.TEACHER) return 0
     else return 0
-  }
-
-  public joinConferenceOfUser(user: User) {
-    this.classroomService.chooseConferenceOfUser(user).pipe(
-      filter(conf => conf !== undefined),
-      tap(conf => this.classroomService.conferenceService.joinConference(conf))
-    ).subscribe()
   }
 }
