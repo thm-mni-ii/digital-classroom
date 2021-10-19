@@ -1,5 +1,10 @@
 = Digital Classroom - Developer Notes
 
+== Create a Release
+
+- Linux: `bash ./scripts/relase.sh v1.0.0` (Change 1.0.0 to correct version)
+- Windows: `scripts\relase.bat v1.0.0` (Change 1.0.0 to correct version)
+
 == TODO
 - Decide WebSocket implementation
 - Implement broadcast communication from server to all clients.
