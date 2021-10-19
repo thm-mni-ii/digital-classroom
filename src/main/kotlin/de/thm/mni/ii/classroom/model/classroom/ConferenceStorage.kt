@@ -5,14 +5,12 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
+import java.util.concurrent.ConcurrentHashMap
 
 class ConferenceStorage {
 
-    private val usersConference = HashMap<UserCredentials, HashSet<Conference>>()
-    private val conferences = HashMap<String, Conference>()
-
-    fun getConferencesOfUser(userCredentials: UserCredentials) =
-        Flux.fromIterable(usersConference[userCredentials] ?: LinkedHashSet())
+    private val usersConference = ConcurrentHashMap<UserCredentials, LinkedHashSet<Conference>>()
+    private val conferences = ConcurrentHashMap<String, Conference>()
 
     fun getUsersOfConference(conference: Conference): Flux<UserCredentials> {
         return conferences[conference.conferenceId]?.attendees?.toFlux()
@@ -21,7 +19,7 @@ class ConferenceStorage {
 
     fun joinUser(conference: Conference, userCredentials: UserCredentials): Mono<Conference> {
         return Mono.just(userCredentials).map {
-            usersConference.computeIfAbsent(userCredentials) { HashSet() }
+            usersConference.computeIfAbsent(userCredentials) { LinkedHashSet() }
                 .also { it.add(conference) }
             conferences.computeIfAbsent(conference.conferenceId) { conference }
                 .also { it.attendees.add(userCredentials) }
@@ -34,10 +32,6 @@ class ConferenceStorage {
 
     fun getConferences(): Flux<Conference> {
         return conferences.values.toFlux()
-    }
-
-    fun getUsersInConferences(): Flux<UserCredentials> {
-        return Flux.fromIterable(usersConference.keys)
     }
 
     fun isUserInConference(userCredentials: UserCredentials): Mono<Boolean> {
@@ -87,10 +81,14 @@ class ConferenceStorage {
         usersConference.clear()
         conferences.values.forEach { conference ->
             conference.attendees.forEach { user ->
-                usersConference.computeIfAbsent(user) { HashSet() }
+                usersConference.computeIfAbsent(user) { LinkedHashSet() }
                     .also { it.add(conference) }
             }
         }
         return Mono.empty()
+    }
+
+    fun getConferenceOfTicket(conferenceId: String?): Mono<Conference> {
+        return conferences[conferenceId].toMono()
     }
 }

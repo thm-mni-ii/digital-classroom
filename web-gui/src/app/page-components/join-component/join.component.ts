@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {DOCUMENT} from '@angular/common';
 import {MatDialog} from '@angular/material/dialog';
 import {AuthService} from '../../service/auth.service';
-import {mergeMap} from "rxjs/operators";
+import {map, mergeMap} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 
 /**
@@ -23,8 +23,9 @@ export class JoinComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.route.queryParams.pipe(
-      mergeMap(params => this.auth.useSessionToken(params)),
+    this.route.queryParamMap.pipe(
+      map(paramMap => paramMap.get("sessionToken") == null ? "" : paramMap.get("sessionToken")),
+      mergeMap(token => this.auth.useSessionToken(token!!)),
     ).subscribe( ok => {
       console.log(ok)
         this.router.navigate(['/']).then()

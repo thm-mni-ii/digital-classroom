@@ -1,17 +1,30 @@
-import {Component} from '@angular/core';
+/**
+ * Code for utilitiesService and documentClick() from user ginalx at https://stackoverflow.com/a/59234391
+ * Published under CC License 4.0: https://creativecommons.org/licenses/by-sa/4.0/
+ */
+
+import {Component, HostListener, Injectable} from '@angular/core';
+import {Subject} from "rxjs";
 import {AssetManagerService} from "./util/asset-manager.service";
 
-/**
- * Component that routes from login to app
- */
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  template: '<router-outlet></router-outlet>'
 })
 export class AppComponent {
+
   constructor(
-    _assetManagerService: AssetManagerService
-  ) {
+    private utilitiesService: UtilitiesService,
+    private _assetManagerService: AssetManagerService
+  ) {}
+
+  @HostListener('document:click', ['$event'])
+  documentClick(event: any): void {
+    this.utilitiesService.documentClickedTarget.next(event.target)
   }
+}
+
+@Injectable({ providedIn: 'root' })
+export class UtilitiesService {
+  documentClickedTarget: Subject<HTMLElement> = new Subject<HTMLElement>()
 }

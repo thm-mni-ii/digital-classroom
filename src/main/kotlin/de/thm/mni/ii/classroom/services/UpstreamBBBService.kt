@@ -1,25 +1,28 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.exception.classroom.ClassroomException
 import de.thm.mni.ii.classroom.model.api.GetMeetingsBBBResponse
 import de.thm.mni.ii.classroom.model.api.MessageBBB
 import de.thm.mni.ii.classroom.model.classroom.Conference
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
 import de.thm.mni.ii.classroom.model.classroom.JoinLink
+import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.properties.UpstreamBBBProperties
+import de.thm.mni.ii.classroom.util.BbbApiConstants
 import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.util.DefaultUriBuilderFactory
 import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import java.util.UUID
+
 
 @Component
 class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBProperties) {
@@ -36,33 +39,38 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 UUID.randomUUID().toString(),
                 creator = userCredentials,
                 visible = conferenceInfo.visible,
-                attendees = mutableSetOf()
+                attendees = LinkedHashSet(),
             )
-        ).flatMap { conference ->
+        ).zipWhen { conference ->
             val queryParams = mapOf(
                 Pair("meetingID", conference.conferenceId),
                 Pair("name", conference.conferenceName),
                 Pair("attendeePW", conference.attendeePassword),
                 Pair("moderatorPW", conference.moderatorPassword),
+                Pair("breakoutRoomsEnabled", false.toString()),
+                Pair("lockSettingsLockOnJoin", false.toString()),
                 Pair("meta_classroomId", userCredentials.classroomId),
                 Pair("meta_creatorId", userCredentials.userId)
             )
             val request = buildApiRequest("create", queryParams)
-            Mono.zip(Mono.just(conference), WebClient.create(request).get().retrieve().toEntity(MessageBBB::class.java))
+            buildWebClient(request).get().retrieve().toEntity(MessageBBB::class.java)
         }.map { (conference, responseEntity) ->
             if (responseEntity.body!!.returncode == "SUCCESS") conference
             else error(Exception(responseEntity.body?.message))
         }
     }
 
-    fun joinConference(conference: Conference, userCredentials: UserCredentials, asModerator: Boolean): Mono<JoinLink> {
-        val queryParams = mapOf(
+    fun joinConference(conference: Conference, user: User, asModerator: Boolean): Mono<JoinLink> {
+        val queryParams = mutableMapOf(
             Pair("meetingID", conference.conferenceId),
-            Pair("fullName", userCredentials.fullName),
-            Pair("userID", userCredentials.userId),
-            Pair("password", if (asModerator) conference.moderatorPassword else conference.attendeePassword)
+            Pair("fullName", user.fullName),
+            Pair("userID", user.userId),
+            Pair("password", if (asModerator) conference.moderatorPassword else conference.attendeePassword),
         )
-        return Mono.just(buildApiRequest("join", queryParams)).map { JoinLink(ConferenceInfo(conference), it) }
+        if (user.avatarUrl != null) {
+            queryParams[BbbApiConstants.avatarUrl] = user.avatarUrl.toString()
+        }
+        return Mono.just(buildApiRequest("join", queryParams)).map { JoinLink(conference.toConferenceInfo(), it) }
     }
 
     fun endConference(conference: Conference): Mono<MessageBBB> {
@@ -71,13 +79,14 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
             Pair("password", conference.moderatorPassword)
         )
         val request = buildApiRequest("end", queryParams)
-        return WebClient.create(request).get().retrieve().toEntity(MessageBBB::class.java)
+        return buildWebClient(request).get().retrieve().toEntity(MessageBBB::class.java)
             .map { it.body!! }
             .map {
                 if (it.returncode == "SUCCESS") {
                     it
                 } else {
-                    error(ClassroomException("Error from upstream BBB: ${it.message}"))
+                    logger.warn("Error from upstream BBB: ${it.message}")
+                    it
                 }
             }
     }
@@ -85,15 +94,16 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
     fun syncMeetings(
         classroom: DigitalClassroom,
         conferences: List<Conference>
-    ): Flux<Conference> {
+    ): Mono<List<Conference>> {
+        if (conferences.isEmpty()) return Mono.empty()
         val request = buildApiRequest("getMeetings", mapOf())
-        return WebClient.create(request).get().retrieve()
+        return buildWebClient(request).get().retrieve()
             .bodyToMono(GetMeetingsBBBResponse::class.java)
             .flatMapMany { getMeetings ->
                 Flux.fromIterable(getMeetings.meetings.meetings ?: listOf())
             }.flatMap { meeting ->
                 val conference = conferences.find { conference ->
-                    conference.conferenceId == meeting.meetingID
+                    classroom.classroomId == meeting.metadata.classroomid && conference.conferenceId == meeting.meetingID
                 }
                 if (conference == null) {
                     Mono.empty()
@@ -102,9 +112,9 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                 }
             }.map { (conference, meeting) ->
                 val attendingUsers = meeting.attendees.attendees
-                    ?.mapTo(mutableSetOf()) {
+                    ?.mapTo(LinkedHashSet()) {
                         classroom.getUser(it.userID!!).getCredentials()
-                    } ?: mutableSetOf()
+                    } ?: LinkedHashSet()
                 Conference(
                     conference.classroomId,
                     meeting!!.meetingID!!,
@@ -114,9 +124,9 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
                     conference.creator,
                     conference.visible,
                     attendingUsers,
-                    conference.creationTimestamp
+                    conference.creationTimestamp,
                 )
-            }
+            }.collectList()
     }
 
     private fun buildApiRequest(method: String, queryParams: Map<String, String>): String {
@@ -124,16 +134,27 @@ class UpstreamBBBService(private val upstreamBBBProperties: UpstreamBBBPropertie
         queryParams.forEach { (name, value) ->
             uriBuilder.queryParam(name, value.replace(" ", "+"))
         }
-        val query = uriBuilder.encode().build().query ?: ""
+        val query = uriBuilder.build().encode().query ?: ""
         val checksum = calculateChecksum(method, query, upstreamBBBProperties.sharedSecret)
         uriBuilder.queryParam("checksum", checksum)
-        val queryWithChecksum = uriBuilder.encode().build().query!!
-        return "${upstreamBBBProperties.serviceUrl}/api/$method?$queryWithChecksum"
+        val queryWithChecksum = uriBuilder.build().encode().query!!
+        val request = "${upstreamBBBProperties.serviceUrl}/api/$method?$queryWithChecksum"
+        logger.trace("BBB API call: {}", request)
+        return request
     }
 
     private fun calculateChecksum(method: String, query: String, secret: String): String {
-        logger.debug("String: $method$query$secret")
-        logger.debug("Checksum: ${DigestUtils.sha1Hex("$method$query$secret")}")
+        logger.trace("Checksum calculated from: $method$query$secret")
         return DigestUtils.sha1Hex("$method$query$secret")
+    }
+
+    private fun buildWebClient(baseUrl: String): WebClient {
+        val factory = DefaultUriBuilderFactory(baseUrl)
+        factory.encodingMode = DefaultUriBuilderFactory.EncodingMode.NONE
+        return WebClient
+            .builder()
+            .uriBuilderFactory(factory)
+            .baseUrl(baseUrl)
+            .build()
     }
 }

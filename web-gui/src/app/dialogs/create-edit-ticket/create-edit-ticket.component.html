@@ -1,0 +1,13 @@
+<div class="container">
+  <div class="dialogTitle" matDialogTitle>{{title}}</div>
+  <mat-dialog-content [formGroup]="form">
+    <mat-form-field appearance="standard">
+      <mat-label>Beschreibung</mat-label>
+      <textarea maxlength="160" formControlName="desc" matInput required cdkTextareaAutosize></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-action-row>
+    <button mat-raised-button (click)="close()">Schließen</button>
+    <button mat-raised-button class="mat-primary" (click)="editTicket()">Erstellen</button>
+  </mat-action-row>
+</div>

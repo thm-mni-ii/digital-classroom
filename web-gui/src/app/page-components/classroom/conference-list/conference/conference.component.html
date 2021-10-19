@@ -1,0 +1,51 @@
+<mat-card-content *ngIf="conference !== undefined"
+                  [class.attended-conference] = "this.isUserAttending()"
+                  [class.invisible]="!this.conference.visible">
+  <div class="conference-row">
+    <div class="conference-desc">
+      <mat-icon class="conference-icon">videocam</mat-icon>
+      <p>{{this.conference.conferenceName}}</p>
+    </div>
+    <div class="conference-buttons">
+      <ng-container *ngIf="this.conference.visible; then hide else show"></ng-container>
+      <mat-icon *ngIf="this.classroomService.isSelf(this.conference!!.creator!!) || this.classroomService.isCurrentUserPrivileged()"
+                matTooltip="Konferenz beenden!" class="delete-icon functional-icon" (click)="this.endConference()">delete</mat-icon>
+    </div>
+</div>
+  <div class="conference-row">
+    <div class="conference-users">
+      <app-conference-attendees [conference]="this.conference"></app-conference-attendees>
+    </div>
+    <ng-container *ngIf="hasTicketRef(); then ticketRef else userRef"></ng-container>
+
+    <div class="conference-buttons">
+      <mat-icon *ngIf="this.isUserAttending()" matTooltip="Konferenz verlassen" class="leave-icon functional-icon" (click)="this.leaveConference()">logout</mat-icon>
+      <mat-icon [matTooltip]="joinTooltip()" class="open-icon functional-icon" (click)="this.joinConference()">open_in_new</mat-icon>
+   </div>
+  </div>
+  <hr>
+</mat-card-content>
+
+
+<ng-template #hide>
+  <mat-icon *ngIf="this.classroomService.isSelf(this.conference!!.creator!!)" matTooltip="Konferenz ausblenden" class="visibility-icon functional-icon" (click)="this.changeVisibility()">visibility_off</mat-icon>
+</ng-template>
+
+<ng-template #show>
+  <mat-icon *ngIf="this.classroomService.isSelf(this.conference!!.creator!!)" matTooltip="Konferenz einblenden" class="visibility-icon functional-icon" (click)="this.changeVisibility()">visibility_on</mat-icon>
+</ng-template>
+
+
+<ng-template #ticketRef>
+<div class="conference-ref" matTooltip="Ticket: #{{ticket!!.ticketId}}">
+  <mat-icon class="ref-icon">local_offer</mat-icon>
+  <span class="ref-label">{{ticket!!.ticketId}}</span>
+</div>
+</ng-template>
+
+<ng-template #userRef>
+<div class="conference-ref" matTooltip="Ersteller: {{conference!!.creator!!.fullName}}">
+  <mat-icon class="ref-icon">person</mat-icon>
+  <span class="ref-label">{{conference!!.creator!!.fullName.substr(0, 2)}}</span>
+</div>
+</ng-template>

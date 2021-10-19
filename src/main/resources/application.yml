@@ -24,15 +24,7 @@ jwt:
 
 logging:
   level:
-    de.thm: DEBUG
-    org:
-      springframework:
-        web: INFO
-        security:
-          rsocket:
-            core: INFO
-        messaging:
-          rsocket: INFO
+    de.thm: ${CLASSROOM_LOGGING_LEVEL:INFO}
 
 spring:
   autoconfigure.exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration, org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration, org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration

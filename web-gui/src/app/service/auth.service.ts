@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {Observable, timer} from 'rxjs';
 import {tap} from 'rxjs/operators';
-import {Params} from "@angular/router";
 import {UserCredentials} from "../model/User";
 
 const JWT_STORAGE = 'classroom-token';
@@ -18,7 +17,9 @@ const REFRESH_STORAGE = 'classroom-refresh-token';
 export class AuthService {
 
   constructor(private http: HttpClient, private jwtHelper: JwtHelperService) {
-    this.startTokenAutoRefresh()
+    if (this.isAuthenticated()) {
+      this.startTokenAutoRefresh()
+    }
   }
 
   private static extractJwtFromHeader(response: HttpResponse<any>): string {
@@ -30,10 +31,10 @@ export class AuthService {
   }
 
   private static extractRefreshTokenFromHeader(response: HttpResponse<any>): string {
-    if (!response.headers.has('refresh_token')) {
-      throw Error("No refresh_token token in HttpResponse!")
+    if (!response.headers.has('refreshToken')) {
+      throw Error("No refreshToken token in HttpResponse!")
     }
-    return response.headers.get('refresh_token')!!;
+    return response.headers.get('refreshToken')!!;
   }
 
   /**
@@ -72,7 +73,7 @@ export class AuthService {
    */
   public loadToken(): string {
     const token = localStorage.getItem(JWT_STORAGE);
-    if (token === null) throw new Error('No JWT stored!');
+    if (token === null) return ""
     return token
   }
 
@@ -92,7 +93,7 @@ export class AuthService {
   }
 
   public requestNewToken() {
-    const headers = new HttpHeaders().set('refresh_token', this.loadRefreshToken())
+    const headers = new HttpHeaders().set('refreshToken', this.loadRefreshToken())
     return this.http.get<void>('/classroom-api/refresh', {headers: headers, observe: 'response'})
       .pipe(
         tap(res => AuthService.storeToken(AuthService.extractJwtFromHeader(res))),
@@ -100,7 +101,8 @@ export class AuthService {
       ).subscribe();
   }
 
-  public useSessionToken(params: Params): Observable<HttpResponse<void>> {
+  public useSessionToken(sessionToken: string): Observable<HttpResponse<void>> {
+    const params = new HttpParams().set("sessionToken", sessionToken)
     return this.http.get<void>('/classroom-api/join',
       {params: params, observe: 'response'})
       .pipe(

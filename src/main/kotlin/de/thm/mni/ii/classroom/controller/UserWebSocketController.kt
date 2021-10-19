@@ -29,6 +29,7 @@ class UserWebSocketController(
 
     @MessageMapping("socket/classroom-event")
     fun receiveEvent(@AuthenticationPrincipal userCredentials: UserCredentials, @Payload event: ClassroomEvent) {
+        assert(userCredentials.classroomId == event.getClassroomId())
         classroomEventReceiverService.classroomEventReceived(userCredentials, event)
     }
 
@@ -44,7 +45,12 @@ class UserWebSocketController(
 
     @MessageMapping("socket/init-users")
     fun initUsers(@AuthenticationPrincipal userCredentials: UserCredentials): Flux<User> {
-        return userService.getUserDisplays(userCredentials)
+        return userService.getUsers(userCredentials)
+    }
+
+    @MessageMapping("socket/init-offline-users")
+    fun initOfflineUsers(@AuthenticationPrincipal userCredentials: UserCredentials): Flux<User> {
+        return userService.getOfflineUsers(userCredentials)
     }
 
     @MessageMapping("socket/init-conferences")

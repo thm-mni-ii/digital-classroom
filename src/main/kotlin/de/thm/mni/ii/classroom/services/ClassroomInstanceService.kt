@@ -7,12 +7,17 @@ import de.thm.mni.ii.classroom.model.classroom.User
 import de.thm.mni.ii.classroom.model.classroom.UserCredentials
 import de.thm.mni.ii.classroom.util.toPair
 import org.apache.commons.lang3.RandomStringUtils
+import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Lazy
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import reactor.core.Disposable
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 import reactor.util.function.Tuple2
 import java.net.URL
+import java.time.Duration
 import java.util.UUID
 import kotlin.collections.HashMap
 
@@ -20,9 +25,12 @@ import kotlin.collections.HashMap
  * Central service for managing and creating all DigitalClassroomInstances.
  */
 @Service
-class ClassroomInstanceService {
+class ClassroomInstanceService(@Lazy private val conferenceService: ConferenceService) {
+
+    private val logger = LoggerFactory.getLogger(ClassroomInstanceService::class.java)
 
     private val classrooms = HashMap<String, DigitalClassroom>()
+    private val scheduledDeletions = HashMap<String, Disposable>()
 
     /**
      * Creates a new classroom instance and stores it inside the classroom map.
@@ -89,5 +97,41 @@ class ClassroomInstanceService {
             }.doOnComplete {
                 classrooms.remove(classroomId)
             }.then()
+    }
+
+    fun scheduleClassroomDeletion(digitalClassroom: DigitalClassroom, deleteInMinutes: Long = 10L) {
+        logger.debug("Classroom ${digitalClassroom.classroomName} scheduled for deletion if still empty in $deleteInMinutes minutes!")
+        val disposable = Mono.just(digitalClassroom)
+            .delayElement(Duration.ofMinutes(deleteInMinutes))
+            // Stop if users rejoined the conference!
+            .filter { classroom ->
+                val updatedClassroom = this.classrooms[digitalClassroom.classroomId]
+                if (updatedClassroom == null) {
+                    logger.warn("Classroom scheduled for deletion is already deleted!")
+                    false
+                } else {
+                    val usersJoined = updatedClassroom.hasUserJoined()
+                    if (usersJoined) logger.debug("Users joined classroom ${updatedClassroom.classroomName}. Abort deletion.")
+                    else logger.debug("Classroom ${updatedClassroom.classroomName} is still empty. Deleting...")
+                    !usersJoined
+                }
+            }.flatMap {
+                this.endClassroom(digitalClassroom.classroomId, digitalClassroom.teacherPassword)
+            }.subscribe()
+        this.scheduledDeletions[digitalClassroom.classroomId] = disposable
+    }
+
+    @Scheduled(fixedDelay = 60000)
+    private fun updateConferences() {
+        if (this.classrooms.values.isEmpty()) return
+        this.classrooms.values.forEach(this.conferenceService::updateConferences)
+    }
+
+    fun abortDeletion(digitalClassroom: DigitalClassroom) {
+        val disposable = this.scheduledDeletions[digitalClassroom.classroomId]
+        if (disposable != null) {
+            disposable.dispose()
+            logger.debug("Abort deletion of ${digitalClassroom.classroomName}")
+        }
     }
 }

@@ -1,0 +1,17 @@
+<div class="ticket-user" *ngIf="this.user !== undefined">
+    <ngx-avatar
+            [bgColor]="this.userIconService!!.calculateColorCode(this.user!!.fullName)"
+            class="user-avatar"
+            [name]="this.user!!.fullName"
+            initialsSize="2"
+            cornerRadius="4"
+            size="32"
+            [round]="false"
+            [textSizeRatio]="1.8"
+            [src]="this.user!!.avatarUrl"
+    ></ngx-avatar>
+    <div class="user-text">
+        <span class="label">{{this.label}}</span>
+        <span class="user-name">{{this.user!!.fullName}}</span>
+    </div>
+</div>

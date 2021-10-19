@@ -2,6 +2,9 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Ticket} from "../../../../model/Ticket";
 import {TimeFormatterService} from "../../../../util/time-formatter.service";
 import {ClassroomService} from "../../../../service/classroom.service";
+import {ConferenceInfo} from "../../../../model/ConferenceInfo";
+import {User, UserCredentials} from "../../../../model/User";
+import {UserService} from "../../../../service/user.service";
 
 @Component({
   selector: 'app-ticket',
@@ -11,10 +14,13 @@ import {ClassroomService} from "../../../../service/classroom.service";
 export class TicketComponent implements OnInit {
 
   @Input() ticket?: Ticket;
+  @Input() users: User[] = []
+  conference?: ConferenceInfo;
 
   constructor(
     private timeFormatterService: TimeFormatterService,
-    private classroomService: ClassroomService
+    public classroomService: ClassroomService,
+    public userService: UserService
   ) { }
 
   ngOnInit(): void {
@@ -26,15 +32,49 @@ export class TicketComponent implements OnInit {
     return this.timeFormatterService.timeAgo(ticket.createTime)
   }
 
-  inviteCreator() {
+  public determineButton(): "join" | "link" | "invite" {
+    this.conference = this.classroomService.findConferenceOfTicket(this.ticket!!)
+    if (this.classroomService.isSelf(this.ticket!!.creator) && this.conference === undefined) {
+      return "link"
+    }
+    if (this.conference !== undefined || this.classroomService.isInConference(this.ticket!!.creator))
+      return "join"
+    else
+      return "invite"
+  }
 
+  public mayDeleteTicket(): boolean {
+    return this.classroomService.isSelf(this.ticket?.creator!!) ||
+      this.classroomService.isCurrentUserPrivileged()
+  }
+
+  public mayEditTicket(): boolean {
+    return this.classroomService.isSelf(this.ticket?.creator!!)
   }
 
   editTicket() {
-
+    this.classroomService.createOrEditTicket(this.ticket)
   }
 
   closeTicket() {
     this.classroomService.closeTicket(this.ticket!!)
+  }
+
+  inviteCreator() {
+    this.classroomService
+      .createNewConferenceForTicket(this.ticket!!)
+      .subscribe(conf => this.classroomService.inviteToConference(this.ticket!!.creator, conf))
+  }
+
+  linkConference() {
+    this.classroomService.linkTicketToConference(this.ticket!!)
+  }
+
+  joinConference() {
+    this.classroomService.conferenceService.joinConference(this.conference!!)
+  }
+
+  public fullUser(user: UserCredentials): User | undefined {
+    return this.userService.getFullUser(user.userId)
   }
 }

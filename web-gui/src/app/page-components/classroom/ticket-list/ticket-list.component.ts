@@ -1,7 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {Ticket} from "../../../model/Ticket";
 import {ClassroomService} from "../../../service/classroom.service";
-import {UserCredentials} from "../../../model/User";
+import {User, UserCredentials} from "../../../model/User";
 
 @Component({
   selector: 'app-ticket-list',
@@ -12,6 +12,7 @@ export class TicketListComponent {
 
   @Input() currentUser?: UserCredentials
   @Input() tickets: Ticket[] = []
+  @Input() users: User[] = []
 
   constructor(
     public classroomService: ClassroomService

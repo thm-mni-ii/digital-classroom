@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {parseCourseRole, User, UserRole} from "../../../model/User";
 import {ClassroomService} from "../../../service/classroom.service";
+import {filter, tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-user-list',
@@ -50,4 +51,10 @@ export class UserListComponent implements OnInit {
     else return 0
   }
 
+  public joinConferenceOfUser(user: User) {
+    this.classroomService.chooseConferenceOfUser(user).pipe(
+      filter(conf => conf !== undefined),
+      tap(conf => this.classroomService.conferenceService.joinConference(conf))
+    ).subscribe()
+  }
 }

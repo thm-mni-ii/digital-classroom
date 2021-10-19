@@ -1,0 +1,59 @@
+.attendee-container {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+}
+
+.conference-attendees {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  max-width: 100px;
+  width: 100px;
+}
+
+.conference-attendee {
+  overflow: hidden;
+  margin-right: 2px;
+}
+
+.num-attendees {
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  border-radius: 50%;
+  position: relative;
+  right: 10px;
+  bottom: 5px;
+
+  background: #405E9A;
+  color: white;
+  text-align: center;
+  font-size: 12px;
+}
+
+.user-avatar {
+  background-color: transparent;
+}
+
+.hide-num-attendees {
+  visibility: hidden;
+}
+
+.show-num-attendees {
+  visibility: visible;
+}
+
+.conference-attendee:last-child, .conference-attendee:hover {
+  overflow: visible;
+}
+
+.attendee-placeholder {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: space-between;
+  span {
+    margin-left: 5px;
+  }
+}

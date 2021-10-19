@@ -1,0 +1,31 @@
+<div class="ticket-user">
+  <mat-select [disabled]="!classroomService.isCurrentUserPrivileged()" [(ngModel)]="assigneeId" class="user-select" (ngModelChange)="assignUser()">
+    <mat-select-trigger class="user-select">
+      <ng-container *ngIf="this.assigneeId !== '†none'; then userDisplay else assign"></ng-container>
+    </mat-select-trigger>
+    <mat-option value="†none">
+      <ng-container *ngTemplateOutlet="assign"></ng-container>
+    </mat-option>
+    <mat-option *ngFor="let supervisor of this.users | isPrivileged" [value]="supervisor.userId">
+      <app-ticket-user-display label="" [user]="supervisor"></app-ticket-user-display>
+    </mat-option>
+  </mat-select>
+</div>
+
+<ng-template #assign>
+  <div class="assign-user" *ngIf="this.classroomService.isCurrentUserPrivileged()">
+    <mat-icon class="assign-icon">add_circle_outline</mat-icon>
+    <span class="assign-text">zuweisen</span>
+  </div>
+  <div class="assign-user" *ngIf="!this.classroomService.isCurrentUserPrivileged()">
+    <mat-icon class="assign-icon">person_off</mat-icon>
+    <div class="user-text">
+      <span class="label">zugewiesen</span>
+      <span class="user-name">Niemand</span>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #userDisplay>
+  <app-ticket-user-display label="zugewiesen" [user]="this.fullUser(this.assigneeId)"></app-ticket-user-display>
+</ng-template>

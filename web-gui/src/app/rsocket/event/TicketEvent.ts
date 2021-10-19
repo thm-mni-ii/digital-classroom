@@ -3,7 +3,7 @@ import {ClassroomEvent} from "./ClassroomEvent";
 
 export enum TicketAction {
   CREATE = "CREATE",
-  ASSIGN = "ASSIGN",
+  UPDATE = "UPDATE",
   CLOSE = "CLOSE"
 }
 

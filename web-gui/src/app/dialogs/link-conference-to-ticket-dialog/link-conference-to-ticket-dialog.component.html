@@ -1,0 +1,15 @@
+<div class="container">
+  <div class="dialogTitle" matDialogTitle>Konferenz verlinken</div>
+  <mat-dialog-content style="max-height: 100%; overflow: hidden;">
+    <p>Welche Konferenz möchten Sie zum Ticket verlinken?</p>
+    <app-choose-conference-dialog
+      [conferences]="this.data.conferences"
+      [dialogRef]="this.dialogRef"
+      (conference)="getConference($event)">
+    </app-choose-conference-dialog>
+  </mat-dialog-content>
+  <mat-action-row>
+    <button color="primary" mat-raised-button (click)="newConference()">Neue Konferenz</button>
+    <button color="warn" mat-raised-button (click)="close()">Abbrechen</button>
+  </mat-action-row>
+</div>

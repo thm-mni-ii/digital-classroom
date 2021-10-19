@@ -15,6 +15,7 @@ class Ticket(
 ) : Comparable<Ticket>, ClassroomDependent {
 
     var ticketId: Long? = null
+    var conferenceId: String? = null
 
     @JsonSerialize(using = ZonedDateTimeMillisSerializer::class)
     @JsonDeserialize(using = ZonedDateTimeMillisDeserializer::class)
@@ -29,11 +30,10 @@ class Ticket(
         if (javaClass != other?.javaClass) return false
 
         other as Ticket
-
-        if (creator != other.creator) return false
-        if (ticketId != other.ticketId) return false
-        if (createTime != other.createTime) return false
         if (classroomId != other.classroomId) return false
+        if (ticketId != other.ticketId) return false
+        if (creator != other.creator) return false
+        if (createTime != other.createTime) return false
 
         return true
     }

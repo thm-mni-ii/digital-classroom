@@ -41,11 +41,12 @@ export class RSocketService implements OnDestroy {
   constructor(private auth: AuthService,
               private notification: NotificationService,
               private responder: EventListenerService) {
-    const token = auth.loadToken()
     if (!auth.isAuthenticated()) {
       notification.showOverlayError("Sie sind nicht eingeloggt!", "Fehler beim Verbinden!")
       return
     }
+    const token = auth.loadToken()
+
 
     // Create an instance of a client
     this.client = new RSocketClient({

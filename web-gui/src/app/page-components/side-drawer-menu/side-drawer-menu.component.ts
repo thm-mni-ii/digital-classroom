@@ -38,12 +38,10 @@ export class SideDrawerMenuComponent {
   }
 
   assignClassContent(): string {
-    if (this.orientation == 'left') return 'mat-sidenav-content-left'
-    else return 'mat-sidenav-content-right'
+    return 'sidenav-content-' + this.orientation
   }
 
   assignClass(): string {
-    if (this.orientation == 'left') return 'mat-sidenav-left'
-    else return 'mat-sidenav-right'
+    return 'sidenav-container-' + this.orientation
   }
 }
