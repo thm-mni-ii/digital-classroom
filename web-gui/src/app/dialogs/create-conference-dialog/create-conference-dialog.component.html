@@ -1,9 +1,9 @@
-<h2 mat-dialog-title>Neue Konferenz erstellen</h2>
-<div class="dialog">
+<div class="container">
+  <div class="dialogTitle" matDialogTitle>Neue Konferenz erstellen</div>
   <mat-dialog-content>
-    <form [formGroup]="form" class="grid-container">
+    <form [formGroup]="form">
       <mat-form-field appearance="fill">
-        <mat-label>Konferenz Name</mat-label>
+        <mat-label>Konferenzname</mat-label>
         <input matInput type="text" [formControl]="conferenceSubject" required>
       </mat-form-field>
       <div class="checkbox-form">
@@ -12,8 +12,8 @@
       </div>
     </form>
   </mat-dialog-content>
-  <mat-dialog-actions>
-    <button class="mat-raised-button" (click)="close()">Schließen</button>
-    <button class="mat-raised-button mat-primary" (click)="createConference()">Erstellen</button>
-  </mat-dialog-actions>
+  <mat-action-row>
+    <button mat-raised-button (click)="close()">Schließen</button>
+    <button mat-raised-button class="mat-primary" (click)="createConference()">Erstellen</button>
+  </mat-action-row>
 </div>
