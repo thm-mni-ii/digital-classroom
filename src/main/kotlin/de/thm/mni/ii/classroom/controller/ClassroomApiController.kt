@@ -11,6 +11,7 @@ import de.thm.mni.ii.classroom.util.component1
 import de.thm.mni.ii.classroom.util.component2
 import org.apache.commons.lang3.RandomStringUtils
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.buffer.DataBufferFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.server.reactive.ServerHttpResponse
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 
 @RestController
 @RequestMapping("/classroom-api")
@@ -78,6 +80,11 @@ class ClassroomApiController(
                 setHeader(HttpHeaders.AUTHORIZATION, "Bearer $jwt", exchange).response
             }.doOnNext {
                 logger.info("${auth.principal} refreshed his JWT!")
+            }.onErrorResume { error ->
+                logger.error(error.message)
+                originalExchange.response.statusCode = HttpStatus.BAD_REQUEST
+                originalExchange.response.bufferFactory().wrap(error.message!!.encodeToByteArray())
+                Mono.just(originalExchange.response)
             }
     }
 
