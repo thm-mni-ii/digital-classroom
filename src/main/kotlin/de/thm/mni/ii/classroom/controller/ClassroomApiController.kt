@@ -82,7 +82,7 @@ class ClassroomApiController(
     }
 
     private fun generateRefreshToken(userCredentials: UserCredentials): String {
-        val newRefreshToken = RandomStringUtils.randomAscii(30)
+        val newRefreshToken = RandomStringUtils.randomAlphanumeric(30)
         classroomTokenRepository.insertRefreshToken(newRefreshToken, userCredentials)
         return newRefreshToken
     }
