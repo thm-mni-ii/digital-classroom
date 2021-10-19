@@ -203,14 +203,6 @@ export class ClassroomService {
     return this.conferenceService.isUserInConference(userCredentials)
   }
 
-  public findOrCreateConferenceOfTicket(ticket: Ticket): ConferenceInfo {
-    let conference = this.findConferenceOfTicket(ticket)
-    if (conference === undefined) {
-      conference = this.configureNewConferenceForTicket(ticket)
-    }
-    return conference
-  }
-
   public createNewConferenceForTicket(ticket: Ticket): Observable<ConferenceInfo> {
     const info = this.configureNewConferenceForTicket(ticket)
     return this.conferenceService.createConference(info).pipe(
