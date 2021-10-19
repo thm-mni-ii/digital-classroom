@@ -1,0 +1,27 @@
+.user-list-entry {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2px;
+
+  .user-info {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+  }
+  .user-buttons {
+    display: inline-flex;
+    justify-content: space-between;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+}
+
+.visibility-icon {
+  color: #6D6D6D;
+}
+
+.invisible {
+  opacity: 50%;
+}

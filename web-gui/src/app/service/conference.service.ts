@@ -172,6 +172,16 @@ export class ConferenceService {
   public endConference(conferenceInfo: ConferenceInfo) {
     this.rSocketService.fireAndForget("socket/conference/end", conferenceInfo)
   }
+
+  isUserInConference(user: UserCredentials) {
+    let ret = false
+    this.conferences.forEach(conf => {
+      if (conf.attendeeIds.includes(user.userId)) {
+        ret = true
+      }
+    })
+    return ret
+  }
 }
 
 class ConferenceOpenInfo {

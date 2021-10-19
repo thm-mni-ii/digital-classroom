@@ -1,5 +1,17 @@
-h3 {
-  text-align:center;
+.list-container {
+  overflow: hidden;
+}
+
+.list-header {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  padding: 5px;
+  font-size: 18px;
+  margin-right: 10px;
+  mat-icon {
+    padding-right: 8px;
+  }
 }
 
 .user-list {
