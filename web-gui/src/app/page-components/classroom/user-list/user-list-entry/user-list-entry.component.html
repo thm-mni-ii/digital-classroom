@@ -8,9 +8,9 @@
   ></app-ticket-user-display>
   <div class="user-buttons">
     <ng-container *ngIf="this.user!!.visible; then hide else show"></ng-container>
-    <mat-icon *ngIf="this.classroomService.isCurrentUserPrivileged() && !classroomService.isSelf(user)"
+    <mat-icon matTooltip="{{user!!.fullName}} anrufen" *ngIf="this.classroomService.isCurrentUserPrivileged() && !classroomService.isSelf(user)"
               class="material-icons functional-icon" color="accent" (click)="this.classroomService.inviteToConference(user)">call</mat-icon>
-    <mat-icon *ngIf="this.classroomService.isInConference(user) && !classroomService.isSelf(user)" class="material-icons functional-icon" color="accent" (click)="this.joinConferenceOfUser(user)">phone_callback</mat-icon>
+    <mat-icon matTooltip="Konferenz von {{user.fullName}} beitreten" *ngIf="this.classroomService.isInConference(user) && !classroomService.isSelf(user)" class="material-icons functional-icon" color="accent" (click)="this.joinConferenceOfUser(user)">phone_callback</mat-icon>
   </div>
 </div>
 
