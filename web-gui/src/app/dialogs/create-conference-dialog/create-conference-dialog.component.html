@@ -4,16 +4,26 @@
     <form [formGroup]="form">
       <mat-form-field appearance="fill">
         <mat-label>Konferenzname</mat-label>
-        <input matInput type="text" [formControl]="conferenceSubject" required>
+        <input
+          matInput
+          type="text"
+          [formControl]="conferenceSubject"
+          required
+        />
       </mat-form-field>
       <div class="checkbox-form">
-        <mat-label>Konferenz sichtbar?</mat-label>
-        <mat-checkbox [formControl]="conferenceVisible"></mat-checkbox>
+        <mat-label class="visable-text">Konferenz sichtbar?</mat-label>
+        <mat-checkbox
+          [formControl]="conferenceVisible"
+          color="primary"
+        ></mat-checkbox>
       </div>
     </form>
   </mat-dialog-content>
   <mat-action-row>
     <button mat-raised-button (click)="close()">Schließen</button>
-    <button mat-raised-button class="mat-primary" (click)="createConference()">Erstellen</button>
+    <button mat-raised-button class="mat-primary" (click)="createConference()">
+      Erstellen
+    </button>
   </mat-action-row>
 </div>
