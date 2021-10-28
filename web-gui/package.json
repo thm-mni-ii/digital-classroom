@@ -25,6 +25,7 @@
     "@angular/router": "^12.2.8",
     "@auth0/angular-jwt": "^5.0.2",
     "angular2-click-outside": "^0.1.0",
+    "date-fns": "^2.25.0",
     "howler": "^2.2.3",
     "ngx-avatar": "^4.1.0",
     "rsocket-core": "0.0.27",
