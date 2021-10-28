@@ -1,6 +1,10 @@
 <div class="menu-bar">
   <div class="menu-bar-section">
-    <mat-icon>supervised_user_circle</mat-icon>
+    <ng-container [ngSwitch]="currentUser?.userRole">
+      <mat-icon *ngSwitchCase="'TUTOR'">supervised_user_circle</mat-icon>
+      <mat-icon *ngSwitchCase="'TEACHER'">supervised_user_circle</mat-icon>
+      <mat-icon *ngSwitchDefault>account_circle</mat-icon>
+    </ng-container>
     {{ parseCourseRole(currentUser?.userRole) }}
   </div>
 
