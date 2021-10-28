@@ -1,4 +1,4 @@
-@use 'src/colors';
+@use "src/colors";
 
 .menu-bar {
   background-color: transparent;
@@ -17,6 +17,7 @@
     align-items: center;
     justify-content: space-evenly;
     margin: 0 5px 0 5px;
+    cursor: pointer;
   }
 
   .user-info {
@@ -30,21 +31,20 @@
   margin-left: 3px;
 }
 
-
 .user-avatar {
   position: relative;
   margin-right: 8px;
 }
 
 .avatar-blue {
-  background: #405E9A;
+  background: #405e9a;
 }
 .avatar-green {
-  background: #60CB7E;
+  background: #60cb7e;
 }
 .avatar-orange {
-  background: #FD9A63;
+  background: #fd9a63;
 }
 .avatar-light-blue {
-  background: #26B8B8;
+  background: #26b8b8;
 }
