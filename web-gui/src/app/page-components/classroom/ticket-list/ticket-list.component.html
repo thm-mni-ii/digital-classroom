@@ -1,11 +1,15 @@
 <div class="ticket-list">
   <div class="list-header">
-    <mat-icon class="functional-icon" (click)="classroomService.createOrEditTicket()" svgIcon="add-ticket"></mat-icon>
+    <mat-icon
+      class="functional-icon"
+      (click)="classroomService.createOrEditTicket()"
+      svgIcon="add-ticket"
+    ></mat-icon>
     <h3>Tickets</h3>
     <mat-icon class="functional-icon">filter_list</mat-icon>
   </div>
-  <hr>
-  <mat-list>
+  <hr />
+  <mat-list class="list-body">
     <mat-card class="ticket" *ngFor="let ticket of sortTickets(tickets)">
       <app-ticket [ticket]="ticket" [users]="users"></app-ticket>
     </mat-card>
