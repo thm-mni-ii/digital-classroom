@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { formatDistanceToNowStrict, formatRelative } from 'date-fns';
+import { format, formatDistanceToNowStrict, formatRelative } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 @Injectable({
@@ -60,5 +60,10 @@ export class TimeFormatterService {
     if (timeAgo) return timeAgo;
 
     return formatRelative(date, new Date(), { locale: this.locale });
+  }
+
+  /** Formats the given date to dd. MM. y, hh:mm */
+  public format(dateParam: number): string {
+    return format(dateParam, 'dd. MMM y, hh:mm', { locale: de });
   }
 }
