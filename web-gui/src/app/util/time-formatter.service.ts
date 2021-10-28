@@ -62,8 +62,8 @@ export class TimeFormatterService {
     return formatRelative(date, new Date(), { locale: this.locale });
   }
 
-  /** Formats the given date to dd. MM. y, hh:mm */
+  /** Formats the given date to dd. MM. y, HH:mm */
   public format(dateParam: number): string {
-    return format(dateParam, 'dd. MMM y, hh:mm', { locale: de });
+    return format(dateParam, 'dd. MMM y, HH:mm', { locale: de });
   }
 }
