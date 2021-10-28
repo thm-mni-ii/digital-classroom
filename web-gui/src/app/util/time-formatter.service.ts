@@ -53,9 +53,7 @@ export class TimeFormatterService {
   public timeAgo(dateParam: number): string {
     const date = new Date(dateParam);
 
-    const timeAgo = formatDistanceToNowStrict(date, {
-      locale: { ...de, formatDistance: this.formatDistance },
-    });
+    const timeAgo = formatDistanceToNowStrict(date, { locale: this.locale });
 
     if (timeAgo) return timeAgo;
 
