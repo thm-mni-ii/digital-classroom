@@ -16,16 +16,27 @@
 
 .user-list {
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
   flex-grow: 2;
   margin-right: 5%;
   margin-left: 5%;
+  height: 100%;
+}
+
+.user-list-entries {
+  overflow: hidden;
+  height: 100%;
+}
+
+.user-list-other {
+  height: calc(100% - 63px);
+  overflow: auto;
 }
 
 .user {
   height: 24px;
   margin: 12px 5px 5px 5px;
-  padding:5px;
+  padding: 5px;
   display: flex;
   justify-content: space-between;
   .meta {
@@ -49,13 +60,13 @@
     align-items: center;
   }
   .user-item {
-    width:100%;
-    margin:0;
+    width: 100%;
+    margin: 0;
     .subtext-role {
-      float:right;
+      float: right;
     }
     p {
-      margin:2px;
+      margin: 2px;
     }
   }
 }
