@@ -15,9 +15,13 @@ export class TimeFormatterService {
     today: "'heute um' p",
     yesterday: "'gestern um' p",
     lastWeek: "dd. MMM 'um' p",
-    other: "dd. MMM 'um' p",
+    other: "dd. MMM y 'um' p",
   };
 
+  /**
+   * Custom formatDistance function that
+   * returns a string only if the distance is less than one hour
+   */
   private formatDistance = (token: any, count: number) => {
     if (!Object.keys(this.formatDistanceLocale).includes(token)) return '';
 
@@ -36,6 +40,16 @@ export class TimeFormatterService {
     formatDistance: this.formatDistance,
   };
 
+  /**
+   * Calculates the elapsed time since the given date, and formats it as follows:
+   *
+   * - < 1 min = gerade eben
+   * - < 1 h = ${minutes} Minuten
+   * - today = heute um ${hh:mm}
+   * - yesterday = gestern um ${hh:mm}
+   * - last Week = ${dd. MM} um ${hh:mm}
+   * - other = ${dd. MM y} um ${hh:mm}
+   */
   public timeAgo(dateParam: number): string {
     const date = new Date(dateParam);
 
