@@ -3,27 +3,42 @@
 .menu-bar {
   background-color: transparent;
   box-sizing: border-box;
-  height: 5%;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-between;
+  min-height: 42px;
   align-items: center;
   padding: 5px 5px;
   box-shadow: none;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: 1fr repeat(2, max-content);
+  position: relative;
 
   .menu-bar-section {
+    margin: 0 5px 0 5px;
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
-    justify-content: space-evenly;
-    margin: 0 5px 0 5px;
-    cursor: pointer;
+  }
+
+  .room-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100vh;
+    justify-content: center;
   }
 
   .user-info {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
+  }
+
+  .menu-leave {
+    cursor: pointer;
+    color: #f35656;
+    margin-top: 4px;
   }
 }
 

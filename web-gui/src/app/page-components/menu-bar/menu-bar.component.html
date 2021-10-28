@@ -9,7 +9,7 @@
     <span class="room-name">{{ classroomInfo?.classroomName }}</span>
   </div>
 
-  <div class="menu-bar-section" (click)="this.toggleMenu()">
+  <div class="menu-bar-section">
     <div class="user-info" *ngIf="currentUser !== undefined">
       <ngx-avatar
         class="user-avatar"
@@ -27,9 +27,12 @@
       {{ currentUser.fullName }}
     </div>
   </div>
-</div>
 
-<app-dropdown-menu
-  *ngIf="menuVisible"
-  [currentUser]="this.currentUser"
-></app-dropdown-menu>
+  <div
+    (click)="this.classroomService.logout()"
+    matTooltip="Klassenraum verlassen"
+    class="menu-leave"
+  >
+    <mat-icon>logout</mat-icon>
+  </div>
+</div>
