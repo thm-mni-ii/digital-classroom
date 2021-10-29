@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
 
   app-menu-bar {
     display: block;
@@ -13,13 +14,14 @@
 
   .classroom-body {
     display: flex;
-    flex: 1 1 auto;
+    flex: 1;
+    overflow: auto;
     flex-basis: max-content;
     flex-direction: row;
 
     .classroom-column {
       width: 50%;
-      flex-grow: 2;
+      flex-grow: 1;
       display: block;
     }
 
