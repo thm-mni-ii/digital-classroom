@@ -30,7 +30,6 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import { LogoutComponent } from './page-components/full-page/logout/logout.component';
 import {NotFoundComponent} from "./page-components/full-page/not-found/not-found.component";
 import { OverlayErrorComponent } from './page-components/overlay-error/overlay-error.component';
-import { ChooseConferenceDialogComponent } from './dialogs/choose-conference-dialog/choose-conference-dialog.component';
 import {JoinUserConferenceDialogComponent} from "./dialogs/join-user-conference-dialog/join-user-conference-dialog.component";
 import {AvatarModule} from "ngx-avatar";
 import { FullPageComponent } from './page-components/full-page/full-page.component';
@@ -43,6 +42,8 @@ import { DropdownMenuComponent } from './page-components/menu-bar/dropdown-menu/
 import { TicketUserDisplayComponent } from './page-components/classroom/ticket-list/ticket/ticket-user-display/ticket-user-display.component';
 import {LinkConferenceToTicketDialogComponent} from "./dialogs/link-conference-to-ticket-dialog/link-conference-to-ticket-dialog.component";
 import { UserListEntryComponent } from './page-components/classroom/user-list/user-list-entry/user-list-entry.component';
+import {ConfirmationDialogComponent} from "./dialogs/confirmation-dialog/confirmation-dialog.component";
+import {ChooseConferenceDialogComponent} from "./dialogs/choose-conference-dialog/choose-conference-dialog.component";
 
 
 @NgModule({
@@ -63,11 +64,9 @@ import { UserListEntryComponent } from './page-components/classroom/user-list/us
     ConferenceListComponent,
     CreateConferenceDialogComponent,
     LogoutComponent,
-    CreateConferenceDialogComponent,
     OverlayErrorComponent,
-    ChooseConferenceDialogComponent,
+    LinkConferenceToTicketDialogComponent,
     JoinUserConferenceDialogComponent,
-    OverlayErrorComponent,
     FullPageComponent,
     TicketComponent,
     TicketAssignComponent,
@@ -76,8 +75,9 @@ import { UserListEntryComponent } from './page-components/classroom/user-list/us
     ConferenceAttendeesComponent,
     DropdownMenuComponent,
     TicketUserDisplayComponent,
-    LinkConferenceToTicketDialogComponent,
-    UserListEntryComponent
+    UserListEntryComponent,
+    ConfirmationDialogComponent,
+    ChooseConferenceDialogComponent
   ],
   imports: [
     BrowserModule,
