@@ -32,6 +32,7 @@ import {
   LinkConferenceInputData,
   LinkConferenceToTicketDialogComponent
 } from "../dialogs/link-conference-to-ticket-dialog/link-conference-to-ticket-dialog.component";
+import {ConfirmationDialogComponent} from "../dialogs/confirmation-dialog/confirmation-dialog.component";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and
@@ -252,5 +253,13 @@ export class ClassroomService {
 
   public findConferenceOfTicket(ticket: Ticket): ConferenceInfo | undefined {
     return this.conferences.find(conference => conference.conferenceId === ticket.conferenceId)
+  }
+
+  getConfirmation(question: string): Observable<boolean> {
+    return this.dialog.open(ConfirmationDialogComponent, {
+      height: 'auto',
+      width: 'auto',
+      data: question
+    }).beforeClosed()
   }
 }

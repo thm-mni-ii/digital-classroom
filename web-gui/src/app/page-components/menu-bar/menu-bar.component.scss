@@ -1,22 +1,31 @@
-@use 'src/colors';
+@use "src/colors";
 
 .menu-bar {
   background-color: transparent;
   box-sizing: border-box;
-  height: 5%;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-between;
   align-items: center;
   padding: 5px 5px;
   box-shadow: none;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: 1fr repeat(2, max-content);
+  position: relative;
 
   .menu-bar-section {
+    margin: 0 5px 0 5px;
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
-    justify-content: space-evenly;
-    margin: 0 5px 0 5px;
+  }
+
+  .room-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100vh;
+    justify-content: center;
   }
 
   .user-info {
@@ -24,12 +33,18 @@
     flex-flow: row nowrap;
     align-items: center;
   }
+
+  .menu-leave {
+    cursor: pointer;
+    color: #f35656;
+    margin-top: 4px;
+    margin-left: 8px;
+  }
 }
 
 .room-name {
   margin-left: 3px;
 }
-
 
 .user-avatar {
   position: relative;
@@ -37,14 +52,14 @@
 }
 
 .avatar-blue {
-  background: #405E9A;
+  background: #405e9a;
 }
 .avatar-green {
-  background: #60CB7E;
+  background: #60cb7e;
 }
 .avatar-orange {
-  background: #FD9A63;
+  background: #fd9a63;
 }
 .avatar-light-blue {
-  background: #26B8B8;
+  background: #26b8b8;
 }

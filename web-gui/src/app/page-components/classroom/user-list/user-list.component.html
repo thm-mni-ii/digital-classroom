@@ -1,15 +1,16 @@
 <div class="user-list">
-  <div class="list-header">
-    Teilnehmer
-  </div>
+  <div class="list-header">Teilnehmer</div>
 
   <mat-list class="user-list-entries">
-    <app-user-list-entry [user]="classroomService.currentUser"></app-user-list-entry>
-    <hr>
     <app-user-list-entry
-      *ngFor="let user of formatUsers(this.users)"
-      [user]="user"
+      [user]="classroomService.currentUser"
     ></app-user-list-entry>
+    <hr />
+    <div class="user-list-other">
+      <app-user-list-entry
+        *ngFor="let user of formatUsers(this.users)"
+        [user]="user"
+      ></app-user-list-entry>
+    </div>
   </mat-list>
-
 </div>

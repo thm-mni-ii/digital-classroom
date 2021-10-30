@@ -1,9 +1,9 @@
-<div class="container">
-  <app-menu-bar [currentUser]="currentUser" [classroomInfo]="classroomInfo"></app-menu-bar>
-</div>
-
 <div class="classroom-content">
-  <app-side-drawer-menu label="Teilnehmer" orientation="left" [component]="userListComponent"></app-side-drawer-menu>
-  <app-ticket-list [currentUser]="currentUser" [tickets]="tickets" [users]="users" class="classroom-column"></app-ticket-list>
-  <app-side-drawer-menu label="Konferenzen" orientation="right" [component]="conferenceListComponent"></app-side-drawer-menu>
+  <app-menu-bar [currentUser]="currentUser" [classroomInfo]="classroomInfo"></app-menu-bar>
+
+  <div class="classroom-body">
+    <app-side-drawer-menu class="drawer" label="Teilnehmer" orientation="left" [component]="userListComponent"></app-side-drawer-menu>
+    <app-ticket-list [currentUser]="currentUser" [tickets]="tickets" [users]="users" class="classroom-column"></app-ticket-list>
+    <app-side-drawer-menu class="drawer" label="Konferenzen" orientation="right" [component]="conferenceListComponent"></app-side-drawer-menu>
+  </div>
 </div>

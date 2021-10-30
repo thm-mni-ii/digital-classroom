@@ -4,7 +4,6 @@ button {
 
 .container {
   width: 20rem;
-
 }
 
 form {
@@ -17,6 +16,7 @@ mat-dialog-content {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin-bottom: 10px;
 }
 
 .checkbox-form {
@@ -26,4 +26,8 @@ mat-dialog-content {
 mat-action-row {
   width: unset;
   margin-top: 10px;
+}
+
+.visable-text {
+  margin-right: 10px;
 }

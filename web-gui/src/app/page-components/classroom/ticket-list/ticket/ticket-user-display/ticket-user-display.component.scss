@@ -1,10 +1,10 @@
-.ticket-user {
+.ticket-user-display {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
   min-width: 132px;
   max-width: 200px;
-  height: 38px;
+  min-height: 38px;
   .user-avatar {
     height: 32px;
     margin-right: 5px;
@@ -15,11 +15,12 @@
     align-items: baseline;
     .label {
       text-align: left;
-      color: #B1B1B1;
+      color: #b1b1b1;
       font-size: 14px;
     }
     .user-name {
       font-size: 16.4px;
+      word-wrap: break-word;
     }
   }
 }

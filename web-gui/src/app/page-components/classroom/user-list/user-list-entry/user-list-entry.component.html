@@ -1,23 +1,55 @@
 <div
   class="user-list-entry"
   *ngIf="user !== undefined"
-  [class.invisible]="!user.visible">
+  [class.invisible]="!user.visible"
+>
   <app-ticket-user-display
     [user]="user"
     [label]="parseCourseRole(user.userRole)"
   ></app-ticket-user-display>
   <div class="user-buttons">
-    <ng-container *ngIf="this.user!!.visible; then hide else show"></ng-container>
-    <mat-icon matTooltip="{{user!!.fullName}} anrufen" *ngIf="this.classroomService.isCurrentUserPrivileged() && !classroomService.isSelf(user)"
-              class="material-icons functional-icon" color="accent" (click)="this.classroomService.inviteToConference(user)">call</mat-icon>
-    <mat-icon matTooltip="Konferenz von {{user.fullName}} beitreten" *ngIf="this.classroomService.isInConference(user) && !classroomService.isSelf(user)" class="material-icons functional-icon" color="accent" (click)="this.joinConferenceOfUser(user)">phone_callback</mat-icon>
+    <ng-container
+      *ngIf="this.user!!.visible; then hide; else show"
+    ></ng-container>
+    <mat-icon
+      matTooltip="{{ user!!.fullName }} anrufen"
+      *ngIf="
+        this.classroomService.isCurrentUserPrivileged() &&
+        !classroomService.isSelf(user)
+      "
+      class="call-icon material-icons functional-icon"
+      (click)="this.classroomService.inviteToConference(user)"
+      >call</mat-icon
+    >
+    <mat-icon
+      matTooltip="Konferenz von {{ user.fullName }} beitreten"
+      *ngIf="
+        this.classroomService.isInConference(user) &&
+        !classroomService.isSelf(user)
+      "
+      class="call-icon material-icons functional-icon"
+      (click)="this.joinConferenceOfUser(user)"
+      >phone_callback</mat-icon
+    >
   </div>
 </div>
 
 <ng-template #hide>
-  <mat-icon *ngIf="this.classroomService.isSelf(this.user!!)" matTooltip="Unsichtbar werden" class="visibility-icon functional-icon" (click)="this.classroomService.userService.changeVisibility(false)">visibility_off</mat-icon>
+  <mat-icon
+    *ngIf="this.classroomService.isSelf(this.user!!)"
+    matTooltip="Unsichtbar werden"
+    class="visibility-icon functional-icon"
+    (click)="this.classroomService.userService.changeVisibility(false)"
+    >visibility_off</mat-icon
+  >
 </ng-template>
 
 <ng-template #show>
-  <mat-icon *ngIf="this.classroomService.isSelf(this.user!!)" matTooltip="Sichtbar werden" class="visibility-icon functional-icon" (click)="this.classroomService.userService.changeVisibility(true)">visibility_on</mat-icon>
+  <mat-icon
+    *ngIf="this.classroomService.isSelf(this.user!!)"
+    matTooltip="Sichtbar werden"
+    class="visibility-icon functional-icon"
+    (click)="this.classroomService.userService.changeVisibility(true)"
+    >visibility_on</mat-icon
+  >
 </ng-template>

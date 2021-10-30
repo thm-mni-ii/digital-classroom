@@ -4,6 +4,7 @@ import {User} from "../../../../model/User";
 import {ConferenceService} from "../../../../service/conference.service";
 import {ClassroomService} from "../../../../service/classroom.service";
 import {Ticket} from "../../../../model/Ticket";
+import {filter, tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-conference',
@@ -42,7 +43,10 @@ export class ConferenceComponent {
   }
 
   public endConference() {
-    this.conferenceService.endConference(this.conference!!)
+    this.classroomService.getConfirmation("BBB-Konferenz \"" + this.conference?.conferenceName + "\" beenden?").pipe(
+      filter(result => result),
+      tap(_ => this.conferenceService.endConference(this.conference!!))
+    ).subscribe()
   }
 
   public joinTooltip(): string {

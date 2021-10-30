@@ -1,56 +1,33 @@
-.container {
-  display: block;
-  padding: 16px;
-  z-index: 2;
-  position: relative;
-}
-.actions {
-  margin: -15px;
+.classroom-content {
+
   display: flex;
-  height: 40px;
-  width: 100%;
-  padding-left: 10px;
-  margin-bottom: 10px;
-  .mat-flat-button {
-    line-height: 30px;
-    margin: 0 2.5px;
-    height: 30px;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  app-menu-bar {
+    display: block;
+    padding: 16px;
+    z-index: 2;
+    position: relative;
+  }
+
+  .classroom-body {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    .mat-icon {
-      height: 25px;
+    flex: 1;
+    overflow: auto;
+    flex-basis: max-content;
+    flex-direction: row;
+
+    .classroom-column {
+      width: 50%;
+      flex-grow: 1;
+      display: block;
+    }
+
+    .drawer {
+      margin-top: 20px;
     }
   }
-  span {
-    height: 24px;
-    margin-top: 2px;
-  }
-  .mat-icon {
-    cursor: pointer;
-  }
-}
 
-.classroom-content {
-  height: 70%;
-  flex-grow: 2;
-  display: flex;
-  flex-direction:row;
-
-  .classroom-column {
-    width:50%;
-    flex-grow: 2;
-    display: block;
-  }
-}
-
-.classroom-bottom {
-  grid-row: 99;
-  grid-column: 1;
-  vertical-align: bottom;
-  display: block;
-}
-
-.spacer {
-  flex: 1 1 auto;
 }

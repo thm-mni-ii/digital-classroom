@@ -8,6 +8,7 @@ mat-card-content {
     justify-content: space-between;
     align-items: center;
     padding-left: 5px;
+    min-height: 20px;
   }
   .ticket-desc {
     display: flex;
@@ -18,7 +19,6 @@ mat-card-content {
   .ticket-details {
     margin-top: 5px;
     padding-left: 10px;
-    height: 20px;
     font-size: 14px;
     color: #6D6D6D;
   }

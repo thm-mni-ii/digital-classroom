@@ -28,7 +28,6 @@
 .assign-user {
   display: flex;
   flex-flow: row nowrap;
-  //justify-content: space-evenly;
   align-items: center;
   align-content: space-around;
   min-width: 132px;
@@ -46,17 +45,21 @@
   color: #6D6D6D;
 }
 
-mat-select-trigger {
-
-}
-.mat-select-arrow-wrapper {
-  display: none;
-}
-
-.mat-select-arrow {
-  display: none;
-}
-
 .container {
   width: 100%;
 }
+
+::ng-deep .mat-select > .mat-select-trigger {
+  .mat-select-value {
+    white-space: unset;
+    .mat-select-value-text {
+      white-space: unset;
+    }
+  }
+
+  .mat-select-arrow-wrapper .mat-select-arrow {
+    border: none;
+  }
+}
+
+

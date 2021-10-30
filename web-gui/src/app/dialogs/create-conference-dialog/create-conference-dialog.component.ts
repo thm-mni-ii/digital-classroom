@@ -21,7 +21,7 @@ export class CreateConferenceDialogComponent {
               private notification: NotificationService,
               private dialogRef: MatDialogRef<CreateConferenceDialogComponent>
   ) {
-    this.conferenceSubject = new FormControl('Konferenz von ' + this.data.currentUser.fullName)
+    this.conferenceSubject = new FormControl('Meeting von ' + this.data.currentUser.fullName)
     this.conferenceVisible = new FormControl(true)
 
     this.form = this.fb.group({

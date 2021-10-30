@@ -2,36 +2,83 @@
   <div class="ticket-row">
     <div class="ticket-desc">
       <mat-icon class="ticket-icon">local_offer</mat-icon>
-      <p>{{ticket.description}}</p>
+      <p>{{ ticket.description }}</p>
     </div>
     <div class="ticket-meta">
-      <p class="ticket-num">#{{ticket.ticketId}}</p>
-      <p class="ticket-time">{{this.getTicketTime(ticket)}}</p>
+      <p class="ticket-num">#{{ ticket.ticketId }}</p>
+      <p class="ticket-time" matTooltip="{{ this.getTicketTime(ticket) }}">
+        {{ this.getTicketTimeAgo(ticket) }}
+      </p>
     </div>
   </div>
   <div class="ticket-row">
     <div class="ticket-users">
-      <app-ticket-assign label="zugewiesen" [ticket]="ticket" [users]="this.users"></app-ticket-assign>
-      <app-ticket-user-display label="ersteller" [user]="this.fullUser(this.ticket.creator)"></app-ticket-user-display>
+      <app-ticket-assign
+        label="zugewiesen"
+        [ticket]="ticket"
+        [users]="this.users"
+      ></app-ticket-assign>
+      <app-ticket-user-display
+        label="ersteller"
+        [user]="this.fullUser(this.ticket.creator)"
+      ></app-ticket-user-display>
     </div>
-    <div *ngIf="mayDeleteTicket()" class="ticket-buttons" [ngSwitch]="determineButton()">
-      <ng-container *ngSwitchCase="'invite'" [ngTemplateOutlet]="inviteToConferenceTemplate"></ng-container>
-      <ng-container *ngSwitchCase="'join'" [ngTemplateOutlet]="joinConferenceTemplate"></ng-container>
-      <ng-container *ngSwitchCase="'link'" [ngTemplateOutlet]="linkConferenceTemplate"></ng-container>
-      <mat-icon *ngIf="mayEditTicket()" class="edit-icon functional-icon" (click)="this.editTicket()">edit</mat-icon>
-      <mat-icon *ngIf="mayDeleteTicket()" class="delete-icon functional-icon" (click)="this.closeTicket()">delete</mat-icon>
+    <div
+      *ngIf="mayDeleteTicket()"
+      class="ticket-buttons"
+      [ngSwitch]="determineButton()"
+    >
+      <ng-container
+        *ngSwitchCase="'invite'"
+        [ngTemplateOutlet]="inviteToConferenceTemplate"
+      ></ng-container>
+      <ng-container
+        *ngSwitchCase="'join'"
+        [ngTemplateOutlet]="joinConferenceTemplate"
+      ></ng-container>
+      <ng-container
+        *ngSwitchCase="'link'"
+        [ngTemplateOutlet]="linkConferenceTemplate"
+      ></ng-container>
+      <mat-icon
+        *ngIf="mayEditTicket()"
+        class="edit-icon functional-icon"
+        (click)="this.editTicket()"
+        >edit</mat-icon
+      >
+      <mat-icon
+        *ngIf="mayDeleteTicket()"
+        class="delete-icon functional-icon"
+        (click)="this.closeTicket()"
+        >delete</mat-icon
+      >
     </div>
   </div>
 </mat-card-content>
 
 <ng-template #inviteToConferenceTemplate>
-  <mat-icon class="invite-icon functional-icon" svgIcon="invite-conference" matTooltip="Zu Konferenz einladen" (click)="this.inviteCreator()"></mat-icon>
+  <mat-icon
+    class="invite-icon functional-icon"
+    svgIcon="invite-conference"
+    matTooltip="Zu Konferenz einladen"
+    (click)="this.inviteCreator()"
+  ></mat-icon>
 </ng-template>
 
 <ng-template #joinConferenceTemplate>
-  <mat-icon class="join-icon functional-icon" svgIcon="join-conference" matTooltip="Konferenz beitreten" (click)="this.joinConference()"></mat-icon>
+  <mat-icon
+    class="join-icon functional-icon"
+    svgIcon="join-conference"
+    matTooltip="Konferenz beitreten"
+    (click)="this.joinConference()"
+  ></mat-icon>
 </ng-template>
 
 <ng-template #linkConferenceTemplate>
-  <mat-icon class="visibility-icon functional-icon" svgIcon="link-conference" matTooltip="Konferenz verlinken" (click)="this.linkConference()"></mat-icon>
+  <mat-icon
+    class="visibility-icon functional-icon"
+    svgIcon="link-conference"
+    matTooltip="Konferenz verlinken"
+    (click)="this.linkConference()"
+  ></mat-icon>
 </ng-template>

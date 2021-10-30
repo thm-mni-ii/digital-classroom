@@ -1,8 +1,8 @@
 .menu-bubble {
   position: absolute;
   background: white;
-  border-radius: .4em;
-  border: 1px solid #B1B1B1;
+  border-radius: 0.4em;
+  border: 1px solid #b1b1b1;
 
   display: flex;
   flex-flow: column nowrap;
@@ -12,15 +12,25 @@
 }
 
 .menu-bubble:after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 85%;
   width: 0;
   height: 0;
   border: 0.5em solid transparent;
-  border-bottom-color: #B1B1B1;
+  border-bottom-color: #b1b1b1;
   border-top: 0;
   margin-left: -0.4em;
   margin-top: -0.5em;
+}
+
+.menu-text {
+  line-height: 24px;
+  margin-left: 5px;
+}
+
+.menu-item {
+  display: flex;
+  cursor: pointer;
 }
