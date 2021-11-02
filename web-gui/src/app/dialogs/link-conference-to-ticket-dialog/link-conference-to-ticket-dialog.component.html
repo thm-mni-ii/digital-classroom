@@ -2,7 +2,7 @@
   <div class="dialogTitle" matDialogTitle>Konferenz verlinken</div>
   <mat-dialog-content>
     <p>Welche Konferenz möchten Sie zu Ticket #{{this.data.ticket.ticketId}} verlinken?</p>
-    <span *ngIf="data.ticket.conferenceId !== null">Aktuell: {{this.currentConferenceName()}}</span>
+    <span class="current-conf" *ngIf="data.ticket.conferenceId !== null">Aktuelle Konferenz: {{this.currentConferenceName()}}</span>
     <app-choose-conference-dialog
       [conferences]="this.data.conferences"
       [dialogRef]="this.dialogRef"
