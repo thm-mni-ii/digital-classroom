@@ -2,6 +2,8 @@ import {Component, Input} from '@angular/core';
 import {Ticket} from "../../../model/Ticket";
 import {ClassroomService} from "../../../service/classroom.service";
 import {User, UserCredentials} from "../../../model/User";
+import {Howl} from "howler";
+import {AssetManagerService} from "../../../util/asset-manager.service";
 
 @Component({
   selector: 'app-ticket-list',
@@ -14,9 +16,29 @@ export class TicketListComponent {
   @Input() tickets: Ticket[] = []
   @Input() users: User[] = []
 
+  playSound: boolean = false;
+  private sound = new Howl({
+    src: [this.assetManager.getAsset("notification")],
+    loop: false,
+    volume: 0.5
+  })
+
   constructor(
-    public classroomService: ClassroomService
+    public classroomService: ClassroomService,
+    private assetManager: AssetManagerService
   ) {
+    this.classroomService.newTicketObservable.subscribe(
+      ticket => this.playSoundOnNewTicket(ticket)
+    )
+  }
+
+  private playSoundOnNewTicket(ticket: Ticket) {
+    if (!this.playSound) return
+    const notification: Notification = new Notification('Neues Ticket',
+      {body: ticket.description + ' von ' + ticket.creator!!.fullName});
+    notification.onclick = () => window.focus();
+
+    this.sound.play()
   }
 
   public sortTickets(tickets: Ticket[]) {

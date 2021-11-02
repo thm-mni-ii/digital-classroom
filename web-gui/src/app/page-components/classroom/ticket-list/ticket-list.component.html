@@ -6,7 +6,15 @@
       svgIcon="add-ticket"
     ></mat-icon>
     <h3>Tickets</h3>
-    <mat-icon class="functional-icon">filter_list</mat-icon>
+    <span>
+      <mat-icon *ngIf="this.classroomService.isCurrentUserPrivileged()"
+                class="functional-icon"
+                (click)="this.playSound = !this.playSound"
+                [matTooltip]="(playSound ? 'Benachrichtigung ausschalten' : 'Benachrichtigung einschalten')">
+        {{(playSound ? "volume_up" : "volume_off")}}
+      </mat-icon>
+      <mat-icon class="functional-icon">filter_list</mat-icon>
+    </span>
   </div>
   <hr />
   <mat-list class="list-body">
