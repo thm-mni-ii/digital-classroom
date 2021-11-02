@@ -14,6 +14,8 @@ export class TicketListComponent {
   @Input() tickets: Ticket[] = []
   @Input() users: User[] = []
 
+  sound: boolean = true;
+
   constructor(
     public classroomService: ClassroomService
   ) {
