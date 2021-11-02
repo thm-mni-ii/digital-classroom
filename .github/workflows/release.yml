@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
       - name: Get the Tag version
         id: get_version
         run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
@@ -24,9 +26,9 @@ jobs:
           pullRequests: false
           enhancementLabels: ""
           issuesLabel: "**Changes:**"
-          addSections: '{"internal": { "prefix": "**Internal:**", "labels": ["CI/CD"] }}'
+          addSections: '{"internal":{"prefix":"**Internal:**","labels":["CI/CD","Docker"]}}'
       - name: Release
         uses: softprops/action-gh-release@v0.1.13
         with:
-          body: steps.changelog.outputs.changelog
+          body: ${{ steps.changelog.outputs.changelog }}
           prerelease: ${{ startsWith(github.ref, 'refs/tags/v0') || contains(github.ref, fromJson('["beta", "alpha"]')) }}
