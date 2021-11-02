@@ -6,7 +6,7 @@ COPY build.gradle.kts /code
 WORKDIR /code
 RUN gradle clean build -i -x bootJar
 
-FROM node:14.17.3-alpine AS build-node
+FROM node:16.13.0-alpine AS build-node
 COPY ./web-gui /web-gui
 WORKDIR web-gui
 RUN npm ci

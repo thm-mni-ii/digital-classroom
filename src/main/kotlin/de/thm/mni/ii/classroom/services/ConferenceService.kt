@@ -1,8 +1,6 @@
 package de.thm.mni.ii.classroom.services
 
-import de.thm.mni.ii.classroom.event.ConferenceAction
-import de.thm.mni.ii.classroom.event.ConferenceEvent
-import de.thm.mni.ii.classroom.event.InvitationEvent
+import de.thm.mni.ii.classroom.event.*
 import de.thm.mni.ii.classroom.exception.classroom.InvitationException
 import de.thm.mni.ii.classroom.model.classroom.Conference
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
@@ -79,9 +77,19 @@ class ConferenceService(
                 this.upstreamBBBService.endConference(conference)
             }.delayUntil { (classroom, conference) ->
                 classroom.conferences.deleteConference(conference)
+            }.delayUntil { (classroom, conference) ->
+                this.removeConferenceReferences(classroom, conference)
             }.flatMap { (classroom, conference) ->
                 val conferenceEvent = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.CLOSE)
                 classroom.sendToAll(conferenceEvent)
+            }
+    }
+
+    private fun removeConferenceReferences(classroom: DigitalClassroom, conference: Conference): Flux<Void> {
+        return classroom.removeConferenceReferencesFromTickets(conference)
+            .flatMap { ticket ->
+                val ticketEvent = TicketEvent(ticket, TicketAction.EDIT)
+                classroom.sendToAll(ticketEvent)
             }
     }
 

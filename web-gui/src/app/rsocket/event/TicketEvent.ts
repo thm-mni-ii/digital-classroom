@@ -3,8 +3,9 @@ import {ClassroomEvent} from "./ClassroomEvent";
 
 export enum TicketAction {
   CREATE = "CREATE",
-  UPDATE = "UPDATE",
-  CLOSE = "CLOSE"
+  ASSIGN = "ASSIGN",
+  CLOSE = "CLOSE",
+  EDIT = "EDIT",
 }
 
 export class TicketEvent extends ClassroomEvent {

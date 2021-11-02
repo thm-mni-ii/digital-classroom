@@ -91,7 +91,7 @@ class ClassroomUserService(
             }.subscribe()
     }
 
-    fun updateTicket(userCredentials: UserCredentials, receivedTicket: Ticket) {
+    fun assignTicket(userCredentials: UserCredentials, receivedTicket: Ticket) {
         if (!userCredentials.isPrivileged()) {
             logger.warn(
                 "User ${userCredentials.fullName} is not authorized " +
@@ -105,11 +105,30 @@ class ClassroomUserService(
         classroomInstanceService
             .getClassroomInstance(userCredentials.classroomId)
             .zipWhen { classroom ->
-                classroom.updateTicket(receivedTicket)
+                classroom.assignTicket(receivedTicket)
             }.delayUntil { (classroom, ticket) ->
-                classroom.sendToAll(TicketEvent(ticket, TicketAction.UPDATE))
+                classroom.sendToAll(TicketEvent(ticket, TicketAction.ASSIGN))
             }.doOnSuccess { (classroom, ticket) ->
-                logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee!!.fullName}!")
+                logger.debug("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee!!.fullName}!")
+            }.subscribe()
+    }
+
+    fun editTicket(userCredentials: UserCredentials, ticket: Ticket) {
+        if (userCredentials != ticket.creator && !userCredentials.isPrivileged()) {
+            logger.warn(
+                "User ${userCredentials.fullName} is not authorized " +
+                        "to change ticket #${ticket.ticketId}!"
+            )
+            return
+        }
+        classroomInstanceService
+            .getClassroomInstance(userCredentials.classroomId)
+            .zipWhen { classroom ->
+                classroom.editTicket(ticket)
+            }.delayUntil { (classroom, ticket) ->
+                classroom.sendToAll(TicketEvent(ticket, TicketAction.ASSIGN))
+            }.doOnSuccess { (classroom, ticket) ->
+                logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} edited with: Desc.: ${ticket.description}, Conf: ${ticket.conferenceId}!")
             }.subscribe()
     }
 
@@ -124,7 +143,7 @@ class ClassroomUserService(
             }.delayUntil { classroom ->
                 classroom.sendToAll(TicketEvent(ticket, TicketAction.CLOSE))
             }.flatMap { classroom ->
-                logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} assigned to ${ticket.assignee?.fullName ?: "N/A"}!")
+                logger.info("Ticket ${classroom.classroomName} / ${ticket.ticketId} deleted!")
                 closeConferenceOfClosedTicket(ticket, classroom)
             }.subscribe()
     }

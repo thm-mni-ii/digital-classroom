@@ -92,14 +92,33 @@ class DigitalClassroom(
         }.map { Pair(it, this) }
     }
 
-    fun updateTicket(receivedTicket: Ticket): Mono<Ticket> {
+    fun assignTicket(receivedTicket: Ticket): Mono<Ticket> {
         return Mono.justOrEmpty(tickets.find { it == receivedTicket })
             .switchIfEmpty(Mono.error(TicketNotFoundException(receivedTicket)))
             .map { ticket ->
                 ticket.assignee = receivedTicket.assignee
-                ticket.description = receivedTicket.description
-                ticket.conferenceId = receivedTicket.conferenceId
                 ticket
+            }
+    }
+
+    fun editTicket(receivedTicket: Ticket): Mono<Ticket> {
+        return Mono.justOrEmpty(tickets.find { it == receivedTicket })
+            .switchIfEmpty(Mono.error(TicketNotFoundException(receivedTicket)))
+            .map { ticket ->
+                ticket.conferenceId = receivedTicket.conferenceId
+                ticket.description = receivedTicket.description
+                ticket
+            }
+    }
+
+    fun removeConferenceReferencesFromTickets(conference: Conference): Flux<Ticket> {
+        return tickets.toFlux()
+            .filter { it.conferenceId == conference.conferenceId }
+            .map { ticket ->
+                ticket.conferenceId = null
+                ticket
+            }.flatMap { ticket ->
+                this.editTicket(ticket)
             }
     }
 
@@ -161,10 +180,7 @@ class DigitalClassroom(
 
     fun sendToAll(event: ClassroomEvent): Mono<Void> {
         return getSockets()
-            .filter { (user, requester) ->
-                if (requester != null) {
-                    logger.trace("sending to ${user.fullName}")
-                }
+            .filter { (_, requester) ->
                 requester != null
             }.flatMap { (_, requester) ->
                 fireAndForget(event, requester!!)

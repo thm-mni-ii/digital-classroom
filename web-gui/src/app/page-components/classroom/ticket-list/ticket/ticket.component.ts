@@ -5,6 +5,7 @@ import { ClassroomService } from '../../../../service/classroom.service';
 import { ConferenceInfo } from '../../../../model/ConferenceInfo';
 import { User, UserCredentials } from '../../../../model/User';
 import { UserService } from '../../../../service/user.service';
+import {tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-ticket',
@@ -36,22 +37,11 @@ export class TicketComponent implements OnInit {
     return this.timeFormatterService.format(ticket.createTime);
   }
 
-  public determineButton(): 'join' | 'link' | 'invite' {
-    this.conference = this.classroomService.findConferenceOfTicket(
-      this.ticket!!
-    );
-    if (
-      this.classroomService.isSelf(this.ticket!!.creator) &&
-      this.conference === undefined
-    ) {
-      return 'link';
-    }
-    if (
-      this.conference !== undefined ||
-      this.classroomService.isInConference(this.ticket!!.creator)
-    )
-      return 'join';
-    else return 'invite';
+  public determineButton(): 'join' | 'invite' | 'none' {
+    this.conference = this.classroomService.findConferenceOfTicket(this.ticket!!);
+    if (this.conference !== undefined || this.classroomService.isInConference(this.ticket!!.creator)) return 'join';
+    else if (!this.classroomService.isSelf(this.ticket?.creator!!)) return 'invite'
+    else return 'none';
   }
 
   public mayDeleteTicket(): boolean {
@@ -75,8 +65,9 @@ export class TicketComponent implements OnInit {
 
   inviteCreator() {
     this.classroomService
-      .createNewConferenceForTicket(this.ticket!!)
-      .subscribe((conf) =>
+      .createNewConferenceForTicket(this.ticket!!).pipe(
+        tap(conf => this.classroomService.updateTicketWithConference(this.ticket!!, conf.conferenceId))
+      ).subscribe((conf) =>
         this.classroomService.inviteToConference(this.ticket!!.creator, conf)
       );
   }

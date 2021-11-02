@@ -42,7 +42,8 @@ class ClassroomEventReceiverService(
     private fun ticketEventReceived(userCredentials: UserCredentials, ticketEvent: TicketEvent) {
         when (ticketEvent.ticketAction) {
             TicketAction.CREATE -> userService.createTicket(userCredentials, ticketEvent.ticket)
-            TicketAction.UPDATE -> userService.updateTicket(userCredentials, ticketEvent.ticket)
+            TicketAction.ASSIGN -> userService.assignTicket(userCredentials, ticketEvent.ticket)
+            TicketAction.EDIT -> userService.editTicket(userCredentials, ticketEvent.ticket)
             TicketAction.CLOSE -> userService.closeTicket(userCredentials, ticketEvent.ticket)
         }
     }

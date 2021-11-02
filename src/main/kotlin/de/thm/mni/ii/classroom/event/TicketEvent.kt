@@ -12,6 +12,7 @@ data class TicketEvent(
 
 enum class TicketAction {
     CREATE,
-    UPDATE,
-    CLOSE
+    ASSIGN,
+    CLOSE,
+    EDIT
 }

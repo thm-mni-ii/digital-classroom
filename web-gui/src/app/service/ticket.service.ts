@@ -45,7 +45,7 @@ export class TicketService {
         this.newTicketSubject.next(ticketEvent.ticket)
         break;
       }
-      case TicketAction.UPDATE: {
+      case TicketAction.ASSIGN: {
         const index = this.tickets.map(ticket => ticket.ticketId).indexOf(ticketEvent.ticket.ticketId)
         this.tickets[index] = ticketEvent.ticket
         break;
@@ -72,11 +72,20 @@ export class TicketService {
   }
 
   /**
-   * Updates an existing ticket.
-   * @param ticket The ticket to update.
+   * Assigns a ticket.
+   * @param ticket The ticket to assign.
    */
-  public updateTicket(ticket: Ticket) {
-    const ticketEvent = new TicketEvent(ticket, TicketAction.UPDATE)
+  public assignTicket(ticket: Ticket) {
+    const ticketEvent = new TicketEvent(ticket, TicketAction.ASSIGN)
+    return this.rSocketService.fireAndForget("socket/classroom-event", ticketEvent)
+  }
+
+  /**
+   * Edits (changes conference or description) a ticket.
+   * @param ticket The ticket to edit.
+   */
+  public editTicket(ticket: Ticket) {
+    const ticketEvent = new TicketEvent(ticket, TicketAction.EDIT)
     return this.rSocketService.fireAndForget("socket/classroom-event", ticketEvent)
   }
 
