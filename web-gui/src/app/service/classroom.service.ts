@@ -190,7 +190,7 @@ export class ClassroomService {
       if (ticket.ticketId === 0) {
         this.ticketService.createTicket(ticket)
       } else {
-        this.ticketService.updateTicket(ticket)
+        this.ticketService.editTicket(ticket)
       }
     });
   }
@@ -244,7 +244,7 @@ export class ClassroomService {
   private updateTicketWithConference(ticket: Ticket, conference?: ConferenceInfo) {
     if (conference === undefined) ticket.conferenceId = null
     else ticket.conferenceId = conference!!.conferenceId
-    this.ticketService.updateTicket(ticket)
+    this.ticketService.editTicket(ticket)
   }
 
   public findTicketOfConference(conferenceInfo: ConferenceInfo): Ticket | null {

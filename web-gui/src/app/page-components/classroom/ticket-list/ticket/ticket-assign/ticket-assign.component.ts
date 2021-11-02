@@ -41,7 +41,7 @@ export class TicketAssignComponent implements OnInit {
     console.log(this.assigneeId);
     const newAssignee = this.fullUser(this.assigneeId)
     this.ticket!!.assignee = newAssignee
-    this.ticketService.updateTicket(this.ticket!!);
+    this.ticketService.assignTicket(this.ticket!!);
     if (this.ticket!!.assignee === undefined) {
       this.notification.show("Der Bearbeiter wurde vom Ticket entfernt.")
     } else {
