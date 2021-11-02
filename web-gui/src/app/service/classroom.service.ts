@@ -50,12 +50,14 @@ export class ClassroomService {
     map(conferences =>
       conferences.filter(
         conf => conf.visible ||
-          conf.creator!!.userId == this.currentUser?.userId ||
+          conf.creator!!.userId == this.currentUser?.userId!! ||
           conf.attendeeIds.includes(this.currentUser?.userId!!)
       )
     )
   )
+
   private conferences: ConferenceInfo[] = []
+  private myConferences: ConferenceInfo[] = []
 
   private users: User[] = []
 
@@ -96,7 +98,13 @@ export class ClassroomService {
       this.logoutService.classroomInfo = info
     })
     this.userDisplayObservable.subscribe(users => this.users = users)
-    this.conferencesObservable.subscribe(conferences => this.conferences = conferences)
+    this.conferencesObservable.subscribe(conferences => {
+      this.conferences = conferences
+      this.myConferences = conferences.filter( conf =>
+        conf.creator!!.userId == this.currentUser?.userId!! ||
+        conf.attendeeIds.includes(this.currentUser?.userId!!)
+      )
+    })
     this.conferenceService.invitationEvents.subscribe(invitation => this.handleInviteMsg(invitation))
   }
 
@@ -233,7 +241,7 @@ export class ClassroomService {
     this.dialog.open(LinkConferenceToTicketDialogComponent, {
       height: 'auto',
       width: 'auto',
-      data: new LinkConferenceInputData(this.currentUser!!.conferences, ticket)
+      data: new LinkConferenceInputData(this.myConferences, ticket)
     }).beforeClosed().pipe(
       filter(conferenceId => conferenceId !== undefined), // undefined = do not update.
       tap((conferenceId: string | null) => this.updateTicketWithConference(ticket, conferenceId))
