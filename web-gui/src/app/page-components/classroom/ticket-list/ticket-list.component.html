@@ -7,8 +7,12 @@
     ></mat-icon>
     <h3>Tickets</h3>
     <span>
-      <mat-icon *ngIf="!this.sound" class="functional-icon" (click)="this.sound = !this.sound">volume_up</mat-icon>
-      <mat-icon *ngIf="this.sound" class="functional-icon" (click)="this.sound = !this.sound">volume_off</mat-icon>
+      <mat-icon *ngIf="this.classroomService.isCurrentUserPrivileged()"
+                class="functional-icon"
+                (click)="this.playSound = !this.playSound"
+                [matTooltip]="(playSound ? 'Benachrichtigung ausschalten' : 'Benachrichtigung einschalten')">
+        {{(playSound ? "volume_up" : "volume_off")}}
+      </mat-icon>
       <mat-icon class="functional-icon">filter_list</mat-icon>
     </span>
   </div>

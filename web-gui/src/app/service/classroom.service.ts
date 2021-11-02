@@ -43,6 +43,9 @@ import {ConfirmationDialogComponent} from "../dialogs/confirmation-dialog/confir
 })
 export class ClassroomService {
 
+  public newTicketObservable = this.ticketService.newTicketObservable.pipe(
+    filter(ticket => ticket.creator.userId !== this.currentUser!!.userId)
+  )
   public tickets = this.ticketService.ticketObservable
   public userDisplayObservable = this.userService.userObservable
   public currentUserObservable = this.userService.currentUserObservable

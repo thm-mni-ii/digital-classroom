@@ -17,6 +17,9 @@ export class TicketService {
   private ticketSubject: Subject<Ticket[]> = new BehaviorSubject([])
   ticketObservable: Observable<Ticket[]> = this.ticketSubject.asObservable()
 
+  private newTicketSubject: Subject<Ticket> = new Subject<Ticket>()
+  newTicketObservable: Observable<Ticket> = this.newTicketSubject.asObservable()
+
   constructor(
     private rSocketService: RSocketService,
     private eventListenerService: EventListenerService
@@ -39,6 +42,7 @@ export class TicketService {
     switch (ticketEvent.ticketAction) {
       case TicketAction.CREATE: {
         this.tickets.push(ticketEvent.ticket)
+        this.newTicketSubject.next(ticketEvent.ticket)
         break;
       }
       case TicketAction.UPDATE: {
