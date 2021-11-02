@@ -5,6 +5,7 @@ import { ClassroomService } from '../../../../service/classroom.service';
 import { ConferenceInfo } from '../../../../model/ConferenceInfo';
 import { User, UserCredentials } from '../../../../model/User';
 import { UserService } from '../../../../service/user.service';
+import {tap} from "rxjs/operators";
 
 @Component({
   selector: 'app-ticket',
@@ -75,8 +76,9 @@ export class TicketComponent implements OnInit {
 
   inviteCreator() {
     this.classroomService
-      .createNewConferenceForTicket(this.ticket!!)
-      .subscribe((conf) =>
+      .createNewConferenceForTicket(this.ticket!!).pipe(
+        tap(conf => this.classroomService.updateTicketWithConference(this.ticket!!, conf.conferenceId))
+      ).subscribe((conf) =>
         this.classroomService.inviteToConference(this.ticket!!.creator, conf)
       );
   }

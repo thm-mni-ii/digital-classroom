@@ -206,9 +206,7 @@ export class ClassroomService {
 
   public createNewConferenceForTicket(ticket: Ticket): Observable<ConferenceInfo> {
     const info = this.configureNewConferenceForTicket(ticket)
-    return this.conferenceService.createConference(info).pipe(
-      tap(conf => this.updateTicketWithConference(ticket, conf))
-    )
+    return this.conferenceService.createConference(info)
   }
 
   public configureNewConferenceForTicket(ticket: Ticket): ConferenceInfo {
@@ -236,14 +234,15 @@ export class ClassroomService {
       height: 'auto',
       width: 'auto',
       data: new LinkConferenceInputData(this.currentUser!!.conferences, ticket)
-    }).beforeClosed().subscribe(conf => {
-      this.updateTicketWithConference(ticket, conf)
-    })
+    }).beforeClosed().pipe(
+      filter(conferenceId => conferenceId !== undefined), // undefined = do not update.
+      tap((conferenceId: string | null) => this.updateTicketWithConference(ticket, conferenceId))
+    ).subscribe()
   }
 
-  private updateTicketWithConference(ticket: Ticket, conference?: ConferenceInfo) {
-    if (conference === undefined) ticket.conferenceId = null
-    else ticket.conferenceId = conference!!.conferenceId
+  updateTicketWithConference(ticket: Ticket, conferenceId: string | null) {
+    if (conferenceId === undefined) ticket.conferenceId = null
+    else ticket.conferenceId = conferenceId
     this.ticketService.editTicket(ticket)
   }
 

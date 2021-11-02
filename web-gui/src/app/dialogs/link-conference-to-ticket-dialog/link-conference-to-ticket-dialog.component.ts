@@ -23,16 +23,16 @@ export class LinkConferenceToTicketDialogComponent implements OnInit {
   }
 
   public getConference(conference: ConferenceInfo) {
-    this.close(conference)
+    this.close(conference.conferenceId)
   }
 
-  public close(conference?: ConferenceInfo) {
-    this.dialogRef.close(conference)
+  public close(conferenceId?: string | null) {
+    this.dialogRef.close(conferenceId)
   }
 
   public newConference() {
     this.classroomService.createNewConferenceForTicket(this.data.ticket).subscribe(
-      conf => this.close(conf)
+      conf => this.close(conf.conferenceId)
     )
   }
 }

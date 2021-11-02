@@ -9,7 +9,10 @@
     </app-choose-conference-dialog>
   </mat-dialog-content>
   <mat-action-row>
-    <button color="primary" mat-raised-button (click)="newConference()">Neue Konferenz</button>
-    <button color="warn" mat-raised-button (click)="close()">Abbrechen</button>
+    <div>
+      <button color="primary" mat-raised-button (click)="newConference()">Neue Konferenz</button>
+      <button color="warn" mat-raised-button (click)="close(null)">Keine</button>
+    </div>
+    <button id="cancel" color="secondary" mat-raised-button (click)="close(undefined)">Abbrechen</button>
   </mat-action-row>
 </div>

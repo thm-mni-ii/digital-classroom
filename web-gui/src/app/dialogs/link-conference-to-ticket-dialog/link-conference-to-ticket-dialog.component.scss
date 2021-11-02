@@ -1,3 +1,14 @@
 button {
   margin:3px;
 }
+
+mat-action-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#cancel {
+  display: flow;
+  alignment: right;
+}
