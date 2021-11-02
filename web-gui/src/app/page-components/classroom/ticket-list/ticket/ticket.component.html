@@ -37,7 +37,7 @@
         [ngTemplateOutlet]="joinConferenceTemplate"
       ></ng-container>
       <ng-container
-        *ngSwitchCase="'link'"
+        *ngIf="mayEditTicket()"
         [ngTemplateOutlet]="linkConferenceTemplate"
       ></ng-container>
       <mat-icon
