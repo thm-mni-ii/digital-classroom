@@ -20,6 +20,8 @@ export class AssetManagerService {
     this.matIconRegistry.addSvgIcon('invite-conference', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/invite-conference.svg'));
 
     this.assets.set("ringtone", 'assets/classic_phone.mp3')
+    this.assets.set("notification", 'assets/notification.mp3')
+
   }
 
   public getAsset(name: string): string {
