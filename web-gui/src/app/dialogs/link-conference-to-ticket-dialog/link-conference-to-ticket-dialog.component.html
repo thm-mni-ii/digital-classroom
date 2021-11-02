@@ -1,7 +1,8 @@
 <div class="container">
   <div class="dialogTitle" matDialogTitle>Konferenz verlinken</div>
-  <mat-dialog-content style="max-height: 100%; overflow: hidden;">
-    <p>Welche Konferenz möchten Sie zum Ticket verlinken?</p>
+  <mat-dialog-content>
+    <p>Welche Konferenz möchten Sie zu Ticket #{{this.data.ticket.ticketId}} verlinken?</p>
+    <span *ngIf="data.ticket.conferenceId !== null">Aktuell: {{this.currentConferenceName()}}</span>
     <app-choose-conference-dialog
       [conferences]="this.data.conferences"
       [dialogRef]="this.dialogRef"
@@ -11,7 +12,11 @@
   <mat-action-row>
     <div>
       <button color="primary" mat-raised-button (click)="newConference()">Neue Konferenz</button>
-      <button color="warn" mat-raised-button (click)="close(null)">Keine</button>
+      <button *ngIf="this.data.ticket.conferenceId !== null"
+              color="warn" mat-raised-button
+              (click)="close(null)">
+        Entfernen
+      </button>
     </div>
     <button id="cancel" color="secondary" mat-raised-button (click)="close(undefined)">Abbrechen</button>
   </mat-action-row>

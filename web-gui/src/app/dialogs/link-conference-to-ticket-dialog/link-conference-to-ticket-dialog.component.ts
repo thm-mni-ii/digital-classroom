@@ -35,6 +35,11 @@ export class LinkConferenceToTicketDialogComponent implements OnInit {
       conf => this.close(conf.conferenceId)
     )
   }
+
+  public currentConferenceName(): string {
+    if (this.data.ticket.conferenceId === null) return ""
+    return this.data.conferences.find(conf => conf.conferenceId === this.data.ticket.conferenceId)!!.conferenceName
+  }
 }
 
 export class LinkConferenceInputData {

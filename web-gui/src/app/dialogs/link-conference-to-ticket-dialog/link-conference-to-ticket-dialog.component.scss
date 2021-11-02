@@ -2,13 +2,14 @@ button {
   margin:3px;
 }
 
+mat-dialog-content {
+  max-height: 100%;
+  overflow: hidden;
+
+}
+
 mat-action-row {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-}
-
-#cancel {
-  display: flow;
-  alignment: right;
 }
