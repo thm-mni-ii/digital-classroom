@@ -37,14 +37,11 @@ export class TicketComponent implements OnInit {
     return this.timeFormatterService.format(ticket.createTime);
   }
 
-  public determineButton(): 'join' | 'link' | 'invite' {
+  public determineButton(): 'join' | 'invite' | 'none' {
     this.conference = this.classroomService.findConferenceOfTicket(this.ticket!!);
-    if (
-      this.conference !== undefined ||
-      this.classroomService.isInConference(this.ticket!!.creator)
-    )
-      return 'join';
-    else return 'invite';
+    if (this.conference !== undefined || this.classroomService.isInConference(this.ticket!!.creator)) return 'join';
+    else if (!this.classroomService.isSelf(this.ticket?.creator!!)) return 'invite'
+    else return 'none';
   }
 
   public mayDeleteTicket(): boolean {
