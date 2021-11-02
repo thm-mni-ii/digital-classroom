@@ -111,6 +111,17 @@ class DigitalClassroom(
             }
     }
 
+    fun removeConferenceReferencesFromTickets(conference: Conference): Flux<Ticket> {
+        return tickets.toFlux()
+            .filter { it.conferenceId == conference.conferenceId }
+            .map { ticket ->
+                ticket.conferenceId = null
+                ticket
+            }.flatMap { ticket ->
+                this.editTicket(ticket)
+            }
+    }
+
     fun deleteTicket(ticket: Ticket): Mono<Void> {
         return Mono.justOrEmpty(tickets.find { it == ticket })
             .switchIfEmpty(Mono.error(TicketNotFoundException(ticket)))
