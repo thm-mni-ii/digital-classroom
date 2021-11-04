@@ -6,17 +6,16 @@ COPY build.gradle.kts /code
 WORKDIR /code
 RUN gradle clean build -i -x bootJar
 
-FROM node:16.13.0-alpine AS build-node
-COPY ./web-gui /web-gui
-WORKDIR web-gui
+FROM gradle:6.8.3-jdk11 AS build-node
+COPY ./ /build
+WORKDIR /build/web-gui
 RUN rm -rf node_modules
-RUN yarn install --frozen-lockfile
-RUN yarn run build
+RUN gradle installDist
 
 FROM gradle:6.8.3-jdk11 AS build-gradle
 COPY . /build/
 COPY --from=cache-gradle /cache-gradle /home/gradle/.gradle
-COPY --from=build-node /web-gui/dist/web-gui/ /build/src/main/resources/static/
+COPY --from=build-node /build/web-gui/dist/web-gui/ /build/src/main/resources/static/
 WORKDIR /build/
 RUN gradle dist -i -x yarn_run_clean -x yarn_run_build
 
