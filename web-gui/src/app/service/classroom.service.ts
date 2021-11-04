@@ -52,9 +52,11 @@ export class ClassroomService {
   public conferencesObservable = this.conferenceService.conferencesObservable.pipe(
     map(conferences =>
       conferences.filter(
-        conf => conf.visible ||
-          conf.creator!!.userId == this.currentUser?.userId!! ||
-          conf.attendeeIds.includes(this.currentUser?.userId!!)
+        conf => this.isCurrentUserPrivileged() || (
+            conf.visible ||
+            conf.creator!!.userId == this.currentUser?.userId!! ||
+            conf.attendeeIds.includes(this.currentUser?.userId!!)
+          )
       )
     )
   )
