@@ -14,13 +14,14 @@ repositories {
 
 node {
     version = '16.13.0'
-    npmVersion = '8.1.2'
+    //npmVersion = '8.1.2'
+    yarnVersion = '1.22.17'
     download = true
 }
 
-clean.dependsOn npm_run_clean
-assemble.dependsOn npm_run_build
-installDist.dependsOn npm_run_build
+clean.dependsOn yarn_run_clean
+assemble.dependsOn yarn_run_build
+installDist.dependsOn yarn_run_build
 
 defaultTasks "build"
 
@@ -33,8 +34,6 @@ distributions {
         }
     }
 }
-
-
 
 // After build the ng app, we copy the dist content to or spring boot webservice static resoorce path
 // It will work on evry system, because of relative paths (at leat I hope so)
