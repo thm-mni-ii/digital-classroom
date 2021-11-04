@@ -137,9 +137,6 @@ export class AuthService {
         if (now >= reqDate) {
           this.requestNewToken()
         } else {
-          console.log("Token expires at " + expDate + "!")
-          console.log("Request at " + reqDate + "!")
-
           timer(reqDate).pipe(
             tap(() => this.requestNewToken()),
             tap(test => console.log(test))
