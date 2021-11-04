@@ -5,6 +5,15 @@
       <mat-label>Beschreibung</mat-label>
       <textarea maxlength="160" formControlName="desc" matInput required cdkTextareaAutosize></textarea>
     </mat-form-field>
+    <mat-form-field appearance="standard">
+      <mat-label>Konferenz</mat-label>
+      <mat-select formControlName="conf">
+        <mat-option [value]=null>Keine</mat-option>
+        <mat-option *ngFor="let conference of this.ticketData.conferences" [value]="conference.conferenceId">
+          {{conference.conferenceName}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </mat-dialog-content>
   <mat-action-row>
     <button mat-raised-button (click)="close()">Schließen</button>

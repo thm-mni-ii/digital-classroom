@@ -39,7 +39,7 @@ export class TicketComponent implements OnInit {
 
   public determineButton(): 'join' | 'invite' | 'none' {
     this.conference = this.classroomService.findConferenceOfTicket(this.ticket!!);
-    if (this.conference !== undefined || this.classroomService.isInConference(this.ticket!!.creator)) return 'join';
+    if (this.conference !== undefined) return 'join';
     else if (!this.classroomService.isSelf(this.ticket?.creator!!)) return 'invite'
     else return 'none';
   }

@@ -190,7 +190,7 @@ export class ClassroomService {
     this.dialog.open(CreateEditTicketComponent, {
       height: 'auto',
       width: 'auto',
-      data: new TicketEditData(this.currentUser!!, originalTicket)
+      data: new TicketEditData(this.currentUser!!, this.myConferences, originalTicket)
     }).beforeClosed().pipe(
       filter(ticket => ticket),
       map((ticket: Ticket) => {
