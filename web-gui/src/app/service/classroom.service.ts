@@ -52,9 +52,11 @@ export class ClassroomService {
   public conferencesObservable = this.conferenceService.conferencesObservable.pipe(
     map(conferences =>
       conferences.filter(
-        conf => conf.visible ||
-          conf.creator!!.userId == this.currentUser?.userId!! ||
-          conf.attendeeIds.includes(this.currentUser?.userId!!)
+        conf => this.isCurrentUserPrivileged() || (
+            conf.visible ||
+            conf.creator!!.userId == this.currentUser?.userId!! ||
+            conf.attendeeIds.includes(this.currentUser?.userId!!)
+          )
       )
     )
   )
@@ -188,7 +190,7 @@ export class ClassroomService {
     this.dialog.open(CreateEditTicketComponent, {
       height: 'auto',
       width: 'auto',
-      data: new TicketEditData(this.currentUser!!, originalTicket)
+      data: new TicketEditData(this.currentUser!!, this.myConferences, originalTicket)
     }).beforeClosed().pipe(
       filter(ticket => ticket),
       map((ticket: Ticket) => {
