@@ -52,6 +52,7 @@ class ClassroomEventReceiverService(
         when (conferenceEvent.conferenceAction) {
             ConferenceAction.CREATE -> logger.error("Received CREATE event from ${userCredentials.fullName}! This should never happen")
             ConferenceAction.CLOSE -> logger.error("Received CREATE event from ${userCredentials.fullName}! This should never happen")
+            ConferenceAction.PLENARY -> conferenceService.setPlenaryConference(userCredentials, conferenceEvent.conferenceInfo)
             ConferenceAction.VISIBILITY -> conferenceService.changeVisibility(userCredentials, conferenceEvent.conferenceInfo)
             ConferenceAction.USER_CHANGE -> logger.error("Received USER_CHANGE event from ${userCredentials.fullName}! This should never happen")
         }

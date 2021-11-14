@@ -14,5 +14,6 @@ enum class ConferenceAction {
     CREATE,
     CLOSE,
     VISIBILITY,
+    PLENARY,
     USER_CHANGE
 }
