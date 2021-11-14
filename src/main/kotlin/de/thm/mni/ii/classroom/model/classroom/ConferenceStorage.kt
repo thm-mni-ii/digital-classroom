@@ -1,6 +1,7 @@
 package de.thm.mni.ii.classroom.model.classroom
 
 import de.thm.mni.ii.classroom.exception.classroom.ConferenceNotFoundException
+import org.jetbrains.annotations.Contract
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
@@ -11,6 +12,15 @@ class ConferenceStorage {
 
     private val usersConference = ConcurrentHashMap<UserCredentials, LinkedHashSet<Conference>>()
     private val conferences = ConcurrentHashMap<String, Conference>()
+    private var plenaryConference: String? = null
+
+    fun getPlenaryConference() = plenaryConference
+
+    fun setPlenaryConference(confId: String) {
+        if (plenaryConference != null)
+            throw IllegalStateException("Plenary conference may only be set once.")
+        plenaryConference = confId
+    }
 
     fun getUsersOfConference(conference: Conference): Flux<UserCredentials> {
         return conferences[conference.conferenceId]?.attendees?.toFlux()

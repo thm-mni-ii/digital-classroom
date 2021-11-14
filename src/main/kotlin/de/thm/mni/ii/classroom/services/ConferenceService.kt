@@ -61,8 +61,8 @@ class ConferenceService(
             }.map(Tuple2<JoinLink, Conference>::getT1)
     }
 
-    fun endConferenceManually(userCredentials: UserCredentials?, conferenceInfo: ConferenceInfo): Mono<Void> {
-        if (userCredentials != null && !userCredentials.isPrivileged() && userCredentials != conferenceInfo.creator) {
+    fun endConferenceManually(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo): Mono<Void> {
+        if (!userCredentials.isPrivileged() && userCredentials != conferenceInfo.creator) {
             logger.warn("User ${userCredentials.fullName} is not authorized to end ${conferenceInfo.conferenceName}!")
             return Mono.empty()
         }
@@ -83,6 +83,19 @@ class ConferenceService(
                 val conferenceEvent = ConferenceEvent(conference.toConferenceInfo(), ConferenceAction.CLOSE)
                 classroom.sendToAll(conferenceEvent)
             }
+    }
+
+    fun setPlenaryConference(userCredentials: UserCredentials, conferenceInfo: ConferenceInfo) {
+        if (!userCredentials.isPrivileged()) {
+            logger.warn("User ${userCredentials.fullName} is not authorized to end ${conferenceInfo.conferenceName}!")
+            return
+        }
+        classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
+            .zipWhen { classroom ->
+                classroom.getConference(conferenceInfo.conferenceId!!)
+            }.doOnNext { (classroom, conference) ->
+                classroom.conferences.setPlenaryConference(conference.conferenceId)
+            }.subscribe()
     }
 
     private fun removeConferenceReferences(classroom: DigitalClassroom, conference: Conference): Flux<Void> {
