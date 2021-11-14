@@ -4,8 +4,10 @@ import {Injectable} from "@angular/core";
 import {Observable, ReplaySubject, Subject} from "rxjs";
 import {TicketEvent} from "./event/TicketEvent";
 import {decodeToString} from "../util/socket-utils";
-import {ClassroomEvent, ConferenceEvent, InvitationEvent} from "./event/ClassroomEvent";
+import {ClassroomEvent} from "./event/ClassroomEvent";
 import {UserEvent} from "./event/UserEvent";
+import {ConferenceEvent} from "./event/ConferenceEvent";
+import {InvitationEvent} from "./event/InvitationEvent";
 
 @Injectable({
   providedIn: 'root'

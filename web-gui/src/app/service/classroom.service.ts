@@ -18,7 +18,6 @@ import {Roles} from "../model/Roles";
 import {CreateEditTicketComponent, TicketEditData} from "../dialogs/create-edit-ticket/create-edit-ticket.component";
 import {ConferenceInfo} from "../model/ConferenceInfo";
 import {ClassroomInfo} from "../model/ClassroomInfo";
-import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
 import {InviteToConferenceDialogComponent} from "../dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component";
 import {Router} from "@angular/router";
 import {NotificationService} from "./notification.service";
@@ -33,6 +32,7 @@ import {
   LinkConferenceToTicketDialogComponent
 } from "../dialogs/link-conference-to-ticket-dialog/link-conference-to-ticket-dialog.component";
 import {ConfirmationDialogComponent} from "../dialogs/confirmation-dialog/confirmation-dialog.component";
+import {InvitationEvent} from "../rsocket/event/InvitationEvent";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and
