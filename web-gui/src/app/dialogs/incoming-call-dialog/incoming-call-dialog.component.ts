@@ -1,9 +1,9 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {ClassroomService} from '../../service/classroom.service';
-import {InvitationEvent} from "../../rsocket/event/ClassroomEvent";
 import {AssetManagerService} from "../../util/asset-manager.service";
 import {Howl} from "howler";
+import {InvitationEvent} from "../../rsocket/event/InvitationEvent";
 
 @Component({
   selector: 'app-incoming-call-dialog',
