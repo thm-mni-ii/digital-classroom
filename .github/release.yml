@@ -1,0 +1,23 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+      - duplicate
+      - wontfix
+  categories:
+    - title: Breaking Changes 🛠
+      labels:
+        - breaking-change
+    - title: Fixed bugs 🐞
+      labels:
+        - bug
+    - title: New Features 🎉
+      labels:
+        - enhancement
+    - title: Internal 🔒
+      labels:
+        - "CI/CD"
+        - Docker
+    - title: Other Changes
+      labels:
+        - "*"
