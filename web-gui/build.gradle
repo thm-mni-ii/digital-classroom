@@ -11,14 +11,14 @@ repositories {
 
 node {
     version = '16.13.0'
-    //npmVersion = '8.1.2'
-    yarnVersion = '1.22.17'
+    npmVersion = '8.1.3'
+    //yarnVersion = '1.22.17'
     download = true
 }
 
-clean.dependsOn yarn_run_clean
-assemble.dependsOn yarn_run_build
-installDist.dependsOn yarn_run_build
+clean.dependsOn npm_run_clean
+assemble.dependsOn npm_run_build
+installDist.dependsOn npm_run_build
 
 defaultTasks "build"
 
