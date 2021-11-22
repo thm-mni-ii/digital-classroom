@@ -15,13 +15,19 @@ export class CreateConferenceDialogComponent {
   form: FormGroup;
   conferenceSubject: FormControl
   conferenceVisible: FormControl
+  title: string = "Neue Konferenz erstellen"
 
   constructor(private fb: FormBuilder,
               @Inject(MAT_DIALOG_DATA) public data: CreateConferenceInputData,
               private notification: NotificationService,
               private dialogRef: MatDialogRef<CreateConferenceDialogComponent>
   ) {
-    this.conferenceSubject = new FormControl('Meeting von ' + this.data.currentUser.fullName)
+    if (this.data.plenary) {
+      this.conferenceSubject = new FormControl('Plenum: ' + this.data.classroom.classroomName)
+      this.title = "Plenarkonferenz erstellen"
+    } else {
+      this.conferenceSubject = new FormControl('Meeting von ' + this.data.currentUser.fullName)
+    }
     this.conferenceVisible = new FormControl(true)
 
     this.form = this.fb.group({
@@ -48,10 +54,12 @@ export class CreateConferenceDialogComponent {
 export class CreateConferenceInputData {
   classroom: ClassroomInfo
   currentUser: User
+  plenary: boolean
 
-  constructor(classroom: ClassroomInfo, currentUser: User) {
+  constructor(classroom: ClassroomInfo, currentUser: User, plenary: boolean = false) {
     this.currentUser = currentUser;
     this.classroom = classroom;
+    this.plenary = plenary
   }
 }
 
