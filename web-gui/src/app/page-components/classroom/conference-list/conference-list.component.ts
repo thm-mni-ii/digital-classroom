@@ -14,7 +14,7 @@ export class ConferenceListComponent implements OnInit {
   currentUser: User | undefined
 
   constructor(
-    private classroomService: ClassroomService,
+    public classroomService: ClassroomService,
   ) { }
 
   ngOnInit(): void {
@@ -24,10 +24,6 @@ export class ConferenceListComponent implements OnInit {
     this.classroomService.conferencesObservable.subscribe(
       conferences => this.conferences = conferences
     )
-  }
-
-  public createConference() {
-    this.classroomService.createConference()
   }
 
 }

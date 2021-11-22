@@ -18,6 +18,7 @@ export class AssetManagerService {
     this.matIconRegistry.addSvgIcon('link-conference', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/link-conference.svg'));
     this.matIconRegistry.addSvgIcon('join-conference', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/join-conference.svg'));
     this.matIconRegistry.addSvgIcon('invite-conference', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/invite-conference.svg'));
+    this.matIconRegistry.addSvgIcon('create-plenary-conf', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/create-plenary-conf.svg'));
 
     this.assets.set("ringtone", 'assets/classic_phone.mp3')
     this.assets.set("notification", 'assets/notification.mp3')

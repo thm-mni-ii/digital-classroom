@@ -230,11 +230,11 @@ export class ClassroomService {
     this.router.navigate(["/logout"], ).then()
   }
 
-  public createConference() {
+  public createConference(plenary: boolean = false) {
     this.dialog.open(CreateConferenceDialogComponent, {
       height: 'auto',
       width: 'auto',
-      data: new CreateConferenceInputData(this.classroomInfo!!, this.currentUser!!)
+      data: new CreateConferenceInputData(this.classroomInfo!!, this.currentUser!!, plenary)
     }).beforeClosed().pipe(
       filter(conferenceInfo => conferenceInfo instanceof ConferenceInfo),
     ).subscribe((conferenceInfo: ConferenceInfo) => {
