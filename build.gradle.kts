@@ -55,32 +55,3 @@ tasks.withType<Test> {
 tasks.register("dist") {
     dependsOn("build", "web-gui:copyWebToBackend")
 }
-
-sourceSets {
-    main {
-        withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
-            this.kotlin.srcDirs("src/main/kotlin")
-        }
-        java {
-            setSrcDirs(emptyList<String>())
-        }
-    }
-    test {
-        withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
-            this.kotlin.srcDirs("src/test/kotlin")
-        }
-        java {
-            setSrcDirs(emptyList<String>())
-        }
-    }
-}
-
-idea {
-    module {
-        val kaptMain = file("${project.buildDir}/generated/source/kapt/main")
-        sourceDirs.add(kaptMain)
-        generatedSourceDirs.add(kaptMain)
-        outputDir = file("${project.buildDir}/classes/main")
-        testOutputDir = file("${project.buildDir}/classes/test")
-    }
-}
