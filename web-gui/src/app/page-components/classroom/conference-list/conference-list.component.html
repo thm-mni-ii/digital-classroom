@@ -17,15 +17,11 @@
   </div>
 
   <mat-list class="conference-list">
-    <app-conference [conference]="plenaryConference"
-                    [currentUser]="currentUser"
-                    [isPlenary]="true">
-    </app-conference>
     <app-conference
       *ngFor="let conference of this.conferences!!;"
       [conference]="conference"
       [currentUser]="currentUser"
-      [isPlenary]="false"
+      [isPlenary]="this.isPlenaryConference(conference)"
     ></app-conference>
   </mat-list>
 </div>

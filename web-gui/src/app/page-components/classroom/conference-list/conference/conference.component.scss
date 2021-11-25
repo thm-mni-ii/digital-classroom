@@ -1,8 +1,7 @@
 mat-card-content {
-  margin: 2px;
   display: flex;
   flex-flow: column nowrap;
-  padding-right: 15px;
+  margin: 2px 15px 2px 2px;
 
   .conference-row {
     display: flex;
@@ -78,5 +77,7 @@ mat-icon {
 }
 
 .plenary {
-  background-color: #405E9A;
+  padding-bottom: 5px;
+  margin-bottom: 20px;
+  border: 2px #FF9900 solid;
 }
