@@ -2,6 +2,7 @@ package de.thm.mni.ii.classroom.services
 
 import de.thm.mni.ii.classroom.event.*
 import de.thm.mni.ii.classroom.exception.classroom.InvitationException
+import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
 import de.thm.mni.ii.classroom.model.classroom.Conference
 import de.thm.mni.ii.classroom.model.classroom.ConferenceInfo
 import de.thm.mni.ii.classroom.model.classroom.DigitalClassroom
@@ -93,8 +94,11 @@ class ConferenceService(
         classroomInstanceService.getClassroomInstance(userCredentials.classroomId)
             .zipWhen { classroom ->
                 classroom.getConference(conferenceInfo.conferenceId!!)
-            }.doOnNext { (classroom, conference) ->
+            }.delayUntil { (classroom, conference) ->
                 classroom.conferences.setPlenaryConference(conference.conferenceId)
+            }.delayUntil { (classroom, conference) ->
+                logger.info("Conference $conference is now the plenary conference.")
+                classroom.sendToAll(ClassroomChangeEvent(classroom.getClassroomInfo()))
             }.subscribe()
     }
 
@@ -148,7 +152,7 @@ class ConferenceService(
     }
 
     fun updateConferences(classroom: DigitalClassroom) {
-        logger.info("Updating conferences of ${classroom.classroomName}.")
+        logger.debug("Updating conferences of ${classroom.classroomName}.")
         classroom.conferences.getConferences()
             .collectList()
             .zipWhen { conferences -> this.upstreamBBBService.syncMeetings(classroom, conferences) }

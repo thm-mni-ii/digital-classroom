@@ -16,10 +16,11 @@ class ConferenceStorage {
 
     fun getPlenaryConference() = plenaryConference
 
-    fun setPlenaryConference(confId: String) {
+    fun setPlenaryConference(confId: String): Mono<Void> {
         if (plenaryConference != null)
-            throw IllegalStateException("Plenary conference may only be set once.")
+            return Mono.error(IllegalStateException("Plenary conference may only be set once."))
         plenaryConference = confId
+        return Mono.empty()
     }
 
     fun getUsersOfConference(conference: Conference): Flux<UserCredentials> {
@@ -66,6 +67,7 @@ class ConferenceStorage {
             this.usersConference.values.forEach {
                 it.remove(conference)
             }
+            if (conference.conferenceId == this.plenaryConference) plenaryConference = null
         }
     }
 

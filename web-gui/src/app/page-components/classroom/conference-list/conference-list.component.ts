@@ -12,18 +12,27 @@ export class ConferenceListComponent implements OnInit {
 
   conferences: ConferenceInfo[] | undefined
   currentUser: User | undefined
+  plenaryConference: ConferenceInfo | undefined
 
   constructor(
     public classroomService: ClassroomService,
   ) { }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.classroomService.currentUserObservable.subscribe(
       currentUser => this.currentUser = currentUser
     )
     this.classroomService.conferencesObservable.subscribe(
-      conferences => this.conferences = conferences
+      conferences => {
+        this.plenaryConference = conferences.find(conf => this.isPlenaryConference(conf))
+        if (this.plenaryConference !== undefined) {
+          this.conferences = conferences.filter(conf => !this.isPlenaryConference(conf))
+        } else this.conferences = conferences
+      }
     )
   }
 
+  private isPlenaryConference(conference: ConferenceInfo) {
+    return conference.conferenceId === this.classroomService.classroomInfo?.plenaryConference
+  }
 }

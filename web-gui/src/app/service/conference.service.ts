@@ -183,6 +183,13 @@ export class ConferenceService {
     })
     return ret
   }
+
+  public setPlenary(conferenceInfo: ConferenceInfo) {
+    const conferenceEvent = new ConferenceEvent()
+    conferenceEvent.conferenceInfo = conferenceInfo
+    conferenceEvent.conferenceAction = ConferenceAction.PLENARY
+    this.rSocketService.fireAndForget("socket/classroom-event", conferenceEvent)
+  }
 }
 
 class ConferenceOpenInfo {

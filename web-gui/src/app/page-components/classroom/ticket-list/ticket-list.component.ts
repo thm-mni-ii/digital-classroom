@@ -41,8 +41,8 @@ export class TicketListComponent {
     this.sound.play()
   }
 
-  public sortTickets(tickets: Ticket[]) {
-    if (tickets.length <= 0) return null
+  public sortTickets(tickets: Ticket[]): Ticket[] {
+    if (tickets.length <= 0) return []
     return tickets.sort( (a, b) => {
       if (a.assignee?.userId === this.currentUser!!.userId && b.assignee?.userId === this.currentUser!!.userId) {
         return a.createTime > b.createTime ? 1 : -1;
