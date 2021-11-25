@@ -12,7 +12,7 @@
       <mat-icon *ngIf="this.classroomService.isSelf(this.conference!!.creator!!) || this.classroomService.isCurrentUserPrivileged()"
                 matTooltip="Konferenz beenden!" class="delete-icon functional-icon" (click)="this.endConference()">delete</mat-icon>
     </div>
-</div>
+  </div>
   <div class="conference-row">
     <div class="conference-users">
       <app-conference-attendees [conference]="this.conference"></app-conference-attendees>
@@ -24,16 +24,16 @@
       <mat-icon [matTooltip]="joinTooltip()" class="open-icon functional-icon" (click)="this.joinConference()">open_in_new</mat-icon>
    </div>
   </div>
-  <hr>
+  <hr *ngIf="!isPlenary">
 </mat-card-content>
 
 
 <ng-template #hide>
-  <mat-icon *ngIf="this.classroomService.isSelf(this.conference!!.creator!!)" matTooltip="Konferenz ausblenden" class="visibility-icon functional-icon" (click)="this.changeVisibility()">visibility_off</mat-icon>
+  <mat-icon *ngIf="this.classroomService.isSelf(this.conference!!.creator!!) && !isPlenary" matTooltip="Konferenz ausblenden" class="visibility-icon functional-icon" (click)="this.changeVisibility()">visibility_off</mat-icon>
 </ng-template>
 
 <ng-template #show>
-  <mat-icon *ngIf="this.classroomService.isSelf(this.conference!!.creator!!)" matTooltip="Konferenz einblenden" class="visibility-icon functional-icon" (click)="this.changeVisibility()">visibility_on</mat-icon>
+  <mat-icon *ngIf="this.classroomService.isSelf(this.conference!!.creator!!) && !isPlenary" matTooltip="Konferenz einblenden" class="visibility-icon functional-icon" (click)="this.changeVisibility()">visibility_on</mat-icon>
 </ng-template>
 
 
