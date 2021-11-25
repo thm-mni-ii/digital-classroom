@@ -26,8 +26,9 @@ export class ConferenceListComponent implements OnInit {
       conferences => this.setConferences(conferences)
     )
     this.classroomService.classroomInfoObservable.subscribe(
-      _ => this.setConferences(this.conferences!!)
-    )
+      _ => {
+        this.setConferences(this.conferences!!)
+      })
   }
 
   public isPlenaryConference(conference: ConferenceInfo): boolean {

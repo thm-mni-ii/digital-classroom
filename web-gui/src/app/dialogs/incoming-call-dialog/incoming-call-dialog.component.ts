@@ -17,6 +17,7 @@ export class IncomingCallDialogComponent implements OnInit {
     loop: true,
     volume: 0.5
   })
+  invitationText: string = ""
 
   constructor(public dialogRef: MatDialogRef<IncomingCallDialogComponent>,
               public classroomService: ClassroomService,
@@ -24,13 +25,15 @@ export class IncomingCallDialogComponent implements OnInit {
               @Inject(MAT_DIALOG_DATA) public invitation: InvitationEvent) { }
 
   ngOnInit(): void {
-    if (this.invitation.inviter === undefined) throw new Error("Inviter is undefined!")
     if (this.invitation.conferenceInfo === undefined) throw new Error("Conference invited to is undefined!")
+    if (this.invitation.inviter === undefined) this.invitationText = "Bitte dem Plenum beitreten: " + this.invitation.conferenceInfo.conferenceName
+    else this.invitationText = this.invitation.inviter.fullName + 'lädt Sie zu ' + this.invitation.conferenceInfo.conferenceName + 'ein!'
+
 
     const notification = new Notification('Konferenzeinladung',
-      {body: this.invitation.inviter.fullName + 'lädt Sie zur Konferenz ' + this.invitation.conferenceInfo.conferenceName + 'ein!'});
+      {body: this.invitationText});
     notification.onclick = () => window.focus();
-    notification.onclose = () => window.focus();
+    notification.onclose = () => this.sound.stop();
 
     this.sound.play()
     this.dialogRef.afterClosed().subscribe(() => {

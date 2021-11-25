@@ -68,7 +68,7 @@ export class ClassroomService {
   private users: User[] = []
 
   private classroomInfoSubject: Subject<ClassroomInfo> = new BehaviorSubject(new ClassroomInfo())
-  classroomInfoObservable: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
+  public classroomInfoObservable: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
 
   public classroomInfo: ClassroomInfo | undefined
   public currentUser: User | undefined
@@ -103,6 +103,10 @@ export class ClassroomService {
     this.classroomInfoObservable.subscribe(info => {
       this.classroomInfo = info
       this.logoutService.classroomInfo = info
+      if (info.plenaryConference !== null) {
+        const conf = this.conferences.find(conf => conf.conferenceId === info.plenaryConference)
+        if (!conf?.attendeeIds.includes(this.currentUser?.userId!!)) this.autoJoinPlenaryConference(conf!!)
+      }
     })
     this.userDisplayObservable.subscribe(users => this.users = users)
     this.conferencesObservable.subscribe(conferences => {
@@ -179,7 +183,13 @@ export class ClassroomService {
     }).beforeClosed()
   }
 
-  private handleInviteMsg(invitationEvent: InvitationEvent) {
+  private autoJoinPlenaryConference(conferenceInfo: ConferenceInfo) {
+    const plenaryInvitation = new InvitationEvent()
+    plenaryInvitation.conferenceInfo = conferenceInfo
+    this.handleInviteMsg(plenaryInvitation)
+  }
+
+  public handleInviteMsg(invitationEvent: InvitationEvent) {
     this.dialog.open(IncomingCallDialogComponent, {
         height: 'auto',
         width: 'auto',
@@ -270,7 +280,7 @@ export class ClassroomService {
     return this.conferences.find(conference => conference.conferenceId === ticket.conferenceId)
   }
 
-  getConfirmation(question: string): Observable<boolean> {
+  public getConfirmation(question: string): Observable<boolean> {
     return this.dialog.open(ConfirmationDialogComponent, {
       height: 'auto',
       width: 'auto',
