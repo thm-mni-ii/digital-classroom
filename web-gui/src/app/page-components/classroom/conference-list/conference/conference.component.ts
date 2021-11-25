@@ -15,6 +15,7 @@ export class ConferenceComponent {
 
   @Input() conference?: ConferenceInfo
   @Input() currentUser?: User
+  @Input() isPlenary: boolean = false
 
   ticket: Ticket | null = null
 

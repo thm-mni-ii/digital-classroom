@@ -10,7 +10,7 @@ import {Ticket} from "../model/Ticket";
 import {TicketService} from "./ticket.service";
 import {
   filter,
-  map,
+  map, mergeMap,
   tap
 } from "rxjs/operators";
 import {UserService} from "./user.service";
@@ -33,6 +33,7 @@ import {
 } from "../dialogs/link-conference-to-ticket-dialog/link-conference-to-ticket-dialog.component";
 import {ConfirmationDialogComponent} from "../dialogs/confirmation-dialog/confirmation-dialog.component";
 import {InvitationEvent} from "../rsocket/event/InvitationEvent";
+import {EventListenerService} from "../rsocket/event-listener.service";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and
@@ -81,7 +82,8 @@ export class ClassroomService {
     public ticketService: TicketService,
     public userService: UserService,
     private notification: NotificationService,
-    private logoutService: LogoutService
+    private logoutService: LogoutService,
+    private eventListenerService: EventListenerService
   ) {
     this.connectToBackend()
   }
@@ -111,6 +113,7 @@ export class ClassroomService {
       )
     })
     this.conferenceService.invitationEvents.subscribe(invitation => this.handleInviteMsg(invitation))
+    this.eventListenerService.classroomChanges.subscribe(changes => this.classroomInfoSubject.next(changes.classroomInfo))
   }
 
   public isCurrentUserPrivileged(): boolean {
@@ -237,9 +240,9 @@ export class ClassroomService {
       data: new CreateConferenceInputData(this.classroomInfo!!, this.currentUser!!, plenary)
     }).beforeClosed().pipe(
       filter(conferenceInfo => conferenceInfo instanceof ConferenceInfo),
-    ).subscribe((conferenceInfo: ConferenceInfo) => {
-      this.conferenceService.createConference(conferenceInfo)
-    });
+      mergeMap((conferenceInfo: ConferenceInfo) => this.conferenceService.createConference(conferenceInfo)),
+      tap((conferenceInfo: ConferenceInfo) => { if (plenary) this.conferenceService.setPlenary(conferenceInfo) })
+    ).subscribe();
   }
 
   public linkTicketToConference(ticket: Ticket) {

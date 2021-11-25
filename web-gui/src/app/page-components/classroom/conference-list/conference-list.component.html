@@ -2,7 +2,7 @@
   <div class="list-header">
     Konferenzen
     <mat-icon
-      *ngIf="classroomService.isCurrentUserPrivileged()"
+      *ngIf="classroomService.isCurrentUserPrivileged() && this.plenaryConference === undefined"
       matTooltip="Plenum erstellen"
       class="create-icon functional-icon"
       svgIcon="create-plenary-conf"
@@ -17,10 +17,15 @@
   </div>
 
   <mat-list class="conference-list">
+    <app-conference [conference]="plenaryConference"
+                    [currentUser]="currentUser"
+                    [isPlenary]="true">
+    </app-conference>
     <app-conference
-      *ngFor="let conference of this.conferences;"
+      *ngFor="let conference of this.conferences!!;"
       [conference]="conference"
       [currentUser]="currentUser"
+      [isPlenary]="false"
     ></app-conference>
   </mat-list>
 </div>

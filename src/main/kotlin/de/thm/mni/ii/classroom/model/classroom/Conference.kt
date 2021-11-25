@@ -14,6 +14,7 @@ class Conference(
     val attendees: LinkedHashSet<UserCredentials>,
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now(),
 ) : ClassroomDependent {
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -30,6 +31,10 @@ class Conference(
         var result = classroomId.hashCode()
         result = 31 * result + conferenceId.hashCode()
         return result
+    }
+
+    override fun toString(): String {
+        return "$conferenceId / $conferenceName"
     }
 
     fun toConferenceInfo(): ConferenceInfo {

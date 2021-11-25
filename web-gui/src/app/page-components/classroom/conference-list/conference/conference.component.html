@@ -1,6 +1,7 @@
 <mat-card-content *ngIf="conference !== undefined"
                   [class.attended-conference] = "this.isUserAttending()"
-                  [class.invisible]="!this.conference.visible">
+                  [class.invisible]="!this.conference.visible"
+                  [class.plenary]="this.isPlenary">
   <div class="conference-row">
     <div class="conference-desc">
       <mat-icon class="conference-icon">videocam</mat-icon>
