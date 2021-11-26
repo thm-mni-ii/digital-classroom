@@ -20,6 +20,6 @@ WORKDIR /build/
 RUN gradle dist -i -x npm_run_clean -x npm_run_build
 
 FROM openjdk:11-jdk-slim
-COPY --from=build-gradle /build/build/libs/*.jar /app/digital-classroom.jar
+COPY --from=build-gradle /build/build/libs/digital-classroom-0.0.1-SNAPSHOT.jar /app/digital-classroom.jar
 EXPOSE 8085
 ENTRYPOINT ["java","-jar","/app/digital-classroom.jar"]
