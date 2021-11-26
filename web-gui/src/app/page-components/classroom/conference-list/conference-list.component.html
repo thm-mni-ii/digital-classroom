@@ -1,14 +1,27 @@
 <div class="list-container">
   <div class="list-header">
     Konferenzen
-    <mat-icon matTooltip="Konferenz erstellen" class="create-icon functional-icon" svgIcon="create-conference" (click)="this.createConference()"></mat-icon>
+    <mat-icon
+      *ngIf="classroomService.isCurrentUserPrivileged() && this.plenaryConference === undefined"
+      matTooltip="Plenum erstellen"
+      class="create-icon functional-icon"
+      svgIcon="create-plenary-conf"
+      (click)="this.classroomService.createConference(true)">
+    </mat-icon>
+    <mat-icon
+      matTooltip="Konferenz erstellen"
+      class="create-icon functional-icon"
+      svgIcon="create-conference"
+      (click)="this.classroomService.createConference()">
+    </mat-icon>
   </div>
 
   <mat-list class="conference-list">
     <app-conference
-      *ngFor="let conference of this.conferences;"
+      *ngFor="let conference of this.conferences!!;"
       [conference]="conference"
       [currentUser]="currentUser"
+      [isPlenary]="this.isPlenaryConference(conference)"
     ></app-conference>
   </mat-list>
 </div>

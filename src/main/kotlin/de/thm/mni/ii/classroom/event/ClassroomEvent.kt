@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import de.thm.mni.ii.classroom.model.classroom.ClassroomInfo
 import java.io.Serializable
 
 @Suppress("unused")
@@ -19,4 +20,8 @@ abstract class ClassroomEvent(
     private val eventName: String
 ) : Serializable {
     @JsonIgnore abstract fun getClassroomId(): String
+}
+
+class ClassroomChangeEvent(val classroomInfo: ClassroomInfo): ClassroomEvent(ClassroomChangeEvent::class.simpleName!!) {
+    @JsonIgnore override fun getClassroomId() = classroomInfo.classroomId
 }

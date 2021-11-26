@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.5.5"
+    id("org.springframework.boot") version "2.5.6"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     idea
     kotlin("jvm") version "1.4.32"
@@ -54,33 +54,4 @@ tasks.withType<Test> {
 
 tasks.register("dist") {
     dependsOn("build", "web-gui:copyWebToBackend")
-}
-
-sourceSets {
-    main {
-        withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
-            this.kotlin.srcDirs("src/main/kotlin")
-        }
-        java {
-            setSrcDirs(emptyList<String>())
-        }
-    }
-    test {
-        withConvention(org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet::class) {
-            this.kotlin.srcDirs("src/test/kotlin")
-        }
-        java {
-            setSrcDirs(emptyList<String>())
-        }
-    }
-}
-
-idea {
-    module {
-        val kaptMain = file("${project.buildDir}/generated/source/kapt/main")
-        sourceDirs.add(kaptMain)
-        generatedSourceDirs.add(kaptMain)
-        outputDir = file("${project.buildDir}/classes/main")
-        testOutputDir = file("${project.buildDir}/classes/test")
-    }
 }

@@ -6,4 +6,5 @@ class ClassroomInfo(
     val classroomId: String,
     val classroomName: String,
     val logoutUrl: URL?,
+    val plenaryConference: String?
 )

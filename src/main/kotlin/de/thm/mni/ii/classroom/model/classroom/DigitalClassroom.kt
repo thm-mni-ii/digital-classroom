@@ -40,7 +40,7 @@ class DigitalClassroom(
 
     val creationTimestamp: ZonedDateTime = ZonedDateTime.now()
 
-    fun getClassroomInfo() = ClassroomInfo(classroomId, classroomName, logoutUrl)
+    fun getClassroomInfo() = ClassroomInfo(classroomId, classroomName, logoutUrl, conferences.getPlenaryConference())
     fun hasUserJoined() = users.isNotEmpty()
     fun hasBeenForciblyEnded() = false
     fun getDuration() = ChronoUnit.MINUTES.between(creationTimestamp, ZonedDateTime.now())

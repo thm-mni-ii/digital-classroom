@@ -10,7 +10,7 @@ import {Ticket} from "../model/Ticket";
 import {TicketService} from "./ticket.service";
 import {
   filter,
-  map,
+  map, mergeMap,
   tap
 } from "rxjs/operators";
 import {UserService} from "./user.service";
@@ -18,7 +18,6 @@ import {Roles} from "../model/Roles";
 import {CreateEditTicketComponent, TicketEditData} from "../dialogs/create-edit-ticket/create-edit-ticket.component";
 import {ConferenceInfo} from "../model/ConferenceInfo";
 import {ClassroomInfo} from "../model/ClassroomInfo";
-import {InvitationEvent} from "../rsocket/event/ClassroomEvent";
 import {InviteToConferenceDialogComponent} from "../dialogs/invite-to-conference-dialog/invite-to-conference-dialog.component";
 import {Router} from "@angular/router";
 import {NotificationService} from "./notification.service";
@@ -33,6 +32,8 @@ import {
   LinkConferenceToTicketDialogComponent
 } from "../dialogs/link-conference-to-ticket-dialog/link-conference-to-ticket-dialog.component";
 import {ConfirmationDialogComponent} from "../dialogs/confirmation-dialog/confirmation-dialog.component";
+import {InvitationEvent} from "../rsocket/event/InvitationEvent";
+import {EventListenerService} from "../rsocket/event-listener.service";
 
 /**
  * Service that provides observables that asynchronously updates tickets, users and
@@ -67,7 +68,7 @@ export class ClassroomService {
   private users: User[] = []
 
   private classroomInfoSubject: Subject<ClassroomInfo> = new BehaviorSubject(new ClassroomInfo())
-  classroomInfoObservable: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
+  public classroomInfoObservable: Observable<ClassroomInfo> = this.classroomInfoSubject.asObservable()
 
   public classroomInfo: ClassroomInfo | undefined
   public currentUser: User | undefined
@@ -81,7 +82,8 @@ export class ClassroomService {
     public ticketService: TicketService,
     public userService: UserService,
     private notification: NotificationService,
-    private logoutService: LogoutService
+    private logoutService: LogoutService,
+    private eventListenerService: EventListenerService
   ) {
     this.connectToBackend()
   }
@@ -101,6 +103,10 @@ export class ClassroomService {
     this.classroomInfoObservable.subscribe(info => {
       this.classroomInfo = info
       this.logoutService.classroomInfo = info
+      if (info.plenaryConference !== null) {
+        const conf = this.conferences.find(conf => conf.conferenceId === info.plenaryConference)
+        if (!conf?.attendeeIds.includes(this.currentUser?.userId!!)) this.autoJoinPlenaryConference(conf!!)
+      }
     })
     this.userDisplayObservable.subscribe(users => this.users = users)
     this.conferencesObservable.subscribe(conferences => {
@@ -111,6 +117,7 @@ export class ClassroomService {
       )
     })
     this.conferenceService.invitationEvents.subscribe(invitation => this.handleInviteMsg(invitation))
+    this.eventListenerService.classroomChanges.subscribe(changes => this.classroomInfoSubject.next(changes.classroomInfo))
   }
 
   public isCurrentUserPrivileged(): boolean {
@@ -176,7 +183,13 @@ export class ClassroomService {
     }).beforeClosed()
   }
 
-  private handleInviteMsg(invitationEvent: InvitationEvent) {
+  private autoJoinPlenaryConference(conferenceInfo: ConferenceInfo) {
+    const plenaryInvitation = new InvitationEvent()
+    plenaryInvitation.conferenceInfo = conferenceInfo
+    this.handleInviteMsg(plenaryInvitation)
+  }
+
+  public handleInviteMsg(invitationEvent: InvitationEvent) {
     this.dialog.open(IncomingCallDialogComponent, {
         height: 'auto',
         width: 'auto',
@@ -230,16 +243,16 @@ export class ClassroomService {
     this.router.navigate(["/logout"], ).then()
   }
 
-  public createConference() {
+  public createConference(plenary: boolean = false) {
     this.dialog.open(CreateConferenceDialogComponent, {
       height: 'auto',
       width: 'auto',
-      data: new CreateConferenceInputData(this.classroomInfo!!, this.currentUser!!)
+      data: new CreateConferenceInputData(this.classroomInfo!!, this.currentUser!!, plenary)
     }).beforeClosed().pipe(
       filter(conferenceInfo => conferenceInfo instanceof ConferenceInfo),
-    ).subscribe((conferenceInfo: ConferenceInfo) => {
-      this.conferenceService.createConference(conferenceInfo)
-    });
+      mergeMap((conferenceInfo: ConferenceInfo) => this.conferenceService.createConference(conferenceInfo)),
+      tap((conferenceInfo: ConferenceInfo) => { if (plenary) this.conferenceService.setPlenary(conferenceInfo) })
+    ).subscribe();
   }
 
   public linkTicketToConference(ticket: Ticket) {
@@ -267,7 +280,7 @@ export class ClassroomService {
     return this.conferences.find(conference => conference.conferenceId === ticket.conferenceId)
   }
 
-  getConfirmation(question: string): Observable<boolean> {
+  public getConfirmation(question: string): Observable<boolean> {
     return this.dialog.open(ConfirmationDialogComponent, {
       height: 'auto',
       width: 'auto',

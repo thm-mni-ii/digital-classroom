@@ -3,9 +3,10 @@ import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {finalize, tap} from "rxjs/operators";
 import {RSocketService} from "../rsocket/r-socket.service";
 import {EventListenerService} from "../rsocket/event-listener.service";
-import {ConferenceAction, ConferenceEvent, InvitationEvent} from "../rsocket/event/ClassroomEvent";
 import {UserCredentials} from "../model/User";
 import {ConferenceInfo, JoinLink} from "../model/ConferenceInfo";
+import {ConferenceAction, ConferenceEvent} from "../rsocket/event/ConferenceEvent";
+import {InvitationEvent} from "../rsocket/event/InvitationEvent";
 
 @Injectable({
   providedIn: 'root'
@@ -181,6 +182,13 @@ export class ConferenceService {
       }
     })
     return ret
+  }
+
+  public setPlenary(conferenceInfo: ConferenceInfo) {
+    const conferenceEvent = new ConferenceEvent()
+    conferenceEvent.conferenceInfo = conferenceInfo
+    conferenceEvent.conferenceAction = ConferenceAction.PLENARY
+    this.rSocketService.fireAndForget("socket/classroom-event", conferenceEvent)
   }
 }
 
