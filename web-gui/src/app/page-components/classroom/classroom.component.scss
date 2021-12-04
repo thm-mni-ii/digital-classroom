@@ -4,12 +4,10 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  position: relative;
 
-  app-menu-bar {
-    display: block;
-    padding: 16px;
-    z-index: 2;
-    position: relative;
+  app-footer {
+    width: 40%;
   }
 
   .classroom-body {

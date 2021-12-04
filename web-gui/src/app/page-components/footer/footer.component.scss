@@ -1,0 +1,17 @@
+.footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 40%;
+  position: absolute;
+  right: 30%;
+  z-index: 2;
+  bottom: 0;
+
+  .footer-item {
+    margin: 10px;
+    cursor:pointer;
+    color:blue;
+    text-decoration:underline;
+  }
+}

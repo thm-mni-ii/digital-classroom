@@ -44,6 +44,7 @@ import {LinkConferenceToTicketDialogComponent} from "./dialogs/link-conference-t
 import { UserListEntryComponent } from './page-components/classroom/user-list/user-list-entry/user-list-entry.component';
 import {ConfirmationDialogComponent} from "./dialogs/confirmation-dialog/confirmation-dialog.component";
 import {ChooseConferenceDialogComponent} from "./dialogs/choose-conference-dialog/choose-conference-dialog.component";
+import { FooterComponent } from './page-components/footer/footer.component';
 
 
 @NgModule({
@@ -77,7 +78,8 @@ import {ChooseConferenceDialogComponent} from "./dialogs/choose-conference-dialo
     TicketUserDisplayComponent,
     UserListEntryComponent,
     ConfirmationDialogComponent,
-    ChooseConferenceDialogComponent
+    ChooseConferenceDialogComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule,
