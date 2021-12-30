@@ -38,3 +38,12 @@ spring:
       transport: websocket
       ssl.enabled: true
 
+management:
+  metrics:
+    export:
+      influx:
+        uri: http://${INFLUX_HOST:localhost}:8086
+        db: digitalClassroomDb
+        password: PASSWORD
+        user-name: admin
+        enabled: ${ENABLE_INFLUX:false}

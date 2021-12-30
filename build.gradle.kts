@@ -24,6 +24,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-rsocket")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
@@ -32,12 +33,13 @@ dependencies {
     implementation("org.hibernate:hibernate-validator:6.0.16.Final")
     implementation("commons-codec:commons-codec:1.15")
     implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("io.micrometer:micrometer-registry-influx")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     // Java 11 removed these Java EE modules
     implementation("javax.xml.bind:jaxb-api:2.3.1")
-    implementation("com.sun.xml.bind:jaxb-core:2.3.0.1")
+    implementation("com.sun.xml.bind:jaxb-core:3.0.1")
     implementation("com.sun.xml.bind:jaxb-impl:2.3.2")
 }
 
