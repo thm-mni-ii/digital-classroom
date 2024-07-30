@@ -37,4 +37,3 @@ spring:
       mapping-path: /rsocket
       transport: websocket
       ssl.enabled: true
-

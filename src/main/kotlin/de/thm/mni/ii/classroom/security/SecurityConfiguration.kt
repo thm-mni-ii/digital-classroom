@@ -4,6 +4,7 @@ import de.thm.mni.ii.classroom.security.classroom.ClassroomHttpJwtSecurity
 import de.thm.mni.ii.classroom.security.classroom.ClassroomHttpSessionTokenSecurity
 import de.thm.mni.ii.classroom.security.downstream.DownstreamAPISecurity
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
@@ -16,6 +17,7 @@ import kotlin.text.Charsets.UTF_8
 /**
  * Main security configuration of the digital classroom.
  */
+@Configuration
 @EnableWebFluxSecurity
 class SecurityConfiguration(
     private val classroomHttpSessionTokenSecurity: ClassroomHttpSessionTokenSecurity,

@@ -53,16 +53,13 @@ class ClassroomRSocketJwtSecurity {
         return mh
     }
 
+    private class JwtToAuthenticationConverter : Converter<Jwt, Mono<ClassroomAuthentication>> {
+        override fun convert(source: Jwt): Mono<ClassroomAuthentication> =
+            Mono.just(source).map {jwt: Jwt -> ClassroomAuthentication(UserCredentials(jwt.claims), jwt.tokenValue)}
+    }
+
     @Bean
     fun jwtToAuthenticationConverter(): Converter<Jwt, Mono<ClassroomAuthentication>> {
-        return Converter<Jwt, Mono<ClassroomAuthentication>> { jwt ->
-
-            fun delegateMono(jwt: Jwt): ClassroomAuthentication {
-                val userCredentials = UserCredentials(jwt.claims)
-                return ClassroomAuthentication(userCredentials, jwt.tokenValue)
-            }
-
-            Mono.just(jwt).map(::delegateMono)
-        }
+        return JwtToAuthenticationConverter()
     }
 }

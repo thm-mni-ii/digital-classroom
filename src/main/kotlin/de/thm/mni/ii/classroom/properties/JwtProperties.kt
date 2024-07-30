@@ -3,11 +3,9 @@ package de.thm.mni.ii.classroom.properties
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.Range
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 import javax.validation.constraints.NotBlank
 
 @ConfigurationProperties(prefix = "jwt")
-@ConstructorBinding
 data class JwtProperties(
 
     /**

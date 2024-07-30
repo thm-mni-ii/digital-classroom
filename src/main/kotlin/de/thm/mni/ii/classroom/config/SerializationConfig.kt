@@ -39,7 +39,7 @@ class SerializationConfig : WebFluxConfigurer {
     fun objectMapper(): ObjectMapper {
         val om = ObjectMapper()
         om.registerModule(JavaTimeModule())
-        om.registerModule(KotlinModule())
+        om.registerModule(KotlinModule.Builder().build())
         return om
     }
 
